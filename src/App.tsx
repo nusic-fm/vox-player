@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import * as Tone from "tone";
 // import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
@@ -33,7 +33,7 @@ import RepeatRoundedIcon from "@mui/icons-material/RepeatRounded";
 import EqualizerRoundedIcon from "@mui/icons-material/EqualizerRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import axios from "axios";
-import { createVoiceDoc } from "./services/storage/voices.servics";
+import { createUserDoc, getUserById, User } from "./services/db/users.service";
 
 type Props = {};
 
@@ -387,8 +387,10 @@ const artistsObj: {
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID as string;
 const redirectUri = import.meta.env.VITE_REDIRECT_URL as string;
+const localStorageAccessTokenKey = "nusic_discord_access_token";
+const localStorageTokenTypeKey = "nusic_discord_token_type";
 
-const responseType = "code";
+const responseType = "token";
 const scope = "identify+email";
 
 const VoxPlayer = (props: Props) => {
@@ -436,6 +438,7 @@ const VoxPlayer = (props: Props) => {
   const [newAiCoverContentUrl, setNewAiContentCoverUrl] = useState("");
   const sectionsBarRef = useRef<HTMLDivElement | null>(null);
   const [songLoading, setSongLoading] = useState(false);
+  const [user, setUser] = useState<User>();
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
@@ -516,6 +519,61 @@ const VoxPlayer = (props: Props) => {
     setVoiceLoading(false);
   };
 
+  const fetchUser = async (
+    _tokenType: string,
+    _accessToken: string,
+    isAlertOnFail: boolean = true
+  ) => {
+    const url = "https://discord.com/api/users/@me";
+    try {
+      const response = await axios.get(url, {
+        headers: { Authorization: `${_tokenType} ${_accessToken}` },
+      });
+      const { username, id, avatar, email } = response.data;
+      const userDocDb = await createUserDoc(id, {
+        name: username,
+        uid: id,
+        avatar,
+        email,
+      });
+      if (userDocDb) {
+        // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
+        setUser(userDocDb);
+        window.history.replaceState(null, "", window.location.origin);
+      }
+    } catch (e) {
+      if (isAlertOnFail) {
+        // setShowAlertMessage("Please click Sign In to continue");
+      }
+    }
+  };
+  // const refreshUser = async () => {
+  //   if (user?.uid) {
+  //     const _user = await getUserById(user?.uid);
+  //     setUser(_user);
+  //   }
+  // };
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.pathname.slice(1));
+    const _accessToken = searchParams.get("access_token");
+    const _tokenType = searchParams.get("token_type");
+    if (_accessToken && _tokenType) {
+      window.localStorage.setItem(localStorageAccessTokenKey, _accessToken);
+      window.localStorage.setItem(localStorageTokenTypeKey, _tokenType);
+      fetchUser(_tokenType, _accessToken);
+      // setTokenType(_tokenType);
+      // setAccessToken(_accessToken);
+    } else if (!user) {
+      const _accessToken = window.localStorage.getItem(
+        localStorageAccessTokenKey
+      );
+      const _tokenType = window.localStorage.getItem(localStorageTokenTypeKey);
+      if (_accessToken && _tokenType) {
+        fetchUser(_tokenType, _accessToken, false);
+      }
+    }
+  }, []);
   // const fetchYoutubeVideoInfo = async (id: string) => {
   //   const vid = (artistsObj as any)[id]?.vid;
   //   if (vid) {
@@ -578,15 +636,19 @@ const VoxPlayer = (props: Props) => {
             }}
             color="secondary"
           /> */}
-          <Button
-            size="small"
-            variant="contained"
-            // onClick={onSignInWithFb}
-            href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-            startIcon={<img src="/discord.png" alt="" width={"22px"} />}
-          >
-            Sign in
-          </Button>
+          {user ? (
+            <Chip label={user.name} />
+          ) : (
+            <Button
+              size="small"
+              variant="contained"
+              // onClick={onSignInWithFb}
+              href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+              startIcon={<img src="/discord.png" alt="" width={"22px"} />}
+            >
+              Sign in
+            </Button>
+          )}
         </Box>
         <Divider />
         <Stack gap={2} py={2} width="100%">
@@ -622,7 +684,7 @@ const VoxPlayer = (props: Props) => {
                   }}
                 >
                   {loading && artistKey === songId ? (
-                    <CircularProgress size={"24px"} color="secondary" />
+                    <CircularProgress size={"20px"} color="secondary" />
                   ) : isTonePlaying && artistKey === songId ? (
                     <PauseRounded />
                   ) : (

@@ -1,4 +1,4 @@
-import { addDoc, collection, doc } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase.service";
 
 const voices = [
