@@ -12,8 +12,6 @@ import {
   // Link,
 } from "react-router-dom";
 import VoxPlayer from "./App";
-import WithNavbar from "./components/WithNavBar";
-import { config } from "./config";
 import GlobalStateProvider from "./components/providers/GlobalStateProvider";
 
 export const GlobalStateContext = createContext<any>(null);
@@ -23,18 +21,16 @@ export const useGlobalState = () => useContext(GlobalStateContext);
 const router = createHashRouter([
   {
     path: "/",
-    element: (
-        <VoxPlayer />
-    ),
+    element: <VoxPlayer />,
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-          <GlobalStateProvider>
-            <RouterProvider router={router} />
-          </GlobalStateProvider>
+      <GlobalStateProvider>
+        <RouterProvider router={router} />
+      </GlobalStateProvider>
     </ThemeProvider>
   </React.StrictMode>
 );
