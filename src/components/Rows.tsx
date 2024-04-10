@@ -224,7 +224,7 @@ const Rows = (props: Props) => {
                 </IconButton>
               </Box>
               <Avatar
-                src={`https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/avatars%2Fcovers%2F${id}.webp?alt=media`}
+                src={getCoverCreatorAvatar(coverDoc.voices[0].avatar)}
                 onMouseEnter={(e) => handleClick(e, i)}
                 // onMouseLeave={handleClose}
               />
@@ -296,9 +296,28 @@ const Rows = (props: Props) => {
               </Popover> */}
               <Stack gap={1} width="100%">
                 <Box display={"flex"} alignItems="center" gap={2}>
-                  <Typography>{coverDoc.songName}</Typography>
+                  <Stack>
+                    <Typography
+                      variant="caption"
+                      color={
+                        voiceId === coverDoc.voices[0].id && songId === id
+                          ? "#8973F8"
+                          : "#fff"
+                      }
+                      component="a"
+                      onClick={() =>
+                        onVoiceChange(
+                          coverDoc.voices[0].id,
+                          coverDoc.voices[0].name
+                        )
+                      }
+                    >
+                      {coverDoc.voices[0].name}
+                    </Typography>
+                    <Typography>{coverDoc.songName}</Typography>
+                  </Stack>
                   {songId === id &&
-                    coverDoc.voices.map((v, i) => (
+                    coverDoc.voices.slice(1).map((v, i) => (
                       <Chip
                         avatar={
                           <Avatar src={getCoverCreatorAvatar(v.avatar)} />
@@ -307,6 +326,7 @@ const Rows = (props: Props) => {
                         key={v.name}
                         label={v.name}
                         variant={voiceId === v.id ? "outlined" : "filled"}
+                        color={voiceId === v.id ? "info" : "default"}
                         clickable
                         onClick={() => {
                           onVoiceChange(v.id, v.name);

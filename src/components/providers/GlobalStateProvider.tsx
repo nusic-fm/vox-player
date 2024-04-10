@@ -1,14 +1,11 @@
-import { Box, Stack, Typography, IconButton } from "@mui/material";
+import { Box } from "@mui/material";
 import { useState } from "react";
-import PlayArrow from "@mui/icons-material/PlayArrow";
-import PauseRounded from "@mui/icons-material/PauseRounded";
-import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
-import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
-import * as Tone from "tone";
+
 import { useTonejs } from "../../hooks/useToneService";
 import { GlobalStateContext } from "../../main";
+import FooterPlayer from "../FooterPlayer";
 
-type MusicState = {
+export type MusicState = {
   songId: string;
   voiceId?: string;
   songImg: string;
@@ -33,6 +30,8 @@ const GlobalStateProvider = ({ children }: any) => {
     stopPlayer,
     pausePlayer,
     playPlayer,
+    switchMute,
+    isMuted,
   } = useTonejs();
   const [songId, setSongId] = useState("");
   const [voiceId, setVoiceId] = useState("");
@@ -87,68 +86,18 @@ const GlobalStateProvider = ({ children }: any) => {
       <Box sx={{ overflowY: "auto" }} height="90vh">
         {children}
       </Box>
-      <Box display={"flex"} justifyContent="center">
-        {songInfo?.songId && (
-          <Box
-            position={"absolute"}
-            width={{ xs: "calc(100% - 16px)", md: "950px" }}
-            height={"8vh"}
-            bottom={0}
-            p={2}
-            px={4}
-            display="flex"
-            gap={4}
-            alignItems="center"
-            sx={{ bgcolor: "rgb(20, 20, 20)" }}
-          >
-            <img
-              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`}
-              alt=""
-              width={40}
-              style={{ borderRadius: "50%" }}
-            />
-            <Stack gap={1}>
-              <Typography>{songInfo.songName}</Typography>
-              <Typography variant="caption">
-                {songInfo.voices.filter((v) => v.id === voiceId).at(0)?.name ||
-                  "Original"}
-              </Typography>
-            </Stack>
-            <Box alignItems={"center"}>
-              <IconButton
-                disabled={loading}
-                onClick={() => {
-                  Tone.Transport.seconds -= 10;
-                  if (!isTonePlaying) playPlayer();
-                }}
-              >
-                <Replay10RoundedIcon />
-              </IconButton>
-              <IconButton
-                disabled={loading}
-                onClick={async () => {
-                  if (isTonePlaying) {
-                    pausePlayer();
-                  } else {
-                    playPlayer();
-                  }
-                }}
-              >
-                {isTonePlaying ? <PauseRounded /> : <PlayArrow />}
-              </IconButton>
-              <IconButton
-                disabled={loading}
-                onClick={() => {
-                  Tone.Transport.seconds += 10;
-                  if (!isTonePlaying) playPlayer();
-                }}
-              >
-                <Forward10RoundedIcon />
-              </IconButton>
-            </Box>
-          </Box>
-        )}
-      </Box>
+      {songId && (
+        <FooterPlayer
+          songInfo={songInfo}
+          loading={loading}
+          voiceId={voiceId}
+          isTonePlaying={isTonePlaying}
+          playPlayer={playPlayer}
+          pausePlayer={pausePlayer}
+          switchMute={switchMute}
+          isMuted={isMuted}
+        />
+      )}
     </GlobalStateContext.Provider>
   );
 };

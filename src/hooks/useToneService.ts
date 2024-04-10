@@ -137,18 +137,28 @@ export const useTonejs = () => {
     }
   };
 
+  const switchMute = () => {
+    if (isMuted) {
+      unMutePlayer();
+    } else {
+      mutePlayer();
+    }
+  };
+
   const mutePlayer = () => {
     setIsMuted(true);
-    if (playerRef.current) {
+    if (playerRef.current && instrPlayerRef.current) {
       playerRef.current.mute = true;
+      instrPlayerRef.current.mute = true;
       // currentPlayer.stop(currentPlayer.now() + 0.1);
     }
   };
 
   const unMutePlayer = () => {
     setIsMuted(false);
-    if (playerRef.current) {
+    if (playerRef.current && instrPlayerRef.current) {
       playerRef.current.mute = false;
+      instrPlayerRef.current.mute = false;
       // currentPlayer.start();
     }
   };
@@ -176,6 +186,7 @@ export const useTonejs = () => {
     switchLoop,
     loop,
     initializeTone,
+    switchMute,
     // changeInstrAudio,
   };
 };
