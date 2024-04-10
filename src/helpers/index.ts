@@ -15,6 +15,13 @@ export const getYouTubeVideoId = (url: string) => {
     return null;
   }
 };
+
+export const getCoverCreatorAvatar = (id: string) => {
+  if (id.length <= 2) {
+    return `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/avatars%2F${id}.webp?alt=media`;
+  }
+  return ``; //TODO: Discord avatar url
+};
 // const isLink = (text: string) => {
 //     // Regular expression pattern to match URLs
 //     var urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;

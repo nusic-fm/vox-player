@@ -7,7 +7,6 @@ import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
 import * as Tone from "tone";
 import { useTonejs } from "../../hooks/useToneService";
 import { GlobalStateContext } from "../../main";
-import LoginModal from "../LoginModal";
 
 type MusicState = {
   songId: string;
@@ -36,7 +35,7 @@ const GlobalStateProvider = ({ children }: any) => {
     playPlayer,
   } = useTonejs();
   const [songId, setSongId] = useState("");
-  const [voice, setVoice] = useState("");
+  const [voiceId, setVoiceId] = useState("");
   const [loading, setLoading] = useState(false);
   const [songInfo, setSongInfo] = useState<MusicState>({
     songImg: "",
@@ -51,7 +50,7 @@ const GlobalStateProvider = ({ children }: any) => {
 
   const updateGlobalState = async (newState: MusicState) => {
     setSongId(newState.songId);
-    setVoice(newState.voiceId || "");
+    setVoiceId(newState.voiceId || "");
 
     setSongInfo((prevState: MusicState) => ({
       ...prevState,
@@ -80,7 +79,7 @@ const GlobalStateProvider = ({ children }: any) => {
         stopPlayer,
         pausePlayer,
         playPlayer,
-        voice,
+        voiceId,
         loading,
       }}
     >
@@ -88,67 +87,68 @@ const GlobalStateProvider = ({ children }: any) => {
       <Box sx={{ overflowY: "auto" }} height="90vh">
         {children}
       </Box>
-      <Box display={'flex'} justifyContent='center'>
-      {songInfo?.songId && (
-        <Box
-          position={"absolute"}
-          width={{xs: 'calc(100% - 16px)', md: '950px'}}
-          height={"8vh"}
-          bottom={0}
-          p={2}
-          px={4}
-          display="flex"
-          gap={4}
-          alignItems="center"
-          sx={{ bgcolor: "rgb(20, 20, 20)" }}
-        >
-          <img
-            src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`}
-            alt=""
-            width={40}
-            style={{ borderRadius: "50%" }}
-          />
-          <Stack gap={1}>
-            <Typography>{songInfo.songName}</Typography>
-            <Typography variant="caption">
-              {songInfo.voices.filter((v) => v.id === voice).at(0)?.name ||
-                "Original"}
-            </Typography>
-          </Stack>
-          <Box alignItems={"center"}>
-            <IconButton
-              disabled={loading}
-              onClick={() => {
-                Tone.Transport.seconds -= 10;
-                if (!isTonePlaying) playPlayer();
-              }}
-            >
-              <Replay10RoundedIcon />
-            </IconButton>
-            <IconButton
-              disabled={loading}
-              onClick={async () => {
-                if (isTonePlaying) {
-                  pausePlayer();
-                } else {
-                  playPlayer();
-                }
-              }}
-            >
-              {isTonePlaying ? <PauseRounded /> : <PlayArrow />}
-            </IconButton>
-            <IconButton
-              disabled={loading}
-              onClick={() => {
-                Tone.Transport.seconds += 10;
-                if (!isTonePlaying) playPlayer();
-              }}
-            >
-              <Forward10RoundedIcon />
-            </IconButton>
+      <Box display={"flex"} justifyContent="center">
+        {songInfo?.songId && (
+          <Box
+            position={"absolute"}
+            width={{ xs: "calc(100% - 16px)", md: "950px" }}
+            height={"8vh"}
+            bottom={0}
+            p={2}
+            px={4}
+            display="flex"
+            gap={4}
+            alignItems="center"
+            sx={{ bgcolor: "rgb(20, 20, 20)" }}
+          >
+            <img
+              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`}
+              alt=""
+              width={40}
+              style={{ borderRadius: "50%" }}
+            />
+            <Stack gap={1}>
+              <Typography>{songInfo.songName}</Typography>
+              <Typography variant="caption">
+                {songInfo.voices.filter((v) => v.id === voiceId).at(0)?.name ||
+                  "Original"}
+              </Typography>
+            </Stack>
+            <Box alignItems={"center"}>
+              <IconButton
+                disabled={loading}
+                onClick={() => {
+                  Tone.Transport.seconds -= 10;
+                  if (!isTonePlaying) playPlayer();
+                }}
+              >
+                <Replay10RoundedIcon />
+              </IconButton>
+              <IconButton
+                disabled={loading}
+                onClick={async () => {
+                  if (isTonePlaying) {
+                    pausePlayer();
+                  } else {
+                    playPlayer();
+                  }
+                }}
+              >
+                {isTonePlaying ? <PauseRounded /> : <PlayArrow />}
+              </IconButton>
+              <IconButton
+                disabled={loading}
+                onClick={() => {
+                  Tone.Transport.seconds += 10;
+                  if (!isTonePlaying) playPlayer();
+                }}
+              >
+                <Forward10RoundedIcon />
+              </IconButton>
+            </Box>
           </Box>
-        </Box>
-      )}</Box>
+        )}
+      </Box>
     </GlobalStateContext.Provider>
   );
 };
