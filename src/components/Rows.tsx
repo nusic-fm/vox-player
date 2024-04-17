@@ -16,7 +16,7 @@ import {
 import { Box } from "@mui/system";
 import axios from "axios";
 import { collection } from "firebase/firestore";
-import { useCollectionOnce } from "react-firebase-hooks/firestore";
+import { useCollection } from "react-firebase-hooks/firestore";
 import * as Tone from "tone";
 import { getWidthByDuration, timeToSeconds } from "../helpers/audio";
 import { db } from "../services/firebase.service";
@@ -54,7 +54,7 @@ export type Cover = {
 type Props = { uid?: string };
 
 const Rows = ({ uid }: Props) => {
-  const [collectionSnapshot] = useCollectionOnce(collection(db, "covers"));
+  const [collectionSnapshot] = useCollection(collection(db, "covers"));
   const {
     updateGlobalState,
     songId,
