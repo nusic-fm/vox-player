@@ -1,4 +1,11 @@
-import { Button, Chip, Divider, Stack, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Chip,
+  Divider,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -126,18 +133,15 @@ const VoxPlayer = (props: Props) => {
           </Typography>
         </Box>
         <Box my={2} display="flex" justifyContent={"center"}>
-          {/* <TextField
-            size="small"
-            label="Username"
-            value={userName}
-            onChange={(e) => {
-              setUserName(e.target.value);
-              window.localStorage.setItem("KAMU_USERNAME", e.target.value);
-            }}
-            color="secondary"
-          /> */}
           {user ? (
-            <Chip label={user.name} />
+            <Chip
+              avatar={
+                <Avatar
+                  src={`https://cdn.discordapp.com/avatars/${user.uid}/${user.avatar}`}
+                />
+              }
+              label={user.name}
+            />
           ) : (
             <Button
               size="small"
@@ -151,7 +155,7 @@ const VoxPlayer = (props: Props) => {
           )}
         </Box>
         <Divider />
-        <Rows />
+        <Rows uid={user?.uid} />
       </Stack>
     </Box>
   );

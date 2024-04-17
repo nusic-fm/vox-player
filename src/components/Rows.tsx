@@ -7,6 +7,7 @@ import {
   IconButton,
   Popover,
   Skeleton,
+  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -27,6 +28,8 @@ import { useGlobalState } from "../main";
 import { useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
 import { getCoverCreatorAvatar } from "../helpers";
+import VoiceModelDialog from "./VoiceModelDialog";
+import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
 
 export type Cover = {
   songName: string;
@@ -47,9 +50,9 @@ export type Cover = {
   duration: number;
 };
 
-type Props = {};
+type Props = { uid?: string };
 
-const Rows = (props: Props) => {
+const Rows = ({ uid }: Props) => {
   const [collectionSnapshot] = useCollectionOnce(collection(db, "covers"));
   const {
     updateGlobalState,
@@ -69,18 +72,27 @@ const Rows = (props: Props) => {
   const [sectionPopover, setSectionPopover] = useState<HTMLElement | null>(
     null
   );
-  const [hoverSectionName, setHoverSectionName] = useState("null");
+  const [hoverSectionName, setHoverSectionName] = useState("");
   const [newAiCoverUrl, setNewAiCoverUrl] = useState("");
   const [newAiCoverContentUrl, setNewAiContentCoverUrl] = useState("");
   const [songLoading, setSongLoading] = useState(false);
   const [sectionsWidth, setSectionsWidth] = useState<number[]>([]);
-  const { logs, pushLog, setPrevSeconds, setStartLog } = useSession();
+  const { pushLog, setPrevSeconds, setStartLog } = useSession();
   const [userName, setUserName] = useState(() => {
     return window.localStorage.getItem("KAMU_USERNAME") || "";
   });
   const [started, setStarted] = useState(false);
   const [voiceLoading, setVoiceLoading] = useState(false);
   const sectionsBarRef = useRef<HTMLDivElement | null>(null);
+  // const [revoxInfo, setRevoxInfo] = useState<{
+  //   coverDocId: string;
+  //   creatorId: string;
+  //   vocalsUrl: string;
+  //   voiceModelUrl: string;
+  //   voiceModelName: string;
+  // }>();
+  const [revoxSongInfo, setRevoxSongInfo] = useState<Cover | null>(null);
+  const [successSnackbarMsg, setSuccessSnackbarMsg] = useState("");
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
@@ -167,6 +179,37 @@ const Rows = (props: Props) => {
       });
     }
     setVoiceLoading(false);
+  };
+
+  const onRevoxSubmit = async (
+    voiceModelUrl: string,
+    voiceModelName: string
+  ) => {
+    if (uid && collectionSnapshot) {
+      const docInfo = collectionSnapshot.docs.find((d) => d.id === songId);
+      if (docInfo) {
+        const voiceInfo = (docInfo.data() as Cover).voices.find(
+          (v) => v.id === voiceId
+        );
+        if (voiceInfo) {
+          const progressDocId = await createRevoxProgressDoc({
+            coverDocId: songId,
+            creatorId: uid,
+            voiceModelName,
+            voiceModelUrl,
+          });
+          await axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
+            progress_doc_id: progressDocId,
+            cover_doc_id: songId,
+            voice_model_url: voiceModelUrl,
+            voice_model_name: voiceModelName,
+            uid,
+          });
+          setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
+          setRevoxSongInfo(null);
+        }
+      }
+    }
   };
 
   if (collectionSnapshot?.size)
@@ -316,24 +359,41 @@ const Rows = (props: Props) => {
                     </Typography>
                     <Typography>{coverDoc.songName}</Typography>
                   </Stack>
-                  {songId === id &&
-                    coverDoc.voices.slice(1).map((v, i) => (
-                      <Chip
-                        avatar={
-                          <Avatar src={getCoverCreatorAvatar(v.avatar)} />
-                        }
-                        disabled={loading || voiceLoading}
-                        key={v.name}
-                        label={v.name}
-                        variant={voiceId === v.id ? "outlined" : "filled"}
-                        color={voiceId === v.id ? "info" : "default"}
-                        clickable
-                        onClick={() => {
-                          onVoiceChange(v.id, v.name);
-                          //   setVoice(v.id);
-                        }}
-                      />
-                    ))}
+                  {songId === id && (
+                    <Box
+                      display={"flex"}
+                      justifyContent="space-between"
+                      flexGrow={1}
+                    >
+                      <Box display={"flex"} gap={2} ml={2}>
+                        {coverDoc.voices.slice(1).map((v, i) => (
+                          <Chip
+                            avatar={
+                              <Avatar src={getCoverCreatorAvatar(v.avatar)} />
+                            }
+                            disabled={loading || voiceLoading}
+                            key={v.name}
+                            label={v.name}
+                            variant={voiceId === v.id ? "outlined" : "filled"}
+                            color={voiceId === v.id ? "info" : "default"}
+                            clickable
+                            onClick={() => {
+                              onVoiceChange(v.id, v.name);
+                              //   setVoice(v.id);
+                            }}
+                          />
+                        ))}
+                      </Box>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => setRevoxSongInfo(coverDoc)}
+                        disabled={!uid}
+                      >
+                        Revox
+                      </Button>
+                    </Box>
+                  )}
                 </Box>
                 <Box
                   display={"flex"}
@@ -438,6 +498,14 @@ const Rows = (props: Props) => {
             <source src={newAiCoverUrl} type="audio/mpeg"></source>
           </audio>
         )}
+        {revoxSongInfo && (
+          <VoiceModelDialog
+            onClose={() => setRevoxSongInfo(null)}
+            songInfo={revoxSongInfo}
+            onSubmit={onRevoxSubmit}
+          />
+        )}
+        <Snackbar open={!!successSnackbarMsg} message={successSnackbarMsg} />
       </Stack>
     );
   return (
