@@ -10,6 +10,7 @@ export type RevoxProcessType = {
   voiceModelName: string;
   isComplete: boolean;
   songName: string;
+  status: string;
 };
 const createRevoxProgressDoc = async (
   voiceModelObj: RevoxProcessType

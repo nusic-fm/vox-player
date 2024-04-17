@@ -79,9 +79,16 @@ const Header = ({ user }: Props) => {
             )
           )}
           {pendingRevoxes.map((p) => (
-            <Typography>
-              {p.songName} - {p.voiceModelName}
-            </Typography>
+            <Box display={"flex"} gap={2} alignItems="center">
+              <Typography>
+                {p.songName} - {p.voiceModelName}
+              </Typography>
+              <Chip
+                size="small"
+                label={p.status || "Processing"}
+                color={p.status === "Failed" ? "error" : "default"}
+              />
+            </Box>
           ))}
           {/* <Button variant="contained" onClick={() => }>Logout</Button> */}
         </Stack>

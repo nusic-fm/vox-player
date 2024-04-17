@@ -196,6 +196,7 @@ const Rows = ({ uid }: Props) => {
             voiceModelUrl,
             isComplete: false,
             songName: coverDoc.songName,
+            status: "Processing",
           });
           setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
           axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
