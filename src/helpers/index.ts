@@ -16,11 +16,11 @@ export const getYouTubeVideoId = (url: string) => {
   }
 };
 
-export const getCoverCreatorAvatar = (id: string) => {
-  if (id.length <= 2) {
-    return `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/avatars%2F${id}.webp?alt=media`;
+export const getCoverCreatorAvatar = (uid: string, avatarId: string) => {
+  if (avatarId.length <= 2) {
+    return `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/avatars%2F${avatarId}.webp?alt=media`;
   }
-  return ``; //TODO: Discord avatar url
+  return `https://cdn.discordapp.com/avatars/${uid}/${avatarId}`;
 };
 // const isLink = (text: string) => {
 //     // Regular expression pattern to match URLs

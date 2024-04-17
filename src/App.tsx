@@ -3,6 +3,7 @@ import {
   Button,
   Chip,
   Divider,
+  IconButton,
   Stack,
   Typography,
 } from "@mui/material";
@@ -11,17 +12,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { createUserDoc, User } from "./services/db/users.service";
 import Rows from "./components/Rows";
+import Header from "./components/Header";
 
 type Props = {};
 
-const baseUrl = "https://discord.com/api/oauth2/authorize";
-const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID as string;
-const redirectUri = import.meta.env.VITE_REDIRECT_URL as string;
 const localStorageAccessTokenKey = "nusic_discord_access_token";
 const localStorageTokenTypeKey = "nusic_discord_token_type";
-
-const responseType = "token";
-const scope = "identify+email";
 
 const VoxPlayer = (props: Props) => {
   const [user, setUser] = useState<User>();
@@ -62,7 +58,7 @@ const VoxPlayer = (props: Props) => {
   // };
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.pathname.slice(1));
+    const searchParams = new URLSearchParams(location.hash.slice(1));
     const _accessToken = searchParams.get("access_token");
     const _tokenType = searchParams.get("token_type");
     if (_accessToken && _tokenType) {
@@ -132,28 +128,7 @@ const VoxPlayer = (props: Props) => {
             Streaming On Steroids
           </Typography>
         </Box>
-        <Box my={2} display="flex" justifyContent={"center"}>
-          {user ? (
-            <Chip
-              avatar={
-                <Avatar
-                  src={`https://cdn.discordapp.com/avatars/${user.uid}/${user.avatar}`}
-                />
-              }
-              label={user.name}
-            />
-          ) : (
-            <Button
-              size="small"
-              variant="contained"
-              // onClick={onSignInWithFb}
-              href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
-              startIcon={<img src="/discord.png" alt="" width={"22px"} />}
-            >
-              Sign in
-            </Button>
-          )}
-        </Box>
+        <Header user={user} />
         <Divider />
         <Rows uid={user?.uid} />
       </Stack>

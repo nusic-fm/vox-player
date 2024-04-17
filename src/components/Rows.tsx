@@ -1,5 +1,6 @@
 import { PauseRounded, PlayArrow } from "@mui/icons-material";
 import {
+  Alert,
   Avatar,
   Button,
   Chip,
@@ -97,9 +98,6 @@ const Rows = ({ uid }: Props) => {
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
   };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
   const onSongClick = async (_id: string, endTime: number) => {
     setSongLoading(true);
     const cover = collectionSnapshot?.docs.find((c) => c.id === _id);
@@ -188,24 +186,25 @@ const Rows = ({ uid }: Props) => {
     if (uid && collectionSnapshot) {
       const docInfo = collectionSnapshot.docs.find((d) => d.id === songId);
       if (docInfo) {
-        const voiceInfo = (docInfo.data() as Cover).voices.find(
-          (v) => v.id === voiceId
-        );
+        const coverDoc = docInfo.data() as Cover;
+        const voiceInfo = coverDoc.voices.find((v) => v.id === voiceId);
         if (voiceInfo) {
           const progressDocId = await createRevoxProgressDoc({
             coverDocId: songId,
-            creatorId: uid,
+            uid,
             voiceModelName,
             voiceModelUrl,
+            isComplete: false,
+            songName: coverDoc.songName,
           });
-          await axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
+          setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
+          axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
             progress_doc_id: progressDocId,
             cover_doc_id: songId,
             voice_model_url: voiceModelUrl,
             voice_model_name: voiceModelName,
             uid,
           });
-          setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
           setRevoxSongInfo(null);
         }
       }
@@ -267,7 +266,10 @@ const Rows = ({ uid }: Props) => {
                 </IconButton>
               </Box>
               <Avatar
-                src={getCoverCreatorAvatar(coverDoc.voices[0].avatar)}
+                src={getCoverCreatorAvatar(
+                  coverDoc.voices[0].creatorId,
+                  coverDoc.voices[0].avatar
+                )}
                 onMouseEnter={(e) => handleClick(e, i)}
                 // onMouseLeave={handleClose}
               />
@@ -365,11 +367,21 @@ const Rows = ({ uid }: Props) => {
                       justifyContent="space-between"
                       flexGrow={1}
                     >
-                      <Box display={"flex"} gap={2} ml={2}>
+                      <Box
+                        display={"flex"}
+                        gap={2}
+                        mx={2}
+                        sx={{ overflowX: "auto" }}
+                      >
                         {coverDoc.voices.slice(1).map((v, i) => (
                           <Chip
                             avatar={
-                              <Avatar src={getCoverCreatorAvatar(v.avatar)} />
+                              <Avatar
+                                src={getCoverCreatorAvatar(
+                                  v.creatorId,
+                                  v.avatar
+                                )}
+                              />
                             }
                             disabled={loading || voiceLoading}
                             key={v.name}
@@ -505,7 +517,20 @@ const Rows = ({ uid }: Props) => {
             onSubmit={onRevoxSubmit}
           />
         )}
-        <Snackbar open={!!successSnackbarMsg} message={successSnackbarMsg} />
+        <Snackbar
+          open={!!successSnackbarMsg}
+          autoHideDuration={6000}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert
+            onClose={() => setSuccessSnackbarMsg("")}
+            severity="success"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {successSnackbarMsg}
+          </Alert>
+        </Snackbar>
       </Stack>
     );
   return (

@@ -5,8 +5,8 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import theme from "./theme";
 import {
-  // createBrowserRouter,
-  createHashRouter,
+  createBrowserRouter,
+  // createHashRouter,
   RouterProvider,
   // Route,
   // Link,
@@ -18,7 +18,7 @@ export const GlobalStateContext = createContext<any>(null);
 
 export const useGlobalState = () => useContext(GlobalStateContext);
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   {
     path: "/",
     element: <VoxPlayer />,
