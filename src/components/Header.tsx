@@ -75,7 +75,7 @@ const Header = ({ user }: Props) => {
             <Skeleton variant="rectangular" width={160} animation="wave" />
           ) : (
             !pendingRevoxes.length && (
-              <Typography>No Pending Progress</Typography>
+              <Typography>No Pending Revoxes</Typography>
             )
           )}
           {pendingRevoxes.map((p) => (

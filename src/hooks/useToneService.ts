@@ -56,7 +56,7 @@ export const useTonejs = () => {
     instrUrl: string,
     vocalsUrl: string,
     bpm: number,
-    changeInstr: boolean = false
+    changeInstr: boolean = false // Change the whole track
   ): Promise<void> => {
     Tone.Transport.bpm.value = bpm;
     if (toneLoadingForSection) {
@@ -79,19 +79,21 @@ export const useTonejs = () => {
     }
     // Load and play the new audio
     const player = new Tone.Player(vocalsUrl).sync().toDestination();
-    const instrPlayer = new Tone.Player(instrUrl).sync().toDestination();
-    instrPlayerRef.current = instrPlayer;
     playerRef.current = player;
+    if (instrUrl) {
+      const instrPlayer = new Tone.Player(instrUrl).sync().toDestination();
+      instrPlayerRef.current = instrPlayer;
+    }
     setCurrentPlayer(player);
     await Tone.loaded();
     if (isMuted) player.mute = true;
     player.loop = true;
-    instrPlayer.loop = true;
+    if (instrPlayerRef.current) instrPlayerRef.current.loop = true;
     // player.fadeIn = 0.3;
     // player.fadeOut = 0.3;
     Tone.Transport.start();
     player.start();
-    instrPlayer.start();
+    instrPlayerRef.current?.start();
     startTimeRef.current = Tone.Transport.seconds;
   };
 

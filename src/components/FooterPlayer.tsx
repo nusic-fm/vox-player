@@ -44,10 +44,11 @@ const FooterPlayer = ({
         sx={{ bgcolor: "rgb(20, 20, 20)" }}
       >
         <img
-          src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`}
+          src={songInfo.songImg}
           alt=""
           width={40}
-          style={{ borderRadius: "50%" }}
+          height={40}
+          style={{ borderRadius: "50%", objectFit: "cover" }}
         />
         <Stack>
           <Typography variant="caption">

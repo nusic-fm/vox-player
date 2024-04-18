@@ -55,7 +55,7 @@ const GlobalStateProvider = ({ children }: any) => {
       ...prevState,
       ...newState,
     }));
-    if (newState.songInstrUrl) {
+    if (newState.coverVocalsUrl) {
       setLoading(true);
       await playAudio(
         newState.songInstrUrl,
