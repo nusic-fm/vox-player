@@ -3,7 +3,16 @@ import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
 
 const DB_NAME = "voice_models";
 
-const createFirestoreId = (userString: string) => {
+export type VoiceModelType = {
+  url: string;
+  name: string;
+  creator: string;
+  creditsRequired: boolean;
+  uid: string;
+  slug: string;
+};
+
+export const createFirestoreId = (userString: string) => {
   // Convert to lowercase
   let firestoreId = userString.toLowerCase();
   // Remove spaces
@@ -14,11 +23,9 @@ const createFirestoreId = (userString: string) => {
 };
 
 const createVoiceModelDoc = async (
-  id: string,
-  userId: string,
-  voiceModelObj: any
+  voiceModelObj: VoiceModelType
 ): Promise<void> => {
-  const d = doc(db, DB_NAME, createFirestoreId(id) + "_" + userId);
-  await setDoc(d, voiceModelObj);
+  const col = collection(db, DB_NAME);
+  await addDoc(col, voiceModelObj);
 };
 export { createVoiceModelDoc };

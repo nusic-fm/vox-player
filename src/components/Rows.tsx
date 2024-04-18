@@ -665,12 +665,14 @@ const Rows = ({ uid }: Props) => {
             onClose={() => setRevoxSongInfo(null)}
             songInfo={revoxSongInfo}
             onSubmit={onRevoxSubmit}
+            uid={uid}
           />
         )}
         <Snackbar
           open={!!successSnackbarMsg}
           autoHideDuration={6000}
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          onClose={() => setSuccessSnackbarMsg("")}
         >
           <Alert
             onClose={() => setSuccessSnackbarMsg("")}

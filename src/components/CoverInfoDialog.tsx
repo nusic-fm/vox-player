@@ -12,7 +12,7 @@ import {
   Button,
 } from "@mui/material";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPreCoverDoc } from "../services/db/preCovers.service";
 import { YTP_CONTENT } from "./Rows";
 
@@ -22,10 +22,17 @@ type Props = {
 };
 
 const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
-  const [title, setTitle] = useState(coverInfo?.title);
+  const [title, setTitle] = useState("");
   const [voiceName, setVoiceName] = useState("");
-  const [creator, setCreator] = useState(coverInfo?.channelName);
+  const [creator, setCreator] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (coverInfo) {
+      setTitle(coverInfo.title);
+      setCreator(coverInfo.channelName);
+    }
+  }, [coverInfo]);
 
   const onSave = async () => {
     if (coverInfo && title && voiceName && creator) {
@@ -54,45 +61,46 @@ const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
 
   return (
     <Dialog open={!!coverInfo} onClose={() => onClose()}>
-      <DialogTitle>Cover Info</DialogTitle>
+      <DialogTitle>New Cover Info</DialogTitle>
       <DialogContent>
         <Box p={1}>
           <Stack gap={2}>
+            <TextField
+              label="Title"
+              defaultValue={coverInfo?.title}
+              onChange={(e) => setTitle(e.target.value)}
+              color="secondary"
+            />
             <Box display={"flex"} gap={1}>
               <img
                 src={coverInfo?.avatarUrl}
                 alt=""
                 width={150}
                 height={150}
-                style={{ objectFit: "cover" }}
+                style={{ objectFit: "contain" }}
               />
               <Stack justifyContent={"space-around"}>
-                <TextField
-                  label="Title"
-                  defaultValue={coverInfo?.title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  color="secondary"
-                />
                 <TextField
                   label="Voice Name"
                   color="secondary"
                   onChange={(e) => setVoiceName(e.target.value)}
                 />
+                <TextField
+                  fullWidth
+                  label="Creator"
+                  defaultValue={coverInfo?.channelName}
+                  onChange={(e) => setCreator(e.target.value)}
+                  color="secondary"
+                />
               </Stack>
             </Box>
-            <Box display={"flex"} gap={1}>
-              <TextField
-                label="Creator"
-                defaultValue={coverInfo?.channelName}
-                onChange={(e) => setCreator(e.target.value)}
-                color="secondary"
-              />
-              <FormControlLabel
+            {/* <Box display={"flex"} gap={1}> */}
+            {/* <FormControlLabel
                 color="info"
                 control={<Checkbox defaultChecked />}
                 label="Credits Required"
-              />
-            </Box>
+              /> */}
+            {/* </Box> */}
           </Stack>
         </Box>
       </DialogContent>

@@ -1,10 +1,10 @@
-export const fileToArraybuffer = async (file: Blob) => {
+export const fileToArraybuffer = async (file: Blob): Promise<ArrayBuffer> => {
   const reader = new FileReader();
 
-  const promise = new Promise(
+  const promise: Promise<ArrayBuffer> = new Promise(
     (res) =>
       (reader.onload = (event) => {
-        if (event.target?.result) res(event.target.result);
+        if (event.target?.result) res(event.target.result as ArrayBuffer);
       })
   );
 
@@ -56,12 +56,21 @@ export const timeToSeconds = (time: string) => {
     : [0, Number(time)];
   return minutes * 60 + seconds;
 };
-export const getWidthByDuration = (durations: number[], screenWidth: number) => {
-  const totalDuration = durations.reduce((total, duration) => total + duration, 0);
+export const getWidthByDuration = (
+  durations: number[],
+  screenWidth: number
+) => {
+  const totalDuration = durations.reduce(
+    (total, duration) => total + duration,
+    0
+  );
   const durationCount = durations.length;
 
   // Calculate the total width needed by all durations
-  const totalWidthNeeded = durations.reduce((total, duration) => total + duration.toString().length, 0);
+  const totalWidthNeeded = durations.reduce(
+    (total, duration) => total + duration.toString().length,
+    0
+  );
 
   // Calculate the width each duration should occupy
   const avgWidthPerDuration = screenWidth / totalWidthNeeded;
@@ -69,16 +78,18 @@ export const getWidthByDuration = (durations: number[], screenWidth: number) => 
   // Display each duration with the calculated width
   // let output = "";
   return durations.map((duration) => {
-      const durationWidth = Math.floor(duration.toString().length * avgWidthPerDuration);
-      // output += duration + "s".padStart(durationWidth - duration.toString().length + 1);
-      // if (index < durationCount - 1) {
-      //     output += ' ';
-      // }
-      return durationWidth
+    const durationWidth = Math.floor(
+      duration.toString().length * avgWidthPerDuration
+    );
+    // output += duration + "s".padStart(durationWidth - duration.toString().length + 1);
+    // if (index < durationCount - 1) {
+    //     output += ' ';
+    // }
+    return durationWidth;
   });
 
   // console.log(output);
-}
+};
 
 // Example usage
 // const durations = [10, 5, 20, 15, 30];
