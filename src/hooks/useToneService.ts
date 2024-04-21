@@ -49,6 +49,7 @@ export const useTonejs = () => {
       playerRef.current.stop();
       playerRef.current.buffer = bf;
       playerRef.current.start(undefined, offsetPosition);
+      if (instrPlayerRef.current) instrPlayerRef.current.seek(offsetPosition);
     }
   };
 
