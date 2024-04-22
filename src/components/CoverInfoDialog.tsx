@@ -6,14 +6,17 @@ import {
   Box,
   Stack,
   TextField,
-  FormControlLabel,
-  Checkbox,
+  // FormControlLabel,
+  // Checkbox,
   DialogActions,
-  Button,
+  // Button,
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { createPreCoverDoc } from "../services/db/preCovers.service";
+import {
+  createPreCoverDoc,
+  updatePreCoverDoc,
+} from "../services/db/preCovers.service";
 import { YTP_CONTENT } from "./Rows";
 
 type Props = {
@@ -42,13 +45,25 @@ const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
           `${import.meta.env.VITE_VOX_COVER_SERVER}/ytp-audio-extract`,
           { youtube_url: coverInfo.url, id: coverInfo.vid }
         );
-        await createPreCoverDoc({
+        const preCoverDocId = await createPreCoverDoc({
           audioUrl: `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/pre_covers%2F${coverInfo.vid}.mp3?alt=media`,
           ...coverInfo,
           title,
           voiceName,
           creator,
+          sections: [],
         });
+        try {
+          await axios.post(
+            `${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`,
+            { cover_doc_id: preCoverDocId }
+          );
+        } catch (e: any) {
+          console.log(e);
+          await updatePreCoverDoc(preCoverDocId, { error: e.message });
+        }
+
+        // TODO: allin1, First half
         onClose("Successfully Added.");
       } catch (e) {
         console.log(e);

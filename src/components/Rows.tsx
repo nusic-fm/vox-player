@@ -174,6 +174,16 @@ const Rows = ({ uid }: Props) => {
       songId: _id,
       bpm: 120,
     });
+    if (preCoverDoc.sections?.length) {
+      const differences = preCoverDoc.sections.map(
+        (s, i, arr) => (arr[i + 1]?.start || 20) - s.start
+      );
+      const durations = getWidthByDuration(
+        differences,
+        sectionsBarRef.current?.offsetWidth || 500
+      );
+      setSectionsWidth(durations);
+    }
     // setStartLog({
     //   song: coverDoc.songName,
     //   voice: coverDoc.artistName,
@@ -572,17 +582,24 @@ const Rows = ({ uid }: Props) => {
                 >
                   {!songLoading && songId === id && (
                     <>
-                      <Typography
-                        variant="caption"
-                        mr={1}
-                        sx={{ textDecoration: "italic" }}
-                        color="gray"
-                      >
-                        Processing
-                      </Typography>
-                      {new Array(6).fill(".").map((section, i) => (
+                      {!preCoverDoc.sections?.length && (
+                        <Typography
+                          variant="caption"
+                          mr={1}
+                          sx={{ textDecoration: "italic" }}
+                          color="gray"
+                        >
+                          Processing
+                        </Typography>
+                      )}
+                      {(
+                        preCoverDoc.sections ||
+                        new Array(6).fill({ name: "", start: 0 })
+                      ).map((section, i) => (
                         <Button
-                          disabled
+                          disabled={
+                            !sectionsWidth.length || loading || voiceLoading
+                          }
                           key={section.start}
                           // p={0.85}
                           variant="contained"
@@ -590,7 +607,9 @@ const Rows = ({ uid }: Props) => {
                           sx={{
                             mr: 0.5,
                             minWidth: 0,
-                            width: "120px",
+                            width: sectionsWidth.length
+                              ? sectionsWidth[i]
+                              : "120px",
                             transition: "transform 0.3s ease",
                             ":hover": {
                               zIndex: 999,

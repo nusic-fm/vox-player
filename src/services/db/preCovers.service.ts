@@ -1,5 +1,12 @@
 import { db } from "../firebase.service";
-import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  // getDoc,
+  // setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 const DB_NAME = "pre_covers";
 
@@ -12,10 +19,20 @@ export type PreCover = {
   vid: string;
   voiceName: string;
   creator: string;
+  sections?: { name: string; start: number }[];
+  error?: string;
 };
 
-const createPreCoverDoc = async (coverObj: PreCover): Promise<void> => {
+const createPreCoverDoc = async (coverObj: PreCover): Promise<string> => {
   const d = collection(db, DB_NAME);
-  await addDoc(d, coverObj);
+  const ref = await addDoc(d, coverObj);
+  return ref.id;
 };
-export { createPreCoverDoc };
+const updatePreCoverDoc = async (
+  id: string,
+  coverObj: Partial<PreCover>
+): Promise<void> => {
+  const d = doc(db, DB_NAME, id);
+  await updateDoc(d, coverObj);
+};
+export { createPreCoverDoc, updatePreCoverDoc };
