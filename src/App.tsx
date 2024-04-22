@@ -10,9 +10,10 @@ import {
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { createUserDoc, User } from "./services/db/users.service";
+import { createUserDoc, getUserById, User } from "./services/db/users.service";
 import Rows from "./components/Rows";
 import Header from "./components/Header";
+import { setUserId } from "firebase/analytics";
 
 type Props = {};
 
@@ -21,6 +22,12 @@ const localStorageTokenTypeKey = "nusic_discord_token_type";
 
 const VoxPlayer = (props: Props) => {
   const [user, setUser] = useState<User>();
+  const [tempUserId, setTempUserId] = useState<string>();
+
+  const onUserChange = async (uid: string) => {
+    const _user = await getUserById(uid);
+    setUser(_user);
+  };
 
   const fetchUser = async (
     _tokenType: string,
@@ -42,6 +49,7 @@ const VoxPlayer = (props: Props) => {
       if (userDocDb) {
         // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
         setUser(userDocDb);
+        setTempUserId(userDocDb.uid);
         window.history.replaceState(null, "", window.location.origin);
       }
     } catch (e) {
@@ -128,7 +136,11 @@ const VoxPlayer = (props: Props) => {
             Streaming On Steroids
           </Typography>
         </Box>
-        <Header user={user} />
+        <Header
+          user={user}
+          tempUserId={tempUserId}
+          onUserChange={onUserChange}
+        />
         <Divider />
         <Rows uid={user?.uid} />
       </Stack>

@@ -16,8 +16,14 @@ import {
   getOnGoingProgress,
   RevoxProcessType,
 } from "../services/db/revoxQueue.service";
+import UserSelection from "./UserSelection";
+import { getCoverCreatorAvatar } from "../helpers";
 
-type Props = { user?: User };
+type Props = {
+  user?: User;
+  onUserChange: (uid: string) => void;
+  tempUserId?: string;
+};
 
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID as string;
@@ -25,20 +31,22 @@ const redirectUri = import.meta.env.VITE_REDIRECT_URL as string;
 const responseType = "token";
 const scope = "identify+email";
 
-const Header = ({ user }: Props) => {
+const Header = ({ user, onUserChange, tempUserId }: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [pendingRevoxes, setPendingRevoxes] = useState<RevoxProcessType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <Box my={2} display="flex" justifyContent={"center"}>
+    <Box
+      my={2}
+      display="flex"
+      justifyContent={"center"}
+      alignItems="center"
+      gap={2}
+    >
       {user ? (
         <Chip
-          avatar={
-            <Avatar
-              src={`https://cdn.discordapp.com/avatars/${user.uid}/${user.avatar}`}
-            />
-          }
+          avatar={<Avatar src={getCoverCreatorAvatar(user.uid, user.avatar)} />}
           deleteIcon={<ArrowDropDownIcon />}
           onDelete={async (e) => {
             setAnchorEl(e.currentTarget.parentElement);
@@ -59,6 +67,9 @@ const Header = ({ user }: Props) => {
         >
           Sign in
         </Button>
+      )}
+      {"826040837275910154" === tempUserId && (
+        <UserSelection onUserChange={onUserChange} />
       )}
       <Popover
         sx={{ mt: 1 }}
