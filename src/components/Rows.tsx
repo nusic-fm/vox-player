@@ -28,33 +28,14 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import { useGlobalState } from "../main";
 import { useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
-import { getCoverCreatorAvatar, getYouTubeVideoId } from "../helpers";
+import { getYouTubeVideoId } from "../helpers";
 import VoiceModelDialog from "./VoiceModelDialog";
-import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
+// import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
 import { LoadingButton } from "@mui/lab";
 import CoverInfoDialog from "./CoverInfoDialog";
-import { PreCover } from "../services/db/preCovers.service";
+// import { PreCover } from "../services/db/preCovers.service";
 import { User } from "../services/db/users.service";
 import { CoverV1, VoiceV1Cover } from "../services/db/coversV1.service";
-
-// export type Cover = {
-//   songName: string;
-//   vid: string;
-//   artistName: string;
-//   voices: {
-//     name: string;
-//     id: string;
-//     creatorName: string;
-//     creatorId: string;
-//     avatar: string;
-//   }[];
-//   img: string;
-//   createdInfo: { name: string; id: string; img: string };
-//   sections: { name: string; start: number }[];
-//   bpm: number;
-//   views: number;
-//   duration: number;
-// };
 
 export type YTP_CONTENT = {
   title: string;
@@ -127,9 +108,9 @@ const Rows = ({ user }: Props) => {
     const cover = coversCollectionSnapshot?.docs.find((c) => c.id === _id);
     const coverDoc = cover?.data() as CoverV1;
     const voice_id = coverDoc.voices[0].id;
-    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2F${_id}%2Fno_vocals.mp3?alt=media`;
+    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
-    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2F${_id}%2F${voice_id}.mp3?alt=media`;
+    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Fvocals.mp3?alt=media`;
     // setVoice("");
     // setSongId(_id);
     pushLog(endTime);
@@ -540,7 +521,7 @@ const Rows = ({ user }: Props) => {
                   </>
                 )}
               </Box>
-              <Box
+              {/* <Box
                 display={"flex"}
                 alignItems="center"
                 width={"100%"}
@@ -592,7 +573,7 @@ const Rows = ({ user }: Props) => {
                       // }}
                     />
                   ))}
-              </Box>
+              </Box> */}
               {/* <Popover
                   open={!!sectionPopover}
                   anchorEl={sectionPopover}
