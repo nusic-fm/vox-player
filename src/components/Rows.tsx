@@ -462,8 +462,9 @@ const Rows = ({ user }: Props) => {
                             label={v.name}
                             variant={voiceId === v.id ? "outlined" : "filled"}
                             color={voiceId === v.id ? "info" : "default"}
-                            clickable
+                            clickable={!(songId === id && voiceId === v.id)}
                             onClick={() => {
+                              if (songId === id && voiceId === v.id) return;
                               onVoiceChange(v.id, v);
                               //   setVoice(v.id);
                             }}
