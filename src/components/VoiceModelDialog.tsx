@@ -15,7 +15,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Cover } from "./Rows";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import { useDropzone } from "react-dropzone";
 import { fileToArraybuffer } from "../helpers/audio";
@@ -24,11 +23,12 @@ import {
   createFirestoreId,
   createVoiceModelDoc,
 } from "../services/db/voiceModels.service";
+import { CoverV1 } from "../services/db/coversV1.service";
 
 type Props = {
   open?: boolean;
   onClose: () => void;
-  songInfo: Cover;
+  songInfo: CoverV1;
   onSubmit: (url: string, name: string) => void;
   uid?: string;
 };
@@ -55,9 +55,7 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
       <DialogTitle>Enter Voice Model Details</DialogTitle>
 
       <DialogContent>
-        <DialogContentText align="center">
-          {songInfo.songName}
-        </DialogContentText>
+        <DialogContentText align="center">{songInfo.title}</DialogContentText>
         <Stack gap={2} my={1}>
           <TextField
             label="Model Url"
