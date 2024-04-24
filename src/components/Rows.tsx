@@ -421,8 +421,12 @@ const Rows = ({ user }: Props) => {
                         ? "info"
                         : "default"
                     }
-                    clickable
+                    clickable={
+                      !(songId === id && voiceId === coverDoc.voices[0].id)
+                    }
                     onClick={() => {
+                      if (songId === id && voiceId === coverDoc.voices[0].id)
+                        return;
                       if (songId) {
                         onVoiceChange(
                           coverDoc.voices[0].id,
