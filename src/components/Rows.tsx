@@ -28,7 +28,11 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import { useGlobalState } from "../main";
 import { useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
-import { getYouTubeVideoId, nameToSlug } from "../helpers";
+import {
+  getCoverCreatorAvatar,
+  getYouTubeVideoId,
+  nameToSlug,
+} from "../helpers";
 import VoiceModelDialog from "./VoiceModelDialog";
 // import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
 import { LoadingButton } from "@mui/lab";
@@ -190,8 +194,8 @@ const Rows = ({ user }: Props) => {
 
   const onVoiceChange = async (_voiceId: string, voiceObj: VoiceV1Cover) => {
     setVoiceLoading(true);
-    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2F${songId}%2Fno_vocals.mp3?alt=media`;
-    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2F${songId}%2F${_voiceId}.mp3?alt=media`;
+    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${songId}%2Finstrumental.mp3?alt=media`;
+    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${songId}%2F${_voiceId}.mp3?alt=media`;
     // setVoice(_voiceId);
     // await playAudio(_instrUrl, _audioUrl);
     // if (globalStateHook?.updateGlobalState) {
@@ -240,7 +244,7 @@ const Rows = ({ user }: Props) => {
             voiceObj: {
               creatorName: user.name,
               id: voiceId,
-              imageUrl: "",
+              imageUrl: getCoverCreatorAvatar(user.uid, user.avatar),
               name: voiceModelName,
               shareInfo: {
                 avatar: user.avatar,
