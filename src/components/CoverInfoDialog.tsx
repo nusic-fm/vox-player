@@ -13,18 +13,25 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { nameToSlug } from "../helpers";
 import {
-  createPreCoverDoc,
-  updatePreCoverDoc,
-} from "../services/db/preCovers.service";
+  createCoverV1Doc,
+  updateCoverV1Doc,
+} from "../services/db/coversV1.service";
+// import {
+//   createPreCoverDoc,
+//   updatePreCoverDoc,
+// } from "../services/db/preCovers.service";
+import { User } from "../services/db/users.service";
 import { YTP_CONTENT } from "./Rows";
 
 type Props = {
   coverInfo?: YTP_CONTENT;
   onClose: (snackbarMessage?: string) => void;
+  user?: User;
 };
 
-const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
+const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
   const [title, setTitle] = useState("");
   const [voiceName, setVoiceName] = useState("");
   const [creator, setCreator] = useState("");
@@ -33,38 +40,80 @@ const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
   useEffect(() => {
     if (coverInfo) {
       setTitle(coverInfo.title);
-      setCreator(coverInfo.channelName);
+      setCreator(coverInfo.channelTitle);
     }
   }, [coverInfo]);
 
   const onSave = async () => {
-    if (coverInfo && title && voiceName && creator) {
+    if (coverInfo && title && voiceName && creator && user) {
       setIsLoading(true);
       try {
-        await axios.post(
-          `${import.meta.env.VITE_VOX_COVER_SERVER}/ytp-audio-extract`,
-          { youtube_url: coverInfo.url, id: coverInfo.vid }
-        );
-        const preCoverDocId = await createPreCoverDoc({
-          audioUrl: `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/pre_covers%2F${coverInfo.vid}.mp3?alt=media`,
-          ...coverInfo,
+        const coverV1DocId = await createCoverV1Doc({
+          audioUrl: "",
+          metadata: {
+            channelId: coverInfo.channelId,
+            channelTitle: coverInfo.channelTitle,
+            channelThumbnail: coverInfo.channelThumbnail,
+            channelDescription: coverInfo.channelDescription,
+            videoName: coverInfo.title,
+            videoThumbnail: coverInfo.videoThumbnail,
+            videoDescription: coverInfo.videoDescription,
+          },
+          vid: coverInfo.vid,
           title,
-          voiceName,
-          creator,
+          voices: [
+            {
+              name: voiceName,
+              id: nameToSlug(voiceName),
+              creatorName: coverInfo.channelTitle,
+              imageUrl: coverInfo.channelThumbnail,
+              shareInfo: {
+                id: user.uid,
+                avatar: user.avatar,
+                name: user.name,
+              },
+            },
+          ],
+          shareInfo: {
+            avatar: user.avatar,
+            id: user.uid,
+            name: user.name,
+          },
+          // From Allin1
           sections: [],
+          bpm: 0,
+          duration: 0,
+          // From No-RVC
+          stemsReady: false,
         });
-        try {
-          await axios.post(
-            `${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`,
-            { cover_doc_id: preCoverDocId }
-          );
-        } catch (e: any) {
-          console.log(e);
-          await updatePreCoverDoc(preCoverDocId, { error: e.message });
+        const res = await axios.post(
+          `${import.meta.env.VITE_VOX_COVER_SERVER}/ytp-audio-extract`,
+          { youtube_url: coverInfo.url, cover_doc_id: coverV1DocId }
+        );
+        if (res.data?.audioPath) {
+          await updateCoverV1Doc(coverV1DocId, {
+            audioUrl: `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+              res.data.audioPath
+            )}?alt=media`,
+          });
+          // `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+          //   res.data?.audioPath
+          // )}?alt=media`;
+          // res.data?.audioPath;
+          try {
+            axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`, {
+              cover_doc_id: coverV1DocId,
+            });
+            axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`, {
+              cover_doc_id: coverV1DocId,
+            });
+          } catch (e: any) {
+            console.log(e);
+            // await updatePreCoverDoc(preCoverDocId, { error: e.message });
+          } finally {
+            onClose("New Cover is Added Successfully");
+          }
         }
-
-        // TODO: allin1, First half
-        onClose("Successfully Added.");
       } catch (e) {
         console.log(e);
         alert("Upload Failed");
@@ -75,7 +124,7 @@ const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
   };
 
   return (
-    <Dialog open={!!coverInfo} onClose={() => onClose()}>
+    <Dialog open={!!coverInfo}>
       <DialogTitle>New Cover Info</DialogTitle>
       <DialogContent>
         <Box p={1}>
@@ -88,7 +137,7 @@ const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
             />
             <Box display={"flex"} gap={1}>
               <img
-                src={coverInfo?.avatarUrl}
+                src={coverInfo?.videoThumbnail}
                 alt=""
                 width={150}
                 height={150}
@@ -103,7 +152,7 @@ const CoverInfoDialog = ({ coverInfo, onClose }: Props) => {
                 <TextField
                   fullWidth
                   label="Creator"
-                  defaultValue={coverInfo?.channelName}
+                  defaultValue={coverInfo?.channelTitle}
                   onChange={(e) => setCreator(e.target.value)}
                   color="secondary"
                 />

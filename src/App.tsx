@@ -142,7 +142,7 @@ const VoxPlayer = (props: Props) => {
           onUserChange={onUserChange}
         />
         <Divider />
-        <Rows uid={user?.uid} />
+        <Rows user={user} />
       </Stack>
     </Box>
   );

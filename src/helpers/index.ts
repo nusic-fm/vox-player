@@ -22,6 +22,15 @@ export const getCoverCreatorAvatar = (uid: string, avatarId: string) => {
   }
   return `https://cdn.discordapp.com/avatars/${uid}/${avatarId}`;
 };
+
+export const nameToSlug = (name: string, delimiter = "-") => {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "") // Remove special characters
+    .replace(/\s+/g, delimiter) // Replace spaces with delimiter
+    .replace(new RegExp(`${delimiter}+`, "g"), delimiter) // Replace consecutive delimiters
+    .trim(); // Trim any leading/trailing whitespace
+};
 // const isLink = (text: string) => {
 //     // Regular expression pattern to match URLs
 //     var urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;

@@ -21,6 +21,8 @@ export type PreCover = {
   creator: string;
   sections?: { name: string; start: number }[];
   error?: string;
+  shareInfo: { name: string; id: string; avatar: string };
+  stemsReady: boolean;
 };
 
 const createPreCoverDoc = async (coverObj: PreCover): Promise<string> => {
