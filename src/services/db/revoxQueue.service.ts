@@ -1,15 +1,16 @@
 import { db } from "../firebase.service";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { VoiceV1Cover } from "./coversV1.service";
 
 const DB_NAME = "revox_queue";
 
 export type RevoxProcessType = {
+  voiceObj: VoiceV1Cover;
   coverDocId: string;
-  uid: string;
-  voiceModelUrl: string;
   voiceModelName: string;
+  voiceModelUrl: string;
+  title: string;
   isComplete: boolean;
-  songName: string;
   status: string;
 };
 const createRevoxProgressDoc = async (
@@ -23,7 +24,7 @@ const createRevoxProgressDoc = async (
 const getOnGoingProgress = async (uid: string) => {
   const q = query(
     collection(db, DB_NAME),
-    where("uid", "==", uid),
+    where("voiceObj.shareInfo.id", "==", uid),
     where("isComplete", "==", false)
   );
   const docsSs = await getDocs(q);

@@ -92,7 +92,7 @@ const Header = ({ user, onUserChange, tempUserId }: Props) => {
           {pendingRevoxes.map((p) => (
             <Box display={"flex"} gap={2} alignItems="center">
               <Typography>
-                {p.songName} - {p.voiceModelName}
+                {p.title} - {p.voiceModelName}
               </Typography>
               <Chip
                 size="small"

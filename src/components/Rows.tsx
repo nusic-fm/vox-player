@@ -28,7 +28,7 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import { useGlobalState } from "../main";
 import { useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
-import { getYouTubeVideoId } from "../helpers";
+import { getYouTubeVideoId, nameToSlug } from "../helpers";
 import VoiceModelDialog from "./VoiceModelDialog";
 // import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
 import { LoadingButton } from "@mui/lab";
@@ -36,6 +36,7 @@ import CoverInfoDialog from "./CoverInfoDialog";
 // import { PreCover } from "../services/db/preCovers.service";
 import { User } from "../services/db/users.service";
 import { CoverV1, VoiceV1Cover } from "../services/db/coversV1.service";
+import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
 
 export type YTP_CONTENT = {
   title: string;
@@ -110,7 +111,7 @@ const Rows = ({ user }: Props) => {
     const voice_id = coverDoc.voices[0].id;
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
-    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Fvocals.mp3?alt=media`;
+    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2F${voice_id}.mp3?alt=media`;
     // setVoice("");
     // setSongId(_id);
     pushLog(endTime);
@@ -225,35 +226,48 @@ const Rows = ({ user }: Props) => {
     voiceModelUrl: string,
     voiceModelName: string
   ) => {
-    // if (uid && coversCollectionSnapshot) {
-    //   const docInfo = coversCollectionSnapshot.docs.find(
-    //     (d) => d.id === songId
-    //   );
-    //   if (docInfo) {
-    //     const coverDoc = docInfo.data() as Cover;
-    //     const voiceInfo = coverDoc.voices.find((v) => v.id === voiceId);
-    //     if (voiceInfo) {
-    //       const progressDocId = await createRevoxProgressDoc({
-    //         coverDocId: songId,
-    //         uid,
-    //         voiceModelName,
-    //         voiceModelUrl,
-    //         isComplete: false,
-    //         songName: coverDoc.songName,
-    //         status: "Processing",
-    //       });
-    //       setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
-    //       axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
-    //         progress_doc_id: progressDocId,
-    //         cover_doc_id: songId,
-    //         voice_model_url: voiceModelUrl,
-    //         voice_model_name: voiceModelName,
-    //         uid,
-    //       });
-    //       setRevoxSongInfo(null);
-    //     }
-    //   }
-    // }
+    if (user?.uid && coversCollectionSnapshot) {
+      const docInfo = coversCollectionSnapshot.docs.find(
+        (d) => d.id === songId
+      );
+      if (docInfo) {
+        const coverDoc = docInfo.data() as CoverV1;
+        const voiceInfo = coverDoc.voices.find((v) => v.id === voiceId);
+        if (voiceInfo) {
+          const voiceId = nameToSlug(voiceModelName);
+          debugger;
+          const progressDocId = await createRevoxProgressDoc({
+            voiceObj: {
+              creatorName: user.name,
+              id: voiceId,
+              imageUrl: "",
+              name: voiceModelName,
+              shareInfo: {
+                avatar: user.avatar,
+                id: user.uid,
+                name: user.name,
+              },
+            },
+            coverDocId: docInfo.id,
+            voiceModelName,
+            voiceModelUrl,
+            title: coverDoc.title,
+            isComplete: false,
+            status: "Processing",
+          });
+          setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
+          // TODO: check for existing voice id in the voices[]
+          axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
+            progress_doc_id: progressDocId,
+            cover_doc_id: songId,
+            voice_model_url: voiceModelUrl,
+            voice_model_name: voiceModelName,
+            voice_id: voiceId,
+          });
+          setRevoxSongInfo(null);
+        }
+      }
+    }
   };
 
   const onPlay = async (id: string, coverDoc: CoverV1) => {
@@ -451,8 +465,12 @@ const Rows = ({ user }: Props) => {
                       <Button
                         variant="contained"
                         size="small"
-                        onClick={() => setRevoxSongInfo(coverDoc)}
-                        disabled={!user?.uid || !coverDoc.stemsReady}
+                        onClick={() => {
+                          if (!user?.uid)
+                            alert("Sign in to continue with Revox");
+                          else setRevoxSongInfo(coverDoc);
+                        }}
+                        disabled={!coverDoc.stemsReady}
                       >
                         Revox
                       </Button>
