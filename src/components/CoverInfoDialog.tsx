@@ -92,6 +92,7 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
         );
         if (res.data?.audioPath) {
           await updateCoverV1Doc(coverV1DocId, {
+            duration: res.data.duration,
             audioUrl: `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
               res.data.audioPath
             )}?alt=media`,
