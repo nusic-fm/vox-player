@@ -47,6 +47,8 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
   const onSave = async () => {
     if (coverInfo && title && voiceName && creator && user) {
       setIsLoading(true);
+      const voiceId = nameToSlug(voiceName);
+      // TODO: Check for existing id in the voices []
       try {
         const coverV1DocId = await createCoverV1Doc({
           audioUrl: "",
@@ -64,7 +66,7 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
           voices: [
             {
               name: voiceName,
-              id: nameToSlug(voiceName),
+              id: voiceId,
               creatorName: coverInfo.channelTitle,
               imageUrl: coverInfo.channelThumbnail,
               shareInfo: {
@@ -107,6 +109,7 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
             });
             axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`, {
               cover_doc_id: coverV1DocId,
+              voice_id: voiceId,
             });
           } catch (e: any) {
             console.log(e);
