@@ -138,11 +138,12 @@ const Rows = ({ user }: Props) => {
       // const differences = [];
       if (coverDoc.sections) {
         const differences = coverDoc.sections.map(
-          (s, i, arr) => (arr[i + 1]?.start || 20) - s.start
+          (s, i, arr) => (arr[i + 1]?.start || coverDoc.duration) - s.start
         );
         const durations = getWidthByDuration(
           differences,
-          sectionsBarRef.current?.offsetWidth || 500
+          (sectionsBarRef.current?.offsetWidth || 500) -
+            (differences.length - 1) * 4
         );
         setSectionsWidth(durations);
       }
@@ -523,6 +524,8 @@ const Rows = ({ user }: Props) => {
                           width: sectionsWidth.length
                             ? sectionsWidth[i]
                             : "120px",
+                          p: 0,
+                          height: 10,
                           transition: "transform 0.3s ease",
                           ":hover": {
                             zIndex: 999,
@@ -531,8 +534,9 @@ const Rows = ({ user }: Props) => {
                           },
                         }}
                         onClick={() => {
+                          debugger;
                           Tone.Transport.seconds = timeToSeconds(
-                            section.start.toString()
+                            Math.round(section.start).toString()
                           );
                           if (!isTonePlaying) playPlayer();
                         }}

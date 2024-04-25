@@ -59,12 +59,13 @@ export const timeToSeconds = (time: string) => {
 export const getWidthByDuration = (
   durations: number[],
   screenWidth: number
+  // totalDuration: number
 ) => {
-  const totalDuration = durations.reduce(
-    (total, duration) => total + duration,
-    0
-  );
-  const durationCount = durations.length;
+  // const totalDuration = durations.reduce(
+  //   (total, duration) => total + duration,
+  //   0
+  // );
+  // const durationCount = durations.length;
 
   // Calculate the total width needed by all durations
   const totalWidthNeeded = durations.reduce(
