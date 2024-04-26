@@ -136,13 +136,7 @@ const VoxPlayer = (props: Props) => {
             Streaming On Steroids
           </Typography>
         </Box>
-        <Header
-          user={user}
-          tempUserId={tempUserId}
-          onUserChange={onUserChange}
-        />
-        <Divider />
-        <Rows user={user} />
+        <Rows user={user} tempUserId={tempUserId} onUserChange={onUserChange} />
       </Stack>
     </Box>
   );

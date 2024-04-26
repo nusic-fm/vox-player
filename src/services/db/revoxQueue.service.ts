@@ -1,5 +1,13 @@
 import { db } from "../firebase.service";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { VoiceV1Cover } from "./coversV1.service";
 
 const DB_NAME = "revox_queue";
@@ -38,4 +46,9 @@ const getOnGoingProgress = async (uid: string) => {
   else return [];
 };
 
-export { createRevoxProgressDoc, getOnGoingProgress };
+const deleteRevoxQueue = async (id: string) => {
+  const d = doc(db, DB_NAME, id);
+  await updateDoc(d, { isDelete: true, isComplete: true });
+};
+
+export { createRevoxProgressDoc, getOnGoingProgress, deleteRevoxQueue };

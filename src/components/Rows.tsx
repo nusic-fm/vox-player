@@ -5,6 +5,7 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Divider,
   IconButton,
   Popover,
   Skeleton,
@@ -40,7 +41,11 @@ import CoverInfoDialog from "./CoverInfoDialog";
 // import { PreCover } from "../services/db/preCovers.service";
 import { User } from "../services/db/users.service";
 import { CoverV1, VoiceV1Cover } from "../services/db/coversV1.service";
-import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
+import {
+  createRevoxProgressDoc,
+  RevoxProcessTypeDoc,
+} from "../services/db/revoxQueue.service";
+import Header from "./Header";
 
 export type YTP_CONTENT = {
   title: string;
@@ -54,9 +59,13 @@ export type YTP_CONTENT = {
   url: string;
 };
 
-type Props = { user?: User };
+type Props = {
+  user?: User;
+  tempUserId?: string;
+  onUserChange: (uid: string) => Promise<void>;
+};
 
-const Rows = ({ user }: Props) => {
+const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [coversCollectionSnapshot, coversLoading] = useCollection(
     query(collection(db, "covers_v1"), where("audioUrl", "!=", ""))
   );
@@ -227,6 +236,29 @@ const Rows = ({ user }: Props) => {
     setVoiceLoading(false);
   };
 
+  const onRevoxRetry = async (pendingProgressObj: RevoxProcessTypeDoc) => {
+    if (coversCollectionSnapshot) {
+      const docInfo = coversCollectionSnapshot.docs.find(
+        (d) => d.id === pendingProgressObj.coverDocId
+      );
+      if (docInfo) {
+        const coverDoc = docInfo.data() as CoverV1;
+        const newVoiceId = nameToSlug(pendingProgressObj.voiceModelName);
+        const voiceIdx = coverDoc.voices.findIndex((v) => v.id === newVoiceId); // check for existing voice id in the voices[]
+        if (voiceIdx === -1) {
+          await axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
+            progress_doc_id: pendingProgressObj.id,
+            cover_doc_id: pendingProgressObj.coverDocId,
+            voice_model_url: pendingProgressObj.voiceModelUrl,
+            voice_model_name: pendingProgressObj.voiceModelName,
+            voice_id: pendingProgressObj.voiceObj.id,
+          });
+        } else
+          alert("Voice already exists, try a different name or voice-model");
+      }
+    }
+  };
+
   const onRevoxSubmit = async (
     voiceModelUrl: string,
     voiceModelName: string
@@ -237,14 +269,13 @@ const Rows = ({ user }: Props) => {
       );
       if (docInfo) {
         const coverDoc = docInfo.data() as CoverV1;
-        const voiceInfo = coverDoc.voices.find((v) => v.id === voiceId);
-        if (voiceInfo) {
-          const voiceId = nameToSlug(voiceModelName);
-          debugger;
+        const newVoiceId = nameToSlug(voiceModelName);
+        const voiceIdx = coverDoc.voices.findIndex((v) => v.id === newVoiceId); // check for existing voice id in the voices[]
+        if (voiceIdx === -1) {
           const progressDocId = await createRevoxProgressDoc({
             voiceObj: {
               creatorName: user.name,
-              id: voiceId,
+              id: newVoiceId,
               imageUrl: getCoverCreatorAvatar(user.uid, user.avatar),
               name: voiceModelName,
               shareInfo: {
@@ -261,15 +292,16 @@ const Rows = ({ user }: Props) => {
             status: "Processing",
           });
           setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
-          // TODO: check for existing voice id in the voices[]
           axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
             progress_doc_id: progressDocId,
             cover_doc_id: songId,
             voice_model_url: voiceModelUrl,
             voice_model_name: voiceModelName,
-            voice_id: voiceId,
+            voice_id: newVoiceId,
           });
           setRevoxSongInfo(null);
+        } else {
+          alert("Voice already exists, try a different name or voice-model");
         }
       }
     }
@@ -297,32 +329,40 @@ const Rows = ({ user }: Props) => {
   };
 
   return (
-    <Stack gap={2} py={2} width="100%">
-      {coversCollectionSnapshot?.docs.map((doc, i) => {
-        const id = doc.id;
-        const coverDoc = doc.data() as CoverV1;
-        return (
-          <Box key={id} display="flex" alignItems={"center"} gap={2}>
-            <Box display={"flex"} alignItems="center">
-              <IconButton
-                // disabled={loading || voiceLoading}
-                onClick={() => onPlay(id, coverDoc)}
-              >
-                {loading && id === songId ? (
-                  <CircularProgress size={"24px"} color="secondary" />
-                ) : isTonePlaying && id === songId ? (
-                  <PauseRounded />
-                ) : (
-                  <PlayArrow />
-                )}
-              </IconButton>
-            </Box>
-            <Avatar
-              src={coverDoc.metadata.videoThumbnail}
-              onMouseEnter={(e) => handleClick(e, i)}
-              // onMouseLeave={handleClose}
-            />
-            {/* <Popover
+    <Stack width="100%">
+      <Header
+        user={user}
+        tempUserId={tempUserId}
+        onUserChange={onUserChange}
+        onRevoxRetry={onRevoxRetry}
+      />
+      <Divider />
+      <Stack gap={2} py={2} width="100%">
+        {coversCollectionSnapshot?.docs.map((doc, i) => {
+          const id = doc.id;
+          const coverDoc = doc.data() as CoverV1;
+          return (
+            <Box key={id} display="flex" alignItems={"center"} gap={2}>
+              <Box display={"flex"} alignItems="center">
+                <IconButton
+                  // disabled={loading || voiceLoading}
+                  onClick={() => onPlay(id, coverDoc)}
+                >
+                  {loading && id === songId ? (
+                    <CircularProgress size={"24px"} color="secondary" />
+                  ) : isTonePlaying && id === songId ? (
+                    <PauseRounded />
+                  ) : (
+                    <PlayArrow />
+                  )}
+                </IconButton>
+              </Box>
+              <Avatar
+                src={coverDoc.metadata.videoThumbnail}
+                onMouseEnter={(e) => handleClick(e, i)}
+                // onMouseLeave={handleClose}
+              />
+              {/* <Popover
                 open={!!anchorEl && i === anchorEl.idx}
                 anchorEl={anchorEl?.elem}
                 onClose={handleClose}
@@ -388,170 +428,172 @@ const Rows = ({ user }: Props) => {
                   </Stack>
                 </Box>
               </Popover> */}
-            <Stack gap={1} width="100%">
-              <Box display={"flex"} alignItems="center" gap={2}>
-                <Stack>
-                  <Typography
-                    variant="caption"
-                    // color={
-                    //   voiceId === coverDoc.voices[0].id && songId === id
-                    //     ? "#8973F8"
-                    //     : "#fff"
-                    // }
-                    component="a"
-                    // onClick={() =>
-                    //   onVoiceChange(
-                    //     coverDoc.voices[0].id,
-                    //     coverDoc.voices[0].name
-                    //   )
-                    // }
-                  >
-                    {coverDoc.voices[0].creatorName}
-                  </Typography>
-                  <Typography>{coverDoc.title}</Typography>
-                </Stack>
-                <Box display={"flex"} flexGrow={1}>
-                  <Chip
-                    avatar={<Avatar src={coverDoc.metadata.channelThumbnail} />}
-                    disabled={loading || voiceLoading}
-                    key={coverDoc.voices[0].name}
-                    label={coverDoc.voices[0].name}
-                    variant={
-                      songId === id && voiceId === coverDoc.voices[0].id
-                        ? "outlined"
-                        : "filled"
-                    }
-                    color={
-                      songId === id && voiceId === coverDoc.voices[0].id
-                        ? "info"
-                        : "default"
-                    }
-                    clickable={
-                      !(songId === id && voiceId === coverDoc.voices[0].id)
-                    }
-                    onClick={() => {
-                      if (songId === id && voiceId === coverDoc.voices[0].id)
-                        return;
-                      if (songId) {
-                        onVoiceChange(
-                          coverDoc.voices[0].id,
-                          coverDoc.voices[0]
-                        );
-                      } else {
-                        onPlay(id, coverDoc);
-                      }
-                      //   setVoice(v.id);
-                    }}
-                  />
-                  {songId === id && (
-                    <Box
-                      display={"flex"}
-                      flexGrow={1}
-                      justifyContent="space-between"
+              <Stack gap={1} width="100%">
+                <Box display={"flex"} alignItems="center" gap={2}>
+                  <Stack>
+                    <Typography
+                      variant="caption"
+                      // color={
+                      //   voiceId === coverDoc.voices[0].id && songId === id
+                      //     ? "#8973F8"
+                      //     : "#fff"
+                      // }
+                      component="a"
+                      // onClick={() =>
+                      //   onVoiceChange(
+                      //     coverDoc.voices[0].id,
+                      //     coverDoc.voices[0].name
+                      //   )
+                      // }
                     >
+                      {coverDoc.voices[0].creatorName}
+                    </Typography>
+                    <Typography>{coverDoc.title}</Typography>
+                  </Stack>
+                  <Box display={"flex"} flexGrow={1}>
+                    <Chip
+                      avatar={
+                        <Avatar src={coverDoc.metadata.channelThumbnail} />
+                      }
+                      disabled={loading || voiceLoading}
+                      key={coverDoc.voices[0].name}
+                      label={coverDoc.voices[0].name}
+                      variant={
+                        songId === id && voiceId === coverDoc.voices[0].id
+                          ? "outlined"
+                          : "filled"
+                      }
+                      color={
+                        songId === id && voiceId === coverDoc.voices[0].id
+                          ? "info"
+                          : "default"
+                      }
+                      clickable={
+                        !(songId === id && voiceId === coverDoc.voices[0].id)
+                      }
+                      onClick={() => {
+                        if (songId === id && voiceId === coverDoc.voices[0].id)
+                          return;
+                        if (songId) {
+                          onVoiceChange(
+                            coverDoc.voices[0].id,
+                            coverDoc.voices[0]
+                          );
+                        } else {
+                          onPlay(id, coverDoc);
+                        }
+                        //   setVoice(v.id);
+                      }}
+                    />
+                    {songId === id && (
                       <Box
                         display={"flex"}
-                        gap={2}
-                        mx={2}
-                        sx={{ overflowX: "auto" }}
+                        flexGrow={1}
+                        justifyContent="space-between"
                       >
-                        {coverDoc.voices.slice(1).map((v, i) => (
-                          <Chip
-                            avatar={<Avatar src={v.imageUrl} />}
-                            disabled={loading || voiceLoading}
-                            key={v.name}
-                            label={v.name}
-                            variant={voiceId === v.id ? "outlined" : "filled"}
-                            color={voiceId === v.id ? "info" : "default"}
-                            clickable={!(songId === id && voiceId === v.id)}
-                            onClick={() => {
-                              if (songId === id && voiceId === v.id) return;
-                              onVoiceChange(v.id, v);
-                              //   setVoice(v.id);
-                            }}
-                          />
-                        ))}
+                        <Box
+                          display={"flex"}
+                          gap={2}
+                          mx={2}
+                          sx={{ overflowX: "auto" }}
+                        >
+                          {coverDoc.voices.slice(1).map((v, i) => (
+                            <Chip
+                              avatar={<Avatar src={v.imageUrl} />}
+                              disabled={loading || voiceLoading}
+                              key={v.name}
+                              label={v.name}
+                              variant={voiceId === v.id ? "outlined" : "filled"}
+                              color={voiceId === v.id ? "info" : "default"}
+                              clickable={!(songId === id && voiceId === v.id)}
+                              onClick={() => {
+                                if (songId === id && voiceId === v.id) return;
+                                onVoiceChange(v.id, v);
+                                //   setVoice(v.id);
+                              }}
+                            />
+                          ))}
+                        </Box>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={() => {
+                            if (!user?.uid)
+                              alert("Sign in to continue with Revox");
+                            else setRevoxSongInfo(coverDoc);
+                          }}
+                          disabled={!coverDoc.stemsReady}
+                        >
+                          Revox
+                        </Button>
                       </Box>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        onClick={() => {
-                          if (!user?.uid)
-                            alert("Sign in to continue with Revox");
-                          else setRevoxSongInfo(coverDoc);
-                        }}
-                        disabled={!coverDoc.stemsReady}
-                      >
-                        Revox
-                      </Button>
-                    </Box>
+                    )}
+                  </Box>
+                </Box>
+                <Box
+                  display={"flex"}
+                  alignItems="center"
+                  width={"100%"}
+                  ref={sectionsBarRef}
+                >
+                  {!songLoading && songId === id && (
+                    <>
+                      {!coverDoc.sections?.length && (
+                        <Typography
+                          variant="caption"
+                          mr={1}
+                          sx={{ textDecoration: "italic" }}
+                          color="gray"
+                        >
+                          Processing
+                        </Typography>
+                      )}
+                      {(coverDoc.sections?.length
+                        ? coverDoc.sections
+                        : new Array(6).fill({ name: "", start: 0 })
+                      ).map((section, i) => (
+                        <Button
+                          disabled={
+                            !sectionsWidth.length || loading || voiceLoading
+                          }
+                          key={section.start}
+                          // p={0.85}
+                          variant="contained"
+                          color="info"
+                          sx={{
+                            mr: 0.5,
+                            minWidth: 0,
+                            width: sectionsWidth.length
+                              ? sectionsWidth[i]
+                              : "120px",
+                            p: 0,
+                            height: 10,
+                            transition: "transform 0.3s ease",
+                            ":hover": {
+                              zIndex: 999,
+                              transform: "scale(1.5)",
+                              background: "#563FC8",
+                            },
+                          }}
+                          onClick={() => {
+                            Tone.Transport.seconds = timeToSeconds(
+                              Math.round(section.start).toString()
+                            );
+                            if (!isTonePlaying) playPlayer();
+                          }}
+                          // onMouseEnter={(e) => {
+                          //   setSectionPopover(e.currentTarget);
+                          //   setHoverSectionName(section.name);
+                          // }}
+                          // onMouseLeave={() => {
+                          //   setSectionPopover(null);
+                          // }}
+                        />
+                      ))}
+                    </>
                   )}
                 </Box>
-              </Box>
-              <Box
-                display={"flex"}
-                alignItems="center"
-                width={"100%"}
-                ref={sectionsBarRef}
-              >
-                {!songLoading && songId === id && (
-                  <>
-                    {!coverDoc.sections?.length && (
-                      <Typography
-                        variant="caption"
-                        mr={1}
-                        sx={{ textDecoration: "italic" }}
-                        color="gray"
-                      >
-                        Processing
-                      </Typography>
-                    )}
-                    {(coverDoc.sections?.length
-                      ? coverDoc.sections
-                      : new Array(6).fill({ name: "", start: 0 })
-                    ).map((section, i) => (
-                      <Button
-                        disabled={
-                          !sectionsWidth.length || loading || voiceLoading
-                        }
-                        key={section.start}
-                        // p={0.85}
-                        variant="contained"
-                        color="info"
-                        sx={{
-                          mr: 0.5,
-                          minWidth: 0,
-                          width: sectionsWidth.length
-                            ? sectionsWidth[i]
-                            : "120px",
-                          p: 0,
-                          height: 10,
-                          transition: "transform 0.3s ease",
-                          ":hover": {
-                            zIndex: 999,
-                            transform: "scale(1.5)",
-                            background: "#563FC8",
-                          },
-                        }}
-                        onClick={() => {
-                          Tone.Transport.seconds = timeToSeconds(
-                            Math.round(section.start).toString()
-                          );
-                          if (!isTonePlaying) playPlayer();
-                        }}
-                        // onMouseEnter={(e) => {
-                        //   setSectionPopover(e.currentTarget);
-                        //   setHoverSectionName(section.name);
-                        // }}
-                        // onMouseLeave={() => {
-                        //   setSectionPopover(null);
-                        // }}
-                      />
-                    ))}
-                  </>
-                )}
-              </Box>
-              {/* <Box
+                {/* <Box
                 display={"flex"}
                 alignItems="center"
                 width={"100%"}
@@ -604,7 +646,7 @@ const Rows = ({ user }: Props) => {
                     />
                   ))}
               </Box> */}
-              {/* <Popover
+                {/* <Popover
                   open={!!sectionPopover}
                   anchorEl={sectionPopover}
                   onClose={() => setSectionPopover(null)}
@@ -623,114 +665,115 @@ const Rows = ({ user }: Props) => {
                     {hoverSectionName}
                   </Typography>
                 </Popover> */}
-            </Stack>
-          </Box>
-        );
-      })}
-      {coversLoading && (
-        <Stack gap={2} py={2}>
-          {new Array(5).fill(".").map((x, i) => (
-            <Skeleton
-              key={i}
-              variant="rectangular"
-              animation="wave"
-              sx={{ p: 3 }}
-            />
-          ))}
-        </Stack>
-      )}
-      <Box display={"flex"} gap={2} alignItems="center">
-        <IconButton>
-          <AddCircleOutlineRoundedIcon />
-        </IconButton>
-        <TextField
-          fullWidth
-          placeholder="Add your AI Cover to this Playlist, Youtube or weights.gg url goes here"
-          sx={{ transition: "1s width" }}
-          onChange={(e) => setNewAiCoverUrl(e.target.value)}
-        />
-        <LoadingButton
-          variant="contained"
-          disabled={!newAiCoverUrl}
-          loading={isNewCoverLoading}
-          onClick={async () => {
-            setIsNewCoverLoading(true);
-            const vid = getYouTubeVideoId(newAiCoverUrl);
-            if (vid) {
-              const formData = new FormData();
-              formData.append("vid", vid);
-              const res = await axios.post(
-                `${import.meta.env.VITE_YOUTUBE_API}/ytp-content`,
-                formData
-              );
-              // return {
-              //   title: title,
-              //   channelId: channel_id,
-              //   videoThumbnail: video_thumbnail,
-              //   channelTitle: channel_title,
-              //   channelThumbnail: channel_thumbnail,
-              //   videoDescription: video_description,
-              //   channelDescription: channel_description,
-              // };
+              </Stack>
+            </Box>
+          );
+        })}
+        {coversLoading && (
+          <Stack gap={2} py={2}>
+            {new Array(5).fill(".").map((x, i) => (
+              <Skeleton
+                key={i}
+                variant="rectangular"
+                animation="wave"
+                sx={{ p: 3 }}
+              />
+            ))}
+          </Stack>
+        )}
+        <Box display={"flex"} gap={2} alignItems="center">
+          <IconButton>
+            <AddCircleOutlineRoundedIcon />
+          </IconButton>
+          <TextField
+            fullWidth
+            placeholder="Add your AI Cover to this Playlist, Youtube or weights.gg url goes here"
+            sx={{ transition: "1s width" }}
+            onChange={(e) => setNewAiCoverUrl(e.target.value)}
+          />
+          <LoadingButton
+            variant="contained"
+            disabled={!newAiCoverUrl}
+            loading={isNewCoverLoading}
+            onClick={async () => {
+              setIsNewCoverLoading(true);
+              const vid = getYouTubeVideoId(newAiCoverUrl);
+              if (vid) {
+                const formData = new FormData();
+                formData.append("vid", vid);
+                const res = await axios.post(
+                  `${import.meta.env.VITE_YOUTUBE_API}/ytp-content`,
+                  formData
+                );
+                // return {
+                //   title: title,
+                //   channelId: channel_id,
+                //   videoThumbnail: video_thumbnail,
+                //   channelTitle: channel_title,
+                //   channelThumbnail: channel_thumbnail,
+                //   videoDescription: video_description,
+                //   channelDescription: channel_description,
+                // };
 
-              const {
-                channelId,
-                channelTitle,
-                title,
-                videoThumbnail,
-                channelThumbnail,
-                videoDescription,
-                channelDescription,
-              } = res.data;
-              setCoverInfo({
-                channelDescription,
-                channelThumbnail,
-                videoDescription,
-                videoThumbnail,
-                channelId,
-                channelTitle,
-                title,
-                vid,
-                url: newAiCoverUrl,
-              });
-              setIsNewCoverLoading(false);
-            }
+                const {
+                  channelId,
+                  channelTitle,
+                  title,
+                  videoThumbnail,
+                  channelThumbnail,
+                  videoDescription,
+                  channelDescription,
+                } = res.data;
+                setCoverInfo({
+                  channelDescription,
+                  channelThumbnail,
+                  videoDescription,
+                  videoThumbnail,
+                  channelId,
+                  channelTitle,
+                  title,
+                  vid,
+                  url: newAiCoverUrl,
+                });
+                setIsNewCoverLoading(false);
+              }
+            }}
+          >
+            Save
+          </LoadingButton>
+        </Box>
+        <CoverInfoDialog
+          coverInfo={coverInfo}
+          user={user}
+          onClose={(snackbarMessage?: string) => {
+            if (snackbarMessage) setSuccessSnackbarMsg(snackbarMessage);
+            setCoverInfo(undefined);
           }}
-        >
-          Save
-        </LoadingButton>
-      </Box>
-      <CoverInfoDialog
-        coverInfo={coverInfo}
-        user={user}
-        onClose={(snackbarMessage?: string) => {
-          if (snackbarMessage) setSuccessSnackbarMsg(snackbarMessage);
-          setCoverInfo(undefined);
-        }}
-      />
-      {revoxSongInfo && (
-        <VoiceModelDialog
-          onClose={() => setRevoxSongInfo(null)}
-          songInfo={revoxSongInfo}
-          onSubmit={onRevoxSubmit}
-          uid={user?.uid}
         />
-      )}
-      <Snackbar
-        open={!!successSnackbarMsg}
-        autoHideDuration={6000}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        onClose={() => setSuccessSnackbarMsg("")}
-      >
-        <Alert
+        {revoxSongInfo && (
+          <VoiceModelDialog
+            onClose={() => setRevoxSongInfo(null)}
+            songInfo={revoxSongInfo}
+            onSubmit={onRevoxSubmit}
+            uid={user?.uid}
+          />
+        )}
+        <Snackbar
+          open={!!successSnackbarMsg}
+          autoHideDuration={6000}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           onClose={() => setSuccessSnackbarMsg("")}
-          severity="success"
-          variant="filled"
-          sx={{ width: "100%" }}
         >
-          {successSnackbarMsg}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={() => setSuccessSnackbarMsg("")}
+            severity="success"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {successSnackbarMsg}
+          </Alert>
+        </Snackbar>
+      </Stack>
     </Stack>
   );
 };
