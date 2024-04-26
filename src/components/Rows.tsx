@@ -534,7 +534,6 @@ const Rows = ({ user }: Props) => {
                           },
                         }}
                         onClick={() => {
-                          debugger;
                           Tone.Transport.seconds = timeToSeconds(
                             Math.round(section.start).toString()
                           );

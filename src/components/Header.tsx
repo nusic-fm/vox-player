@@ -3,7 +3,7 @@ import {
   Chip,
   Avatar,
   Button,
-  Popper,
+  // Popper,
   Popover,
   Typography,
   Stack,
@@ -14,10 +14,13 @@ import { User } from "../services/db/users.service";
 import { useState } from "react";
 import {
   getOnGoingProgress,
-  RevoxProcessType,
+  // RevoxProcessType,
+  RevoxProcessTypeDoc,
 } from "../services/db/revoxQueue.service";
 import UserSelection from "./UserSelection";
 import { getCoverCreatorAvatar } from "../helpers";
+import axios from "axios";
+import { LoadingButton } from "@mui/lab";
 
 type Props = {
   user?: User;
@@ -33,8 +36,11 @@ const scope = "identify+email";
 
 const Header = ({ user, onUserChange, tempUserId }: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [pendingRevoxes, setPendingRevoxes] = useState<RevoxProcessType[]>([]);
+  const [pendingRevoxes, setPendingRevoxes] = useState<RevoxProcessTypeDoc[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingIdLoading, setPendingIdLoading] = useState("");
 
   return (
     <Box
@@ -91,6 +97,29 @@ const Header = ({ user, onUserChange, tempUserId }: Props) => {
           )}
           {pendingRevoxes.map((p) => (
             <Box display={"flex"} gap={2} alignItems="center">
+              {p.status === "Failed" && (
+                <LoadingButton
+                  size="small"
+                  variant="contained"
+                  loading={p.id === pendingIdLoading}
+                  onClick={async () => {
+                    setPendingIdLoading(p.id);
+                    await axios.post(
+                      `${import.meta.env.VITE_VOX_COVER_SERVER}/revox`,
+                      {
+                        progress_doc_id: p.id,
+                        cover_doc_id: p.coverDocId,
+                        voice_model_url: p.voiceModelUrl,
+                        voice_model_name: p.voiceModelName,
+                        voice_id: p.voiceObj.id,
+                      }
+                    );
+                    setPendingIdLoading("");
+                  }}
+                >
+                  Retry
+                </LoadingButton>
+              )}
               <Typography>
                 {p.title} - {p.voiceModelName}
               </Typography>

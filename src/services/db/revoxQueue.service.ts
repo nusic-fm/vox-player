@@ -13,6 +13,9 @@ export type RevoxProcessType = {
   isComplete: boolean;
   status: string;
 };
+export type RevoxProcessTypeDoc = RevoxProcessType & {
+  id: string;
+};
 const createRevoxProgressDoc = async (
   voiceModelObj: RevoxProcessType
 ): Promise<string> => {
@@ -28,7 +31,11 @@ const getOnGoingProgress = async (uid: string) => {
     where("isComplete", "==", false)
   );
   const docsSs = await getDocs(q);
-  return docsSs.docs.map((d) => d.data() as RevoxProcessType);
+  if (docsSs.size)
+    return docsSs.docs.map(
+      (d) => ({ ...d.data(), id: d.id } as RevoxProcessTypeDoc)
+    );
+  else return [];
 };
 
 export { createRevoxProgressDoc, getOnGoingProgress };
