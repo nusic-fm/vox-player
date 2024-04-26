@@ -69,19 +69,17 @@ export const getWidthByDuration = (
 
   // Calculate the total width needed by all durations
   const totalWidthNeeded = durations.reduce(
-    (total, duration) => total + duration.toString().length,
+    (total, duration) => total + duration,
     0
   );
 
   // Calculate the width each duration should occupy
-  const avgWidthPerDuration = screenWidth / totalWidthNeeded;
+  const avgWidthPerSecond = screenWidth / totalWidthNeeded;
 
   // Display each duration with the calculated width
   // let output = "";
   return durations.map((duration) => {
-    const durationWidth = Math.floor(
-      duration.toString().length * avgWidthPerDuration
-    );
+    const durationWidth = Math.floor(duration * avgWidthPerSecond);
     // output += duration + "s".padStart(durationWidth - duration.toString().length + 1);
     // if (index < durationCount - 1) {
     //     output += ' ';

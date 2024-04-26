@@ -548,10 +548,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           Processing
                         </Typography>
                       )}
-                      {(coverDoc.sections?.length
-                        ? coverDoc.sections
-                        : new Array(6).fill({ name: "", start: 0 })
-                      ).map((section, i) => (
+                      {coverDoc.sections?.map((section, i) => (
                         <Button
                           disabled={
                             !sectionsWidth.length || loading || voiceLoading
@@ -563,8 +560,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           sx={{
                             mr: 0.5,
                             minWidth: 0,
+                            display: sectionsWidth[i] > 1 ? "inherit" : "none",
                             width: sectionsWidth.length
-                              ? sectionsWidth[i]
+                              ? sectionsWidth[i] + "px"
                               : "120px",
                             p: 0,
                             height: 10,
@@ -577,7 +575,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           }}
                           onClick={() => {
                             Tone.Transport.seconds = timeToSeconds(
-                              Math.round(section.start).toString()
+                              Math.round(section.start || 0.1).toString()
                             );
                             if (!isTonePlaying) playPlayer();
                           }}
