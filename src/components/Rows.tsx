@@ -46,6 +46,7 @@ import {
   RevoxProcessTypeDoc,
 } from "../services/db/revoxQueue.service";
 import Header from "./Header";
+import SimpleAudioProgress from "./SimpleAudioProgress";
 
 export type YTP_CONTENT = {
   title: string;
@@ -142,6 +143,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         songId: _id,
         bpm: coverDoc.bpm,
         voiceId: voice_id,
+        duration: coverDoc.duration,
       });
       // }
       // const differences = [];
@@ -151,8 +153,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         );
         const durations = getWidthByDuration(
           differences,
-          (sectionsBarRef.current?.offsetWidth || 500) -
-            (differences.length - 1) * 4
+          sectionsBarRef.current?.offsetWidth || 500
         );
         setSectionsWidth(durations);
       }
@@ -179,6 +180,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       voices: [],
       songId: _id,
       bpm: 120,
+      duration: preCoverDoc.duration,
     });
     if (preCoverDoc.sections?.length) {
       const differences = preCoverDoc.sections.map(
@@ -222,6 +224,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         songId,
         voiceId: _voiceId,
         bpm: coverDoc.bpm,
+        duration: coverDoc.duration,
       });
       // }
       pushLog(Math.round(Tone.Transport.seconds));
@@ -535,10 +538,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                   alignItems="center"
                   width={"100%"}
                   ref={sectionsBarRef}
+                  position="relative"
                 >
                   {!songLoading && songId === id && (
                     <>
-                      {!coverDoc.sections?.length && (
+                      {/* {!coverDoc.sections?.length && (
                         <Typography
                           variant="caption"
                           mr={1}
@@ -547,7 +551,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         >
                           Processing
                         </Typography>
-                      )}
+                      )} */}
                       {coverDoc.sections?.map((section, i) => (
                         <Button
                           disabled={
@@ -574,10 +578,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                             },
                           }}
                           onClick={() => {
-                            Tone.Transport.seconds = timeToSeconds(
+                            const startInSecs = timeToSeconds(
                               Math.round(section.start || 0.1).toString()
                             );
-                            if (!isTonePlaying) playPlayer();
+                            if (!isTonePlaying)
+                              Tone.Transport.start(undefined, startInSecs);
+                            else Tone.Transport.seconds = startInSecs;
                           }}
                           // onMouseEnter={(e) => {
                           //   setSectionPopover(e.currentTarget);
@@ -591,6 +597,21 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     </>
                   )}
                 </Box>
+                {songId === id && (
+                  <Box
+                    // position={"absolute"}
+                    // left={0}
+                    // top={0}
+                    width="100%"
+                    height={"100%"}
+                    display="flex"
+                  >
+                    <SimpleAudioProgress
+                      isTonePlaying={isTonePlaying}
+                      duration={coverDoc.duration}
+                    />
+                  </Box>
+                )}
                 {/* <Box
                 display={"flex"}
                 alignItems="center"

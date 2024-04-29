@@ -40,6 +40,11 @@ export const useTonejs = () => {
       console.log("Tone Paused");
       setIsTonePlaying(false);
     });
+    // Tone.Transport.on("loopStart", (...args) => {
+    //   console.log("Loop Started");
+    //   console.log(args);
+    //   console.log(Tone.Transport.seconds);
+    // });
   };
   const changePlayerBuffer = (
     bf: ToneAudioBuffer,
@@ -57,6 +62,7 @@ export const useTonejs = () => {
     instrUrl: string,
     vocalsUrl: string,
     bpm: number,
+    duration: number,
     changeInstr: boolean = false // Change the whole track
   ): Promise<void> => {
     Tone.Transport.bpm.value = bpm;
@@ -88,10 +94,13 @@ export const useTonejs = () => {
     setCurrentPlayer(player);
     await Tone.loaded();
     if (isMuted) player.mute = true;
-    player.loop = true;
-    if (instrPlayerRef.current) instrPlayerRef.current.loop = true;
+    // player.loop = true;
+    // if (instrPlayerRef.current) instrPlayerRef.current.loop = true;
     // player.fadeIn = 0.3;
     // player.fadeOut = 0.3;
+    console.log("Loop set for: ", duration);
+    Tone.Transport.setLoopPoints(0, duration);
+    Tone.Transport.loop = true;
     Tone.Transport.start();
     player.start();
     instrPlayerRef.current?.start();

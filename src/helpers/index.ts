@@ -31,6 +31,14 @@ export const nameToSlug = (name: string, delimiter = "-") => {
     .replace(new RegExp(`${delimiter}+`, "g"), delimiter) // Replace consecutive delimiters
     .trim(); // Trim any leading/trailing whitespace
 };
+
+export const formatDuration = (value: number) => {
+  const minute = Math.floor(value / 60);
+  const secondLeft = value - minute * 60;
+  return `${minute}:${
+    secondLeft < 10 ? `0${secondLeft.toFixed(0)}` : secondLeft.toFixed(0)
+  }`;
+};
 // const isLink = (text: string) => {
 //     // Regular expression pattern to match URLs
 //     var urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;

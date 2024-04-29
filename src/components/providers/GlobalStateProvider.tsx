@@ -18,6 +18,7 @@ export type MusicState = {
     id: string;
   }[];
   bpm: number;
+  duration: number;
 };
 
 type Props = {};
@@ -45,6 +46,7 @@ const GlobalStateProvider = ({ children }: any) => {
     fromStart: true,
     voices: [],
     bpm: 0,
+    duration: 0,
   });
 
   const updateGlobalState = async (newState: MusicState) => {
@@ -61,6 +63,7 @@ const GlobalStateProvider = ({ children }: any) => {
         newState.songInstrUrl,
         newState.coverVocalsUrl,
         newState.bpm,
+        newState.duration,
         newState.fromStart
       );
       setLoading(false);
@@ -83,7 +86,7 @@ const GlobalStateProvider = ({ children }: any) => {
       }}
     >
       {/* <LoginModal /> */}
-      <Box sx={{ overflowY: "auto" }} height="90vh">
+      <Box sx={{ overflowY: "auto" }} height={songId ? "90vh" : "98vh"}>
         {children}
       </Box>
       {songId && (
