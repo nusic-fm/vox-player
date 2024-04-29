@@ -10,10 +10,11 @@ import {
   Skeleton,
   IconButton,
   CircularProgress,
+  Badge,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { User } from "../services/db/users.service";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   deleteRevoxQueue,
   getOnGoingProgress,
@@ -55,6 +56,12 @@ const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    if (user) {
+      fetchPendingRevoxes(user.uid);
+    }
+  }, [user]);
+
   return (
     <Box
       my={2}
@@ -66,7 +73,11 @@ const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
       {user ? (
         <Chip
           avatar={<Avatar src={getCoverCreatorAvatar(user.uid, user.avatar)} />}
-          deleteIcon={<ArrowDropDownIcon />}
+          deleteIcon={
+            <Badge badgeContent={pendingRevoxes.length} color="warning">
+              <ArrowDropDownIcon />
+            </Badge>
+          }
           onDelete={async (e) => {
             setAnchorEl(e.currentTarget.parentElement);
             await fetchPendingRevoxes(user.uid);

@@ -94,6 +94,7 @@ export const useTonejs = () => {
     setCurrentPlayer(player);
     await Tone.loaded();
     if (isMuted) player.mute = true;
+    if (isMuted && instrPlayerRef.current) instrPlayerRef.current.mute = true;
     // player.loop = true;
     // if (instrPlayerRef.current) instrPlayerRef.current.loop = true;
     // player.fadeIn = 0.3;
@@ -159,20 +160,20 @@ export const useTonejs = () => {
 
   const mutePlayer = () => {
     setIsMuted(true);
-    if (playerRef.current && instrPlayerRef.current) {
+    if (playerRef.current) {
       playerRef.current.mute = true;
-      instrPlayerRef.current.mute = true;
       // currentPlayer.stop(currentPlayer.now() + 0.1);
     }
+    if (instrPlayerRef.current) instrPlayerRef.current.mute = true;
   };
 
   const unMutePlayer = () => {
     setIsMuted(false);
-    if (playerRef.current && instrPlayerRef.current) {
+    if (playerRef.current) {
       playerRef.current.mute = false;
-      instrPlayerRef.current.mute = false;
-      // currentPlayer.start();
+      // currentPlayer.stop(currentPlayer.now() + 0.1);
     }
+    if (instrPlayerRef.current) instrPlayerRef.current.mute = false;
   };
 
   const pausePlayer = () => {
