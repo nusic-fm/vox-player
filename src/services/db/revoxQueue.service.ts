@@ -5,6 +5,7 @@ import {
   doc,
   getDocs,
   query,
+  serverTimestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -28,7 +29,10 @@ const createRevoxProgressDoc = async (
   voiceModelObj: RevoxProcessType
 ): Promise<string> => {
   const d = collection(db, DB_NAME);
-  const ref = await addDoc(d, voiceModelObj);
+  const ref = await addDoc(d, {
+    ...voiceModelObj,
+    createdAt: serverTimestamp(),
+  });
   return ref.id;
 };
 
@@ -48,7 +52,11 @@ const getOnGoingProgress = async (uid: string) => {
 
 const deleteRevoxQueue = async (id: string) => {
   const d = doc(db, DB_NAME, id);
-  await updateDoc(d, { isDelete: true, isComplete: true });
+  await updateDoc(d, {
+    isDelete: true,
+    isComplete: true,
+    deletedAt: serverTimestamp(),
+  });
 };
 
 export { createRevoxProgressDoc, getOnGoingProgress, deleteRevoxQueue };

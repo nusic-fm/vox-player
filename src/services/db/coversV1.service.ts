@@ -3,6 +3,7 @@ import {
   addDoc,
   collection,
   doc,
+  serverTimestamp,
   // getDoc,
   // setDoc,
   updateDoc,
@@ -48,7 +49,7 @@ export type CoverV1 = {
 
 const createCoverV1Doc = async (coverObj: CoverV1): Promise<string> => {
   const d = collection(db, DB_NAME);
-  const ref = await addDoc(d, coverObj);
+  const ref = await addDoc(d, { ...coverObj, createdAt: serverTimestamp() });
   return ref.id;
 };
 const updateCoverV1Doc = async (
@@ -56,6 +57,6 @@ const updateCoverV1Doc = async (
   coverObj: Partial<CoverV1>
 ): Promise<void> => {
   const d = doc(db, DB_NAME, id);
-  await updateDoc(d, coverObj);
+  await updateDoc(d, { ...coverObj, updatedAt: serverTimestamp() });
 };
 export { createCoverV1Doc, updateCoverV1Doc };
