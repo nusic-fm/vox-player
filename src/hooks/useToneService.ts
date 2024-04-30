@@ -3,10 +3,10 @@ import * as Tone from "tone";
 import { ToneAudioBuffer } from "tone";
 
 export const useTonejs = () => {
-  const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
+  // const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
   const playerRef = useRef<Tone.Player | null>(null);
   const instrPlayerRef = useRef<Tone.Player | null>(null);
-  const startTimeRef = useRef(0);
+  // const startTimeRef = useRef(0);
   const scheduledNextTrackBf = useRef<Tone.ToneAudioBuffer | null>(null);
 
   const [isToneInitialized, setIsToneInitialized] = useState(false);
@@ -76,6 +76,7 @@ export const useTonejs = () => {
       return;
     }
     await initializeTone();
+    if (Tone.Transport.seconds) Tone.Transport.stop();
     if (instrPlayerRef.current) {
       instrPlayerRef.current.disconnect();
       instrPlayerRef.current.disconnect();
@@ -91,7 +92,7 @@ export const useTonejs = () => {
       const instrPlayer = new Tone.Player(instrUrl).sync().toDestination();
       instrPlayerRef.current = instrPlayer;
     }
-    setCurrentPlayer(player);
+    // setCurrentPlayer(player);
     await Tone.loaded();
     if (isMuted) player.mute = true;
     if (isMuted && instrPlayerRef.current) instrPlayerRef.current.mute = true;
@@ -105,7 +106,7 @@ export const useTonejs = () => {
     Tone.Transport.start();
     player.start();
     instrPlayerRef.current?.start();
-    startTimeRef.current = Tone.Transport.seconds;
+    // startTimeRef.current = Tone.Transport.seconds;
   };
 
   const switchAudio = async (url: string) => {
@@ -144,10 +145,10 @@ export const useTonejs = () => {
   // };
 
   const switchLoop = () => {
-    if (currentPlayer) {
-      currentPlayer.loop = !loop;
-      setLoop(!loop);
-    }
+    // if (currentPlayer) {
+    // currentPlayer.loop = !loop;
+    setLoop(!loop);
+    // }
   };
 
   const switchMute = () => {
@@ -186,7 +187,6 @@ export const useTonejs = () => {
     Tone.Transport.stop();
   };
   return {
-    currentPlayer,
     playAudio,
     mutePlayer,
     unMutePlayer,

@@ -3,16 +3,17 @@ import {
   Alert,
   Avatar,
   Button,
-  Chip,
   CircularProgress,
   Divider,
   IconButton,
-  Popover,
   Skeleton,
   Snackbar,
   Stack,
   TextField,
   Typography,
+  ListItemAvatar,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
@@ -47,6 +48,7 @@ import {
 } from "../services/db/revoxQueue.service";
 import Header from "./Header";
 import SimpleAudioProgress from "./SimpleAudioProgress";
+import VoiceChips from "./VoiceChips";
 
 export type YTP_CONTENT = {
   title: string;
@@ -114,27 +116,35 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [successSnackbarMsg, setSuccessSnackbarMsg] = useState("");
   const [isNewCoverLoading, setIsNewCoverLoading] = useState(false);
   const [coverInfo, setCoverInfo] = useState<YTP_CONTENT>();
+  const [voicesPopperEl, setVoicesPopperEl] = useState<null | {
+    anchorEl: HTMLDivElement;
+    coverDoc: CoverV1;
+    id: string;
+  }>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
   };
-  const onSongClick = async (_id: string, endTime: number) => {
+  const onSongClick = async (
+    _id: string,
+    coverDoc: CoverV1,
+    _voiceId?: string,
+    endTime?: number
+  ) => {
     setSongLoading(true);
-    const cover = coversCollectionSnapshot?.docs.find((c) => c.id === _id);
-    const coverDoc = cover?.data() as CoverV1;
-    const voice_id = coverDoc.voices[0].id;
+    const voice_id = _voiceId || coverDoc.voices[0].id;
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2F${voice_id}.mp3?alt=media`;
     // setVoice("");
     // setSongId(_id);
-    pushLog(endTime);
+    if (endTime) pushLog(endTime);
     // await playAudio(_instrUrl, _audioUrl, true);
     // if (globalStateHook?.updateGlobalState) {
     if (coverDoc) {
       // `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`;
       await updateGlobalState({
-        songImg: coverDoc.voices[0].imageUrl,
+        songImg: coverDoc.voices.find((v) => v.id === voice_id)?.imageUrl,
         songName: coverDoc.title,
         songInstrUrl: _instrUrl,
         coverVocalsUrl: _audioUrl,
@@ -310,7 +320,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     }
   };
 
-  const onPlay = async (id: string, coverDoc: CoverV1) => {
+  const onPlay = async (id: string, coverDoc: CoverV1, _voiceId?: string) => {
     // createVoiceDoc();
     const endTime = Math.round(Tone.Transport.seconds);
     if (isTonePlaying && id === songId) {
@@ -326,7 +336,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         stopPlayer();
       }
       //   setSongId(id);
-      if (coverDoc.stemsReady) onSongClick(id, endTime);
+      if (coverDoc.stemsReady) onSongClick(id, coverDoc, _voiceId, endTime);
       else onPreCoverSongClick(id, coverDoc);
     }
   };
@@ -349,7 +359,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               <Box display={"flex"} alignItems="center">
                 <IconButton
                   // disabled={loading || voiceLoading}
-                  onClick={() => onPlay(id, coverDoc)}
+                  onClick={() => {
+                    onPlay(id, coverDoc);
+                  }}
                 >
                   {loading && id === songId ? (
                     <CircularProgress size={"24px"} color="secondary" />
@@ -432,8 +444,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 </Box>
               </Popover> */}
               <Stack gap={1} width="100%">
-                <Box display={"flex"} alignItems="center" gap={2}>
-                  <Stack>
+                <Box display={"flex"} alignItems="center" gap={2} width="100%">
+                  <Stack maxWidth={"60%"}>
                     <Typography
                       variant="caption"
                       // color={
@@ -449,89 +461,27 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       //   )
                       // }
                     >
-                      {coverDoc.voices[0].creatorName}
+                      {songId === id
+                        ? coverDoc.voices.find(
+                            (v) => v.id === (voiceId || coverDoc.voices[0].id)
+                          )?.creatorName
+                        : coverDoc.voices[0].creatorName}
                     </Typography>
                     <Typography>{coverDoc.title}</Typography>
                   </Stack>
-                  <Box display={"flex"} flexGrow={1}>
-                    <Chip
-                      avatar={
-                        <Avatar src={coverDoc.metadata.channelThumbnail} />
-                      }
-                      disabled={loading || voiceLoading}
-                      key={coverDoc.voices[0].name}
-                      label={coverDoc.voices[0].name}
-                      variant={
-                        songId === id && voiceId === coverDoc.voices[0].id
-                          ? "outlined"
-                          : "filled"
-                      }
-                      color={
-                        songId === id && voiceId === coverDoc.voices[0].id
-                          ? "info"
-                          : "default"
-                      }
-                      clickable={
-                        !(songId === id && voiceId === coverDoc.voices[0].id)
-                      }
-                      onClick={() => {
-                        if (songId === id && voiceId === coverDoc.voices[0].id)
-                          return;
-                        if (songId) {
-                          onVoiceChange(
-                            coverDoc.voices[0].id,
-                            coverDoc.voices[0]
-                          );
-                        } else {
-                          onPlay(id, coverDoc);
-                        }
-                        //   setVoice(v.id);
-                      }}
-                    />
-                    {songId === id && (
-                      <Box
-                        display={"flex"}
-                        flexGrow={1}
-                        justifyContent="space-between"
-                      >
-                        <Box
-                          display={"flex"}
-                          gap={2}
-                          mx={2}
-                          sx={{ overflowX: "auto" }}
-                        >
-                          {coverDoc.voices.slice(1).map((v, i) => (
-                            <Chip
-                              avatar={<Avatar src={v.imageUrl} />}
-                              disabled={loading || voiceLoading}
-                              key={v.name}
-                              label={v.name}
-                              variant={voiceId === v.id ? "outlined" : "filled"}
-                              color={voiceId === v.id ? "info" : "default"}
-                              clickable={!(songId === id && voiceId === v.id)}
-                              onClick={() => {
-                                if (songId === id && voiceId === v.id) return;
-                                onVoiceChange(v.id, v);
-                                //   setVoice(v.id);
-                              }}
-                            />
-                          ))}
-                        </Box>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          onClick={() => {
-                            if (!user?.uid)
-                              alert("Sign in to continue with Revox");
-                            else setRevoxSongInfo(coverDoc);
-                          }}
-                          disabled={!coverDoc.stemsReady}
-                        >
-                          Revox
-                        </Button>
-                      </Box>
-                    )}
-                  </Box>
+                  <VoiceChips
+                    coverDoc={coverDoc}
+                    id={id}
+                    loading={loading}
+                    onPlay={onPlay}
+                    onVoiceChange={onVoiceChange}
+                    songId={songId}
+                    voiceId={voiceId}
+                    voiceLoading={voiceLoading}
+                    setVoicesPopperEl={setVoicesPopperEl}
+                    user={user}
+                    setRevoxSongInfo={setRevoxSongInfo}
+                  />
                 </Box>
                 <Box
                   display={"flex"}
@@ -777,6 +727,39 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             uid={user?.uid}
           />
         )}
+        <Menu
+          anchorEl={voicesPopperEl?.anchorEl}
+          open={!!voicesPopperEl}
+          onClose={() => setVoicesPopperEl(null)}
+        >
+          {voicesPopperEl?.coverDoc?.voices
+            .filter(
+              (v) =>
+                v.id !==
+                ((songId === voicesPopperEl.id && voiceId) ||
+                  voicesPopperEl?.coverDoc?.voices[0].id)
+            )
+            .map((v) => (
+              <MenuItem
+                key={v.id}
+                onClick={() => {
+                  if (
+                    voicesPopperEl &&
+                    (!voiceId || songId !== voicesPopperEl?.id)
+                  )
+                    onPlay(voicesPopperEl?.id, voicesPopperEl.coverDoc, v.id);
+                  else if (songId === voicesPopperEl?.id)
+                    onVoiceChange(v.id, v);
+                  setVoicesPopperEl(null);
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar src={v.imageUrl} />
+                </ListItemAvatar>
+                <Typography variant="inherit">{v.name}</Typography>
+              </MenuItem>
+            ))}
+        </Menu>
         <Snackbar
           open={!!successSnackbarMsg}
           autoHideDuration={6000}
