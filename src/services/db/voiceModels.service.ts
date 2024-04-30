@@ -2,10 +2,8 @@ import { db } from "../firebase.service";
 import {
   addDoc,
   collection,
-  doc,
-  getDoc,
+  getDocs,
   serverTimestamp,
-  setDoc,
 } from "firebase/firestore";
 
 const DB_NAME = "voice_models";
@@ -35,4 +33,10 @@ const createVoiceModelDoc = async (
   const col = collection(db, DB_NAME);
   await addDoc(col, { ...voiceModelObj, createdAt: serverTimestamp() });
 };
-export { createVoiceModelDoc };
+
+const getVoiceModels = async () => {
+  const col = collection(db, DB_NAME);
+  const docsRef = await getDocs(col);
+  return docsRef.docs.map((d) => d.data() as VoiceModelType);
+};
+export { createVoiceModelDoc, getVoiceModels };
