@@ -186,6 +186,11 @@ export const useTonejs = () => {
   const stopPlayer = () => {
     Tone.Transport.stop();
   };
+  const increaseVocalsVolume = (db: number) => {
+    if (playerRef.current) {
+      playerRef.current.volume.value = db;
+    }
+  };
   return {
     playAudio,
     mutePlayer,
@@ -200,6 +205,7 @@ export const useTonejs = () => {
     loop,
     initializeTone,
     switchMute,
+    increaseVocalsVolume,
     // changeInstrAudio,
   };
 };

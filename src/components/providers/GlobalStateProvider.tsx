@@ -33,6 +33,7 @@ const GlobalStateProvider = ({ children }: any) => {
     playPlayer,
     switchMute,
     isMuted,
+    increaseVocalsVolume,
   } = useTonejs();
   const [songId, setSongId] = useState("");
   const [voiceId, setVoiceId] = useState("");
@@ -99,6 +100,7 @@ const GlobalStateProvider = ({ children }: any) => {
           pausePlayer={pausePlayer}
           switchMute={switchMute}
           isMuted={isMuted}
+          increaseVocalsVolume={increaseVocalsVolume}
         />
       )}
     </GlobalStateContext.Provider>

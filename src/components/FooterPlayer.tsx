@@ -1,4 +1,4 @@
-import { Box, Stack, Typography, IconButton } from "@mui/material";
+import { Box, Stack, Typography, IconButton, Slider } from "@mui/material";
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
@@ -18,6 +18,7 @@ type Props = {
   isMuted: boolean;
   pausePlayer: any;
   switchMute: any;
+  increaseVocalsVolume: (db: number) => void;
 };
 
 const FooterPlayer = ({
@@ -29,6 +30,7 @@ const FooterPlayer = ({
   pausePlayer,
   switchMute,
   isMuted,
+  increaseVocalsVolume,
 }: Props) => {
   return (
     <Box display={"flex"} justifyContent="center">
@@ -103,10 +105,23 @@ const FooterPlayer = ({
                   <Forward10RoundedIcon />
                 </IconButton>
               </Box>
-              <Box display={"flex"} alignItems={"center"} onClick={switchMute}>
-                <IconButton size="small">
+              <Box display={"flex"} alignItems={"center"}>
+                <IconButton size="small" onClick={switchMute}>
                   {isMuted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
                 </IconButton>
+                <Slider
+                  min={-10}
+                  max={10}
+                  defaultValue={0}
+                  step={1}
+                  onChange={(e, val) => {
+                    console.log(val);
+                    increaseVocalsVolume(val as number);
+                  }}
+                  sx={{ width: 100 }}
+                  color="secondary"
+                  size="small"
+                />
               </Box>
             </Box>
           </Box>
