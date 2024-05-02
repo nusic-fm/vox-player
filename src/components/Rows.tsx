@@ -15,8 +15,9 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  useTheme,
 } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
 import { collection, query, where } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -124,6 +125,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     id: string;
   }>(null);
   const [newCommentContent, setNewCommentContent] = useState("");
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
@@ -345,141 +348,40 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     }
   };
 
-  return (
-    <Stack width="100%">
-      <Header
-        user={user}
-        tempUserId={tempUserId}
-        onUserChange={onUserChange}
-        onRevoxRetry={onRevoxRetry}
-      />
-      <Divider />
-      <Stack gap={2} py={2} width="100%">
-        {coversCollectionSnapshot?.docs.map((doc, i) => {
-          const id = doc.id;
-          const coverDoc = doc.data() as CoverV1;
-          return (
-            <Box key={id} display="flex" alignItems={"center"} gap={2}>
-              <Box display={"flex"} alignItems="center" alignSelf={"start"}>
-                <IconButton
-                  // disabled={loading || voiceLoading}
-                  onClick={() => {
-                    onPlay(id, coverDoc);
-                  }}
-                >
-                  {loading && id === songId ? (
-                    <CircularProgress size={"24px"} color="secondary" />
-                  ) : isTonePlaying && id === songId ? (
-                    <PauseRounded />
-                  ) : (
-                    <PlayArrow />
-                  )}
-                </IconButton>
-              </Box>
-              <Avatar
-                src={coverDoc.metadata.videoThumbnail}
-                onMouseEnter={(e) => handleClick(e, i)}
-                sx={{ alignSelf: "start" }}
-                // onMouseLeave={handleClose}
-              />
-              {/* <Popover
-                open={!!anchorEl && i === anchorEl.idx}
-                anchorEl={anchorEl?.elem}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-                disableRestoreFocus
-                // sx={{
-                //   pointerEvents: "none",
-                // }}
-              >
-                <Box p={2} onMouseLeave={handleClose}>
-                  <Stack gap={2}>
-                    <Box display={"flex"} gap={2} width="400px">
-                      <Avatar
-                        sizes="10px"
-                        src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${coverDoc.createdInfo.id}.webp?alt=media`}
-                      />
-                      <Typography variant="caption">
-                        <Typography
-                          component={"a"}
-                          color="#8973F8"
-                          sx={{ textDecoration: "underline", mr: 1 }}
-                        >
-                          {coverDoc.createdInfo.name}
-                        </Typography>
-                        shared "{coverDoc.songName}" on Mon, Mar 25th 2014 with{" "}
-                        <Typography
-                          component={"a"}
-                          color="#8973F8"
-                          sx={{ textDecoration: "underline", mr: 1 }}
-                        >
-                          {coverDoc.voices[0].name}
-                        </Typography>
+  if (isMobileView) {
+    return (
+      <Stack>
+        <Header
+          user={user}
+          tempUserId={tempUserId}
+          onUserChange={onUserChange}
+          onRevoxRetry={onRevoxRetry}
+        />
+        <Divider />
+        <Stack gap={2} py={2}>
+          {coversCollectionSnapshot?.docs.map((doc, i) => {
+            const id = doc.id;
+            const coverDoc = doc.data() as CoverV1;
+            return (
+              <Box key={id} display="flex" alignItems={"center"} gap={2}>
+                <Stack gap={1} maxWidth="100%">
+                  <Box display={"flex"} gap={1}>
+                    <Avatar
+                      src={coverDoc.metadata.videoThumbnail}
+                      onMouseEnter={(e) => handleClick(e, i)}
+                      sx={{ alignSelf: "start" }}
+                    />
+                    <Stack>
+                      <Typography variant="caption" component="a">
+                        {songId === id
+                          ? coverDoc.voices.find(
+                              (v) => v.id === (voiceId || coverDoc.voices[0].id)
+                            )?.creatorName
+                          : coverDoc.voices[0].creatorName}
                       </Typography>
-                    </Box>
-                    <Box display={"flex"} gap={2} alignItems="center">
-                      <IconButton size="small">
-                        <FavoriteBorderRoundedIcon sx={{ fontSize: "18px" }} />
-                      </IconButton>
-                      <IconButton size="small">
-                        <ChatBubbleOutlineOutlinedIcon
-                          sx={{ fontSize: "18px" }}
-                        />
-                      </IconButton>
-                      <IconButton size="small">
-                        <RepeatRoundedIcon sx={{ fontSize: "18px" }} />
-                      </IconButton>
-                      <Box display={"flex"} gap={0.5} alignItems="center">
-                        <IconButton size="small">
-                          <EqualizerRoundedIcon sx={{ fontSize: "18px" }} />
-                        </IconButton>
-                        <Typography variant="caption">
-                          {coverDoc.views}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Stack>
-                </Box>
-              </Popover> */}
-              <Stack gap={1} width="100%">
-                <Box
-                  display={"flex"}
-                  alignItems="center"
-                  gap={2}
-                  width="100%"
-                  flexWrap={"wrap"}
-                >
-                  <Stack maxWidth={"70%"}>
-                    <Typography
-                      variant="caption"
-                      // color={
-                      //   voiceId === coverDoc.voices[0].id && songId === id
-                      //     ? "#8973F8"
-                      //     : "#fff"
-                      // }
-                      component="a"
-                      // onClick={() =>
-                      //   onVoiceChange(
-                      //     coverDoc.voices[0].id,
-                      //     coverDoc.voices[0].name
-                      //   )
-                      // }
-                    >
-                      {songId === id
-                        ? coverDoc.voices.find(
-                            (v) => v.id === (voiceId || coverDoc.voices[0].id)
-                          )?.creatorName
-                        : coverDoc.voices[0].creatorName}
-                    </Typography>
-                    <Typography>{coverDoc.title}</Typography>
-                  </Stack>
+                      <Typography>{coverDoc.title}</Typography>
+                    </Stack>
+                  </Box>
                   <VoiceChips
                     coverDoc={coverDoc}
                     id={id}
@@ -493,27 +395,390 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     user={user}
                     setRevoxSongInfo={setRevoxSongInfo}
                   />
-                </Box>
-                <Box
-                  display={"flex"}
-                  alignItems="center"
-                  width={"100%"}
-                  ref={sectionsBarRef}
-                  position="relative"
-                >
-                  {!songLoading && songId === id && (
-                    <>
-                      {/* {!coverDoc.sections?.length && (
-                        <Typography
-                          variant="caption"
-                          mr={1}
-                          sx={{ textDecoration: "italic" }}
-                          color="gray"
+                  <Box
+                    display={"flex"}
+                    alignItems="center"
+                    ref={sectionsBarRef}
+                    position="relative"
+                    sx={{ overflowX: "auto" }}
+                  >
+                    {!songLoading &&
+                      songId === id &&
+                      coverDoc.sections?.map((section, i) => (
+                        <Button
+                          key={section.start}
+                          disabled={
+                            !sectionsWidth.length || loading || voiceLoading
+                          }
+                          // p={0.85}
+                          variant="contained"
+                          color="info"
+                          sx={{
+                            mr: 0.5,
+                            minWidth: 0,
+                            display: sectionsWidth[i] > 1 ? "inherit" : "none",
+                            width: sectionsWidth.length
+                              ? sectionsWidth[i] + "px"
+                              : "120px",
+                            p: 0,
+                            height: 10,
+                            transition: "transform 0.3s ease",
+                            ":hover": {
+                              zIndex: 999,
+                              transform: "scale(1.5)",
+                              background: "#563FC8",
+                            },
+                          }}
+                          onClick={() => {
+                            const startInSecs = timeToSeconds(
+                              Math.round(section.start || 0.1).toString()
+                            );
+                            if (!isTonePlaying)
+                              Tone.Transport.start(undefined, startInSecs);
+                            else Tone.Transport.seconds = startInSecs;
+                          }}
+                        />
+                      ))}
+                  </Box>
+                  {songId === id && (
+                    <Box
+                      // position={"absolute"}
+                      // left={0}
+                      // top={0}
+                      width="100%"
+                      height={1}
+                      display="flex"
+                    >
+                      <SimpleAudioProgress
+                        isTonePlaying={isTonePlaying}
+                        duration={coverDoc.duration}
+                      />
+                    </Box>
+                  )}
+                  {songId === id && coverDoc.comments?.length && (
+                    <Stack gap={0.5}>
+                      {coverDoc.comments.map((c) => (
+                        <Box
+                          display={"flex"}
+                          gap={1}
+                          alignItems="center"
+                          key={c.content}
                         >
-                          Processing
-                        </Typography>
-                      )} */}
-                      {coverDoc.sections?.map((section, i) => (
+                          <Tooltip title={c.shareInfo.name} placement="top">
+                            <Avatar
+                              src={getUserAvatar(
+                                c.shareInfo.id,
+                                c.shareInfo.avatar
+                              )}
+                              sx={{ width: 24, height: 24 }}
+                            />
+                          </Tooltip>
+                          <Box
+                            display={"flex"}
+                            justifyContent="space-between"
+                            width={"100%"}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontStyle: "italic" }}
+                            >
+                              {c.content}
+                            </Typography>
+                            <Typography variant="caption" color={"#c3c3c3"}>
+                              #{c.voiceId} 🎧
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
+                  {songId === id && (
+                    <Box width={"100%"}>
+                      <TextField
+                        fullWidth
+                        placeholder="say something..."
+                        variant="standard"
+                        size="small"
+                        value={newCommentContent}
+                        onChange={(e) => setNewCommentContent(e.target.value)}
+                        InputProps={{
+                          endAdornment: (
+                            <IconButton
+                              size="small"
+                              onClick={async () => {
+                                if (!user) return alert("Kindly Sign In...");
+                                if (user && newCommentContent) {
+                                  await addCommentToCover(id, {
+                                    content: newCommentContent,
+                                    shareInfo: {
+                                      avatar: user.avatar,
+                                      id: user.uid,
+                                      name: user.name,
+                                    },
+                                    timeInAudio: Tone.Transport.seconds,
+                                    voiceId,
+                                  });
+                                  setNewCommentContent("");
+                                }
+                              }}
+                            >
+                              <Tooltip title="Comment" placement="top">
+                                <SendRoundedIcon
+                                  sx={{ width: "16px", height: "16px" }}
+                                />
+                              </Tooltip>
+                            </IconButton>
+                          ),
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Stack>
+              </Box>
+            );
+          })}
+          {coversLoading && (
+            <Stack gap={2} py={2}>
+              {new Array(5).fill(".").map((x, i) => (
+                <Skeleton
+                  key={i}
+                  variant="rectangular"
+                  animation="wave"
+                  sx={{ p: 3 }}
+                />
+              ))}
+            </Stack>
+          )}
+          <Box display={"flex"} gap={1} alignItems="center">
+            <TextField
+              fullWidth
+              placeholder="AI Cover Youtube URL"
+              sx={{ transition: "1s width" }}
+              onChange={(e) => setNewAiCoverUrl(e.target.value)}
+            />
+            {/* <IconButton>
+              <AddCircleOutlineRoundedIcon />
+            </IconButton> */}
+            <LoadingButton
+              size="small"
+              variant="contained"
+              disabled={!newAiCoverUrl}
+              loading={isNewCoverLoading}
+              onClick={async () => {
+                setIsNewCoverLoading(true);
+                const vid = getYouTubeVideoId(newAiCoverUrl);
+                if (vid) {
+                  const formData = new FormData();
+                  formData.append("vid", vid);
+                  const res = await axios.post(
+                    `${import.meta.env.VITE_YOUTUBE_API}/ytp-content`,
+                    formData
+                  );
+                  // return {
+                  //   title: title,
+                  //   channelId: channel_id,
+                  //   videoThumbnail: video_thumbnail,
+                  //   channelTitle: channel_title,
+                  //   channelThumbnail: channel_thumbnail,
+                  //   videoDescription: video_description,
+                  //   channelDescription: channel_description,
+                  // };
+
+                  const {
+                    channelId,
+                    channelTitle,
+                    title,
+                    videoThumbnail,
+                    channelThumbnail,
+                    videoDescription,
+                    channelDescription,
+                  } = res.data;
+                  setCoverInfo({
+                    channelDescription,
+                    channelThumbnail,
+                    videoDescription,
+                    videoThumbnail,
+                    channelId,
+                    channelTitle,
+                    title,
+                    vid,
+                    url: newAiCoverUrl,
+                  });
+                  setIsNewCoverLoading(false);
+                }
+              }}
+            >
+              Add
+            </LoadingButton>
+          </Box>
+          <CoverInfoDialog
+            coverInfo={coverInfo}
+            user={user}
+            onClose={(snackbarMessage?: string) => {
+              if (snackbarMessage) setSuccessSnackbarMsg(snackbarMessage);
+              setCoverInfo(undefined);
+            }}
+          />
+          {revoxSongInfo && (
+            <VoiceModelDialog
+              onClose={() => setRevoxSongInfo(null)}
+              songInfo={revoxSongInfo}
+              onSubmit={onRevoxSubmit}
+              uid={user?.uid}
+            />
+          )}
+          <Menu
+            anchorEl={voicesPopperEl?.anchorEl}
+            open={!!voicesPopperEl}
+            onClose={() => setVoicesPopperEl(null)}
+          >
+            {voicesPopperEl?.coverDoc?.voices
+              .filter(
+                (v) =>
+                  v.id !==
+                  ((songId === voicesPopperEl.id && voiceId) ||
+                    voicesPopperEl?.coverDoc?.voices[0].id)
+              )
+              .slice(2)
+              .map((v) => (
+                <MenuItem
+                  key={v.id}
+                  onClick={() => {
+                    if (
+                      voicesPopperEl &&
+                      (!voiceId || songId !== voicesPopperEl?.id)
+                    )
+                      onPlay(voicesPopperEl?.id, voicesPopperEl.coverDoc, v.id);
+                    else if (songId === voicesPopperEl?.id)
+                      onVoiceChange(v.id, v);
+                    setVoicesPopperEl(null);
+                  }}
+                  sx={{ py: 0 }}
+                >
+                  <ListItemAvatar
+                    sx={{
+                      minWidth: 36,
+                      ".MuiAvatar-root": { width: 24, height: 24 },
+                    }}
+                  >
+                    <Avatar src={v.imageUrl} />
+                  </ListItemAvatar>
+                  <Typography variant="caption">{v.name}</Typography>
+                </MenuItem>
+              ))}
+          </Menu>
+          <Snackbar
+            open={!!successSnackbarMsg}
+            autoHideDuration={6000}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            onClose={() => setSuccessSnackbarMsg("")}
+          >
+            <Alert
+              onClose={() => setSuccessSnackbarMsg("")}
+              severity="success"
+              variant="filled"
+              sx={{ width: "100%" }}
+            >
+              {successSnackbarMsg}
+            </Alert>
+          </Snackbar>
+        </Stack>
+      </Stack>
+    );
+  } else
+    return (
+      <Stack width="100%">
+        <Header
+          user={user}
+          tempUserId={tempUserId}
+          onUserChange={onUserChange}
+          onRevoxRetry={onRevoxRetry}
+        />
+        <Divider />
+        <Stack gap={2} py={2} width="100%">
+          {coversCollectionSnapshot?.docs.map((doc, i) => {
+            const id = doc.id;
+            const coverDoc = doc.data() as CoverV1;
+            return (
+              <Box key={id} display="flex" alignItems={"center"} gap={2}>
+                <Box display={"flex"} alignItems="center" alignSelf={"start"}>
+                  <IconButton
+                    // disabled={loading || voiceLoading}
+                    onClick={() => {
+                      onPlay(id, coverDoc);
+                    }}
+                  >
+                    {loading && id === songId ? (
+                      <CircularProgress size={"24px"} color="secondary" />
+                    ) : isTonePlaying && id === songId ? (
+                      <PauseRounded />
+                    ) : (
+                      <PlayArrow />
+                    )}
+                  </IconButton>
+                </Box>
+                <Avatar
+                  src={coverDoc.metadata.videoThumbnail}
+                  onMouseEnter={(e) => handleClick(e, i)}
+                  sx={{ alignSelf: "start" }}
+                  // onMouseLeave={handleClose}
+                />
+                <Stack gap={1} width="100%">
+                  <Box
+                    display={"flex"}
+                    alignItems="center"
+                    gap={2}
+                    width="100%"
+                    flexWrap={"wrap"}
+                  >
+                    <Stack maxWidth={"70%"}>
+                      <Typography
+                        variant="caption"
+                        // color={
+                        //   voiceId === coverDoc.voices[0].id && songId === id
+                        //     ? "#8973F8"
+                        //     : "#fff"
+                        // }
+                        component="a"
+                        // onClick={() =>
+                        //   onVoiceChange(
+                        //     coverDoc.voices[0].id,
+                        //     coverDoc.voices[0].name
+                        //   )
+                        // }
+                      >
+                        {songId === id
+                          ? coverDoc.voices.find(
+                              (v) => v.id === (voiceId || coverDoc.voices[0].id)
+                            )?.creatorName
+                          : coverDoc.voices[0].creatorName}
+                      </Typography>
+                      <Typography>{coverDoc.title}</Typography>
+                    </Stack>
+                    <VoiceChips
+                      coverDoc={coverDoc}
+                      id={id}
+                      loading={loading}
+                      onPlay={onPlay}
+                      onVoiceChange={onVoiceChange}
+                      songId={songId}
+                      voiceId={voiceId}
+                      voiceLoading={voiceLoading}
+                      setVoicesPopperEl={setVoicesPopperEl}
+                      user={user}
+                      setRevoxSongInfo={setRevoxSongInfo}
+                    />
+                  </Box>
+                  <Box
+                    display={"flex"}
+                    alignItems="center"
+                    width={"100%"}
+                    ref={sectionsBarRef}
+                    position="relative"
+                  >
+                    {!songLoading &&
+                      songId === id &&
+                      coverDoc.sections?.map((section, i) => (
                         <Button
                           disabled={
                             !sectionsWidth.length || loading || voiceLoading
@@ -555,25 +820,23 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           // }}
                         />
                       ))}
-                    </>
-                  )}
-                </Box>
-                {songId === id && (
-                  <Box
-                    // position={"absolute"}
-                    // left={0}
-                    // top={0}
-                    width="100%"
-                    height={"100%"}
-                    display="flex"
-                  >
-                    <SimpleAudioProgress
-                      isTonePlaying={isTonePlaying}
-                      duration={coverDoc.duration}
-                    />
                   </Box>
-                )}
-                {/* <Box
+                  {songId === id && (
+                    <Box
+                      // position={"absolute"}
+                      // left={0}
+                      // top={0}
+                      width="100%"
+                      height={"100%"}
+                      display="flex"
+                    >
+                      <SimpleAudioProgress
+                        isTonePlaying={isTonePlaying}
+                        duration={coverDoc.duration}
+                      />
+                    </Box>
+                  )}
+                  {/* <Box
                 display={"flex"}
                 alignItems="center"
                 width={"100%"}
@@ -626,7 +889,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     />
                   ))}
               </Box> */}
-                {/* <Popover
+                  {/* <Popover
                   open={!!sectionPopover}
                   anchorEl={sectionPopover}
                   onClose={() => setSectionPopover(null)}
@@ -645,229 +908,233 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     {hoverSectionName}
                   </Typography>
                 </Popover> */}
-                {songId === id && coverDoc.comments?.length && (
-                  <Stack>
-                    {coverDoc.comments.map((c) => (
-                      <Box
-                        display={"flex"}
-                        gap={1}
-                        alignItems="center"
-                        key={c.content}
-                      >
-                        <Tooltip title={c.shareInfo.name} placement="top">
-                          <Avatar
-                            src={getUserAvatar(
-                              c.shareInfo.id,
-                              c.shareInfo.avatar
-                            )}
-                            sx={{ width: 24, height: 24 }}
-                          />
-                        </Tooltip>
+                  {songId === id && coverDoc.comments?.length && (
+                    <Stack gap={0.5}>
+                      {coverDoc.comments.map((c) => (
                         <Box
                           display={"flex"}
-                          justifyContent="space-between"
-                          width={"100%"}
+                          gap={1}
+                          alignItems="center"
+                          key={c.content}
                         >
-                          <Typography
-                            variant="caption"
-                            sx={{ fontStyle: "italic" }}
+                          <Tooltip
+                            title={c.shareInfo.name}
+                            placement="top"
+                            disableInteractive
                           >
-                            {c.content}
-                          </Typography>
-                          <Typography variant="caption" color={"#c3c3c3"}>
-                            #{c.voiceId} 🎧
-                          </Typography>
+                            <Avatar
+                              src={getUserAvatar(
+                                c.shareInfo.id,
+                                c.shareInfo.avatar
+                              )}
+                              sx={{ width: 24, height: 24 }}
+                            />
+                          </Tooltip>
+                          <Box
+                            display={"flex"}
+                            justifyContent="space-between"
+                            width={"100%"}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontStyle: "italic" }}
+                            >
+                              {c.content}
+                            </Typography>
+                            <Typography variant="caption" color={"#c3c3c3"}>
+                              #{c.voiceId} 🎧
+                            </Typography>
+                          </Box>
                         </Box>
-                      </Box>
-                    ))}
-                  </Stack>
-                )}
-                {songId === id && (
-                  <Box width={"100%"}>
-                    <TextField
-                      fullWidth
-                      placeholder="say something..."
-                      variant="standard"
-                      size="small"
-                      value={newCommentContent}
-                      onChange={(e) => setNewCommentContent(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <IconButton
-                            size="small"
-                            onClick={async () => {
-                              if (!user) return alert("Kindly Sign In...");
-                              if (user && newCommentContent) {
-                                await addCommentToCover(id, {
-                                  content: newCommentContent,
-                                  shareInfo: {
-                                    avatar: user.avatar,
-                                    id: user.uid,
-                                    name: user.name,
-                                  },
-                                  timeInAudio: Tone.Transport.seconds,
-                                  voiceId,
-                                });
-                                setNewCommentContent("");
-                              }
-                            }}
-                          >
-                            <Tooltip title="Comment" placement="top">
-                              <SendRoundedIcon
-                                sx={{ width: "16px", height: "16px" }}
-                              />
-                            </Tooltip>
-                          </IconButton>
-                        ),
-                      }}
-                    />
-                  </Box>
-                )}
-              </Stack>
-            </Box>
-          );
-        })}
-        {coversLoading && (
-          <Stack gap={2} py={2}>
-            {new Array(5).fill(".").map((x, i) => (
-              <Skeleton
-                key={i}
-                variant="rectangular"
-                animation="wave"
-                sx={{ p: 3 }}
-              />
-            ))}
-          </Stack>
-        )}
-        <Box display={"flex"} gap={2} alignItems="center">
-          <IconButton>
-            <AddCircleOutlineRoundedIcon />
-          </IconButton>
-          <TextField
-            fullWidth
-            placeholder="Add your AI Cover to this Playlist, Youtube or weights.gg url goes here"
-            sx={{ transition: "1s width" }}
-            onChange={(e) => setNewAiCoverUrl(e.target.value)}
-          />
-          <LoadingButton
-            variant="contained"
-            disabled={!newAiCoverUrl}
-            loading={isNewCoverLoading}
-            onClick={async () => {
-              setIsNewCoverLoading(true);
-              const vid = getYouTubeVideoId(newAiCoverUrl);
-              if (vid) {
-                const formData = new FormData();
-                formData.append("vid", vid);
-                const res = await axios.post(
-                  `${import.meta.env.VITE_YOUTUBE_API}/ytp-content`,
-                  formData
-                );
-                // return {
-                //   title: title,
-                //   channelId: channel_id,
-                //   videoThumbnail: video_thumbnail,
-                //   channelTitle: channel_title,
-                //   channelThumbnail: channel_thumbnail,
-                //   videoDescription: video_description,
-                //   channelDescription: channel_description,
-                // };
+                      ))}
+                    </Stack>
+                  )}
+                  {songId === id && (
+                    <Box width={"100%"}>
+                      <TextField
+                        fullWidth
+                        placeholder="say something..."
+                        variant="standard"
+                        size="small"
+                        value={newCommentContent}
+                        onChange={(e) => setNewCommentContent(e.target.value)}
+                        InputProps={{
+                          endAdornment: (
+                            <IconButton
+                              size="small"
+                              onClick={async () => {
+                                if (!user) return alert("Kindly Sign In...");
+                                if (user && newCommentContent) {
+                                  await addCommentToCover(id, {
+                                    content: newCommentContent,
+                                    shareInfo: {
+                                      avatar: user.avatar,
+                                      id: user.uid,
+                                      name: user.name,
+                                    },
+                                    timeInAudio: Tone.Transport.seconds,
+                                    voiceId,
+                                  });
+                                  setNewCommentContent("");
+                                }
+                              }}
+                            >
+                              <Tooltip title="Comment" placement="top">
+                                <SendRoundedIcon
+                                  sx={{ width: "16px", height: "16px" }}
+                                />
+                              </Tooltip>
+                            </IconButton>
+                          ),
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Stack>
+              </Box>
+            );
+          })}
+          {coversLoading && (
+            <Stack gap={2} py={2}>
+              {new Array(5).fill(".").map((x, i) => (
+                <Skeleton
+                  key={i}
+                  variant="rectangular"
+                  animation="wave"
+                  sx={{ p: 3 }}
+                />
+              ))}
+            </Stack>
+          )}
+          <Box display={"flex"} gap={2} alignItems="center">
+            <IconButton>
+              <AddCircleOutlineRoundedIcon />
+            </IconButton>
+            <TextField
+              fullWidth
+              placeholder="Add your AI Cover to this Playlist, Youtube or weights.gg url goes here"
+              sx={{ transition: "1s width" }}
+              onChange={(e) => setNewAiCoverUrl(e.target.value)}
+            />
+            <LoadingButton
+              variant="contained"
+              disabled={!newAiCoverUrl}
+              loading={isNewCoverLoading}
+              onClick={async () => {
+                setIsNewCoverLoading(true);
+                const vid = getYouTubeVideoId(newAiCoverUrl);
+                if (vid) {
+                  const formData = new FormData();
+                  formData.append("vid", vid);
+                  const res = await axios.post(
+                    `${import.meta.env.VITE_YOUTUBE_API}/ytp-content`,
+                    formData
+                  );
+                  // return {
+                  //   title: title,
+                  //   channelId: channel_id,
+                  //   videoThumbnail: video_thumbnail,
+                  //   channelTitle: channel_title,
+                  //   channelThumbnail: channel_thumbnail,
+                  //   videoDescription: video_description,
+                  //   channelDescription: channel_description,
+                  // };
 
-                const {
-                  channelId,
-                  channelTitle,
-                  title,
-                  videoThumbnail,
-                  channelThumbnail,
-                  videoDescription,
-                  channelDescription,
-                } = res.data;
-                setCoverInfo({
-                  channelDescription,
-                  channelThumbnail,
-                  videoDescription,
-                  videoThumbnail,
-                  channelId,
-                  channelTitle,
-                  title,
-                  vid,
-                  url: newAiCoverUrl,
-                });
-                setIsNewCoverLoading(false);
-              }
+                  const {
+                    channelId,
+                    channelTitle,
+                    title,
+                    videoThumbnail,
+                    channelThumbnail,
+                    videoDescription,
+                    channelDescription,
+                  } = res.data;
+                  setCoverInfo({
+                    channelDescription,
+                    channelThumbnail,
+                    videoDescription,
+                    videoThumbnail,
+                    channelId,
+                    channelTitle,
+                    title,
+                    vid,
+                    url: newAiCoverUrl,
+                  });
+                  setIsNewCoverLoading(false);
+                }
+              }}
+            >
+              Save
+            </LoadingButton>
+          </Box>
+          <CoverInfoDialog
+            coverInfo={coverInfo}
+            user={user}
+            onClose={(snackbarMessage?: string) => {
+              if (snackbarMessage) setSuccessSnackbarMsg(snackbarMessage);
+              setCoverInfo(undefined);
             }}
-          >
-            Save
-          </LoadingButton>
-        </Box>
-        <CoverInfoDialog
-          coverInfo={coverInfo}
-          user={user}
-          onClose={(snackbarMessage?: string) => {
-            if (snackbarMessage) setSuccessSnackbarMsg(snackbarMessage);
-            setCoverInfo(undefined);
-          }}
-        />
-        {revoxSongInfo && (
-          <VoiceModelDialog
-            onClose={() => setRevoxSongInfo(null)}
-            songInfo={revoxSongInfo}
-            onSubmit={onRevoxSubmit}
-            uid={user?.uid}
           />
-        )}
-        <Menu
-          anchorEl={voicesPopperEl?.anchorEl}
-          open={!!voicesPopperEl}
-          onClose={() => setVoicesPopperEl(null)}
-        >
-          {voicesPopperEl?.coverDoc?.voices
-            .filter(
-              (v) =>
-                v.id !==
-                ((songId === voicesPopperEl.id && voiceId) ||
-                  voicesPopperEl?.coverDoc?.voices[0].id)
-            )
-            .slice(2)
-            .map((v) => (
-              <MenuItem
-                key={v.id}
-                onClick={() => {
-                  if (
-                    voicesPopperEl &&
-                    (!voiceId || songId !== voicesPopperEl?.id)
-                  )
-                    onPlay(voicesPopperEl?.id, voicesPopperEl.coverDoc, v.id);
-                  else if (songId === voicesPopperEl?.id)
-                    onVoiceChange(v.id, v);
-                  setVoicesPopperEl(null);
-                }}
-              >
-                <ListItemAvatar>
-                  <Avatar src={v.imageUrl} />
-                </ListItemAvatar>
-                <Typography variant="inherit">{v.name}</Typography>
-              </MenuItem>
-            ))}
-        </Menu>
-        <Snackbar
-          open={!!successSnackbarMsg}
-          autoHideDuration={6000}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          onClose={() => setSuccessSnackbarMsg("")}
-        >
-          <Alert
-            onClose={() => setSuccessSnackbarMsg("")}
-            severity="success"
-            variant="filled"
-            sx={{ width: "100%" }}
+          {revoxSongInfo && (
+            <VoiceModelDialog
+              onClose={() => setRevoxSongInfo(null)}
+              songInfo={revoxSongInfo}
+              onSubmit={onRevoxSubmit}
+              uid={user?.uid}
+            />
+          )}
+          <Menu
+            anchorEl={voicesPopperEl?.anchorEl}
+            open={!!voicesPopperEl}
+            onClose={() => setVoicesPopperEl(null)}
           >
-            {successSnackbarMsg}
-          </Alert>
-        </Snackbar>
+            {voicesPopperEl?.coverDoc?.voices
+              .filter(
+                (v) =>
+                  v.id !==
+                  ((songId === voicesPopperEl.id && voiceId) ||
+                    voicesPopperEl?.coverDoc?.voices[0].id)
+              )
+              .slice(2)
+              .map((v) => (
+                <MenuItem
+                  key={v.id}
+                  onClick={() => {
+                    if (
+                      voicesPopperEl &&
+                      (!voiceId || songId !== voicesPopperEl?.id)
+                    )
+                      onPlay(voicesPopperEl?.id, voicesPopperEl.coverDoc, v.id);
+                    else if (songId === voicesPopperEl?.id)
+                      onVoiceChange(v.id, v);
+                    setVoicesPopperEl(null);
+                  }}
+                >
+                  <ListItemAvatar>
+                    <Avatar src={v.imageUrl} />
+                  </ListItemAvatar>
+                  <Typography variant="inherit">{v.name}</Typography>
+                </MenuItem>
+              ))}
+          </Menu>
+          <Snackbar
+            open={!!successSnackbarMsg}
+            autoHideDuration={6000}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            onClose={() => setSuccessSnackbarMsg("")}
+          >
+            <Alert
+              onClose={() => setSuccessSnackbarMsg("")}
+              severity="success"
+              variant="filled"
+              sx={{ width: "100%" }}
+            >
+              {successSnackbarMsg}
+            </Alert>
+          </Snackbar>
+        </Stack>
       </Stack>
-    </Stack>
-  );
+    );
 };
 
 export default Rows;

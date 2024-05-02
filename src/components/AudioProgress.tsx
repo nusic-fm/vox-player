@@ -21,7 +21,7 @@ const AudioProgress = ({ isTonePlaying, duration }: Props) => {
   }, [isTonePlaying]);
 
   return (
-    <Box display="flex" gap={2} flex={1}>
+    <Box display="flex" gap={2} flex={1} alignItems="center">
       <Typography variant="caption" color={"#c4c4c4"}>
         {formatDuration(currentValue)}
       </Typography>
@@ -41,6 +41,9 @@ const AudioProgress = ({ isTonePlaying, duration }: Props) => {
           color: "#fff",
           height: 2,
           p: 1,
+          "&.MuiSlider-root": {
+            padding: "0px !important",
+          },
           "& .MuiSlider-thumb": {
             width: 8,
             height: 8,

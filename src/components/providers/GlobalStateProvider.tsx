@@ -87,7 +87,7 @@ const GlobalStateProvider = ({ children }: any) => {
       }}
     >
       {/* <LoginModal /> */}
-      <Box sx={{ overflowY: "auto" }} height={songId ? "90vh" : "98vh"}>
+      <Box sx={{ overflowY: "auto" }} height={"100vh"} pb={10}>
         {children}
       </Box>
       {songId && (

@@ -103,9 +103,10 @@ export const useTonejs = () => {
     console.log("Loop set for: ", duration);
     Tone.Transport.setLoopPoints(0, duration);
     Tone.Transport.loop = true;
-    Tone.Transport.start();
-    player.start();
+
+    playerRef.current?.start();
     instrPlayerRef.current?.start();
+    Tone.Transport.start();
     // startTimeRef.current = Tone.Transport.seconds;
   };
 
