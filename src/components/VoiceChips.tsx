@@ -1,7 +1,20 @@
-import { Box, Chip, Avatar, AvatarGroup, Button, Badge } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Avatar,
+  AvatarGroup,
+  Button,
+  Badge,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import { CoverV1, VoiceV1Cover } from "../services/db/coversV1.service";
 import { useEffect, useState } from "react";
 import { User } from "../services/db/users.service";
+import ThumbUpOffAltOutlinedIcon from "@mui/icons-material/ThumbUpOffAltOutlined";
+import ThumbDownOffAltOutlinedIcon from "@mui/icons-material/ThumbDownOffAltOutlined";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
 
 type Props = {
   coverDoc: CoverV1;
@@ -31,6 +44,8 @@ const VoiceChips = ({
   setRevoxSongInfo,
 }: Props) => {
   const [chipVoice, setChipVoice] = useState<VoiceV1Cover>();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisLiked, setIsDisLiked] = useState(false);
 
   useEffect(() => {
     if (voiceId && id === songId) {
@@ -55,13 +70,23 @@ const VoiceChips = ({
               <AvatarGroup
                 total={coverDoc.voices.length - 1}
                 component="a"
-                onClick={(e) => {
-                  setVoicesPopperEl({
-                    anchorEl: e.currentTarget,
-                    coverDoc,
-                    id,
-                  });
-                }}
+                renderSurplus={(surplus) => (
+                  <IconButton
+                    sx={{
+                      fontSize: "0.8rem",
+                      fontFamily: "inherit",
+                    }}
+                    onClick={(e) => {
+                      setVoicesPopperEl({
+                        anchorEl: e.currentTarget,
+                        coverDoc,
+                        id,
+                      });
+                    }}
+                  >
+                    +{surplus}
+                  </IconButton>
+                )}
                 sx={{
                   // ml: 2,
                   ".MuiAvatar-colorDefault": {
@@ -82,11 +107,18 @@ const VoiceChips = ({
                   )
                   .slice(0, 2)
                   .map((v) => (
-                    <Avatar
-                      alt=""
-                      src={v.imageUrl}
-                      sx={{ width: 24, height: 24 }}
-                    />
+                    <Tooltip key={v.id} title={v.name} placement="top" arrow>
+                      <Avatar
+                        alt=""
+                        src={v.imageUrl}
+                        sx={{ width: 24, height: 24 }}
+                        onClick={() => {
+                          if (!voiceId || songId !== id)
+                            onPlay(id, coverDoc, v.id);
+                          else if (songId === id) onVoiceChange(v.id, v);
+                        }}
+                      />
+                    </Tooltip>
                   ))}
               </AvatarGroup>
             </Box>
@@ -157,18 +189,55 @@ const VoiceChips = ({
             ))}
         </AvatarGroup> */}
       {songId === id && (
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => {
-            if (!user?.uid) alert("Sign in to continue with Revox");
-            else setRevoxSongInfo(coverDoc);
-          }}
-          disabled={!coverDoc.stemsReady}
-          sx={{ ml: "auto" }}
-        >
-          Revox
-        </Button>
+        <Box display={"flex"} gap={2}>
+          <Box display={"flex"}>
+            <IconButton
+              size="small"
+              onClick={() => {
+                if (isLiked) {
+                  setIsLiked(false);
+                } else {
+                  setIsLiked(true);
+                  setIsDisLiked(false);
+                }
+              }}
+            >
+              {isLiked ? (
+                <ThumbUpAltIcon fontSize="small" />
+              ) : (
+                <ThumbUpOffAltOutlinedIcon fontSize="small" />
+              )}
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => {
+                if (isDisLiked) {
+                  setIsDisLiked(false);
+                } else {
+                  setIsDisLiked(true);
+                  setIsLiked(false);
+                }
+              }}
+            >
+              {isDisLiked ? (
+                <ThumbDownAltIcon fontSize="small" />
+              ) : (
+                <ThumbDownOffAltOutlinedIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Box>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => {
+              if (!user?.uid) alert("Sign in to continue with Revox");
+              else setRevoxSongInfo(coverDoc);
+            }}
+            disabled={!coverDoc.stemsReady}
+          >
+            Revox
+          </Button>
+        </Box>
       )}
       {/* </Box> */}
     </Box>

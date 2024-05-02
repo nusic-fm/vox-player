@@ -43,4 +43,9 @@ const getUserDoc = async (id: string): Promise<any> => {
   return wdoc.data();
 };
 
-export { createUserDoc, getUserDoc, getUserById };
+const updateUserDoc = async (id: string, userObj: any) => {
+  const d = doc(db, DB_NAME, id);
+  await updateDoc(d, userObj);
+};
+
+export { createUserDoc, getUserDoc, getUserById, updateUserDoc };

@@ -444,8 +444,14 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 </Box>
               </Popover> */}
               <Stack gap={1} width="100%">
-                <Box display={"flex"} alignItems="center" gap={2} width="100%">
-                  <Stack maxWidth={"60%"}>
+                <Box
+                  display={"flex"}
+                  alignItems="center"
+                  gap={2}
+                  width="100%"
+                  flexWrap={"wrap"}
+                >
+                  <Stack maxWidth={"70%"}>
                     <Typography
                       variant="caption"
                       // color={
@@ -739,6 +745,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 ((songId === voicesPopperEl.id && voiceId) ||
                   voicesPopperEl?.coverDoc?.voices[0].id)
             )
+            .slice(2)
             .map((v) => (
               <MenuItem
                 key={v.id}
