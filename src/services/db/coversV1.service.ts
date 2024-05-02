@@ -1,6 +1,7 @@
 import { db } from "../firebase.service";
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   serverTimestamp,
@@ -15,6 +16,12 @@ type ShareInfo = {
   id: string;
   avatar: string;
   name: string;
+};
+type Comment = {
+  content: string;
+  timeInAudio: number;
+  shareInfo: ShareInfo;
+  voiceId: string;
 };
 export type VoiceV1Cover = {
   url?: string;
@@ -45,6 +52,7 @@ export type CoverV1 = {
   error?: string;
   shareInfo: ShareInfo;
   stemsReady: boolean;
+  comments?: Comment[];
 };
 
 const createCoverV1Doc = async (coverObj: CoverV1): Promise<string> => {
@@ -59,4 +67,9 @@ const updateCoverV1Doc = async (
   const d = doc(db, DB_NAME, id);
   await updateDoc(d, { ...coverObj, updatedAt: serverTimestamp() });
 };
-export { createCoverV1Doc, updateCoverV1Doc };
+const addCommentToCover = async (id: string, commentInfo: Comment) => {
+  const d = doc(db, DB_NAME, id);
+  await updateDoc(d, { comments: arrayUnion(commentInfo) });
+};
+
+export { createCoverV1Doc, updateCoverV1Doc, addCommentToCover };

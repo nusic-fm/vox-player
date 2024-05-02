@@ -14,6 +14,7 @@ import {
   ListItemAvatar,
   Menu,
   MenuItem,
+  Tooltip,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
@@ -30,18 +31,18 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import { useGlobalState } from "../main";
 import { useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
-import {
-  getCoverCreatorAvatar,
-  getYouTubeVideoId,
-  nameToSlug,
-} from "../helpers";
+import { getUserAvatar, getYouTubeVideoId, nameToSlug } from "../helpers";
 import VoiceModelDialog from "./VoiceModelDialog";
 // import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
 import { LoadingButton } from "@mui/lab";
 import CoverInfoDialog from "./CoverInfoDialog";
 // import { PreCover } from "../services/db/preCovers.service";
 import { User } from "../services/db/users.service";
-import { CoverV1, VoiceV1Cover } from "../services/db/coversV1.service";
+import {
+  addCommentToCover,
+  CoverV1,
+  VoiceV1Cover,
+} from "../services/db/coversV1.service";
 import {
   createRevoxProgressDoc,
   RevoxProcessTypeDoc,
@@ -49,6 +50,7 @@ import {
 import Header from "./Header";
 import SimpleAudioProgress from "./SimpleAudioProgress";
 import VoiceChips from "./VoiceChips";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
 export type YTP_CONTENT = {
   title: string;
@@ -121,6 +123,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     coverDoc: CoverV1;
     id: string;
   }>(null);
+  const [newCommentContent, setNewCommentContent] = useState("");
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
@@ -132,6 +135,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     endTime?: number
   ) => {
     setSongLoading(true);
+    setNewCommentContent("");
     const voice_id = _voiceId || coverDoc.voices[0].id;
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
@@ -289,7 +293,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             voiceObj: {
               creatorName: user.name,
               id: newVoiceId,
-              imageUrl: getCoverCreatorAvatar(user.uid, user.avatar),
+              imageUrl: getUserAvatar(user.uid, user.avatar),
               name: voiceModelName,
               shareInfo: {
                 avatar: user.avatar,
@@ -356,7 +360,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           const coverDoc = doc.data() as CoverV1;
           return (
             <Box key={id} display="flex" alignItems={"center"} gap={2}>
-              <Box display={"flex"} alignItems="center">
+              <Box display={"flex"} alignItems="center" alignSelf={"start"}>
                 <IconButton
                   // disabled={loading || voiceLoading}
                   onClick={() => {
@@ -375,6 +379,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               <Avatar
                 src={coverDoc.metadata.videoThumbnail}
                 onMouseEnter={(e) => handleClick(e, i)}
+                sx={{ alignSelf: "start" }}
                 // onMouseLeave={handleClose}
               />
               {/* <Popover
@@ -640,6 +645,84 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     {hoverSectionName}
                   </Typography>
                 </Popover> */}
+                {songId === id && coverDoc.comments?.length && (
+                  <Stack>
+                    {coverDoc.comments.map((c) => (
+                      <Box
+                        display={"flex"}
+                        gap={1}
+                        alignItems="center"
+                        key={c.content}
+                      >
+                        <Tooltip title={c.shareInfo.name} placement="top">
+                          <Avatar
+                            src={getUserAvatar(
+                              c.shareInfo.id,
+                              c.shareInfo.avatar
+                            )}
+                            sx={{ width: 24, height: 24 }}
+                          />
+                        </Tooltip>
+                        <Box
+                          display={"flex"}
+                          justifyContent="space-between"
+                          width={"100%"}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{ fontStyle: "italic" }}
+                          >
+                            {c.content}
+                          </Typography>
+                          <Typography variant="caption" color={"#c3c3c3"}>
+                            #{c.voiceId} 🎧
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+                {songId === id && (
+                  <Box width={"100%"}>
+                    <TextField
+                      fullWidth
+                      placeholder="say something..."
+                      variant="standard"
+                      size="small"
+                      value={newCommentContent}
+                      onChange={(e) => setNewCommentContent(e.target.value)}
+                      InputProps={{
+                        endAdornment: (
+                          <IconButton
+                            size="small"
+                            onClick={async () => {
+                              if (!user) return alert("Kindly Sign In...");
+                              if (user && newCommentContent) {
+                                await addCommentToCover(id, {
+                                  content: newCommentContent,
+                                  shareInfo: {
+                                    avatar: user.avatar,
+                                    id: user.uid,
+                                    name: user.name,
+                                  },
+                                  timeInAudio: Tone.Transport.seconds,
+                                  voiceId,
+                                });
+                                setNewCommentContent("");
+                              }
+                            }}
+                          >
+                            <Tooltip title="Comment" placement="top">
+                              <SendRoundedIcon
+                                sx={{ width: "16px", height: "16px" }}
+                              />
+                            </Tooltip>
+                          </IconButton>
+                        ),
+                      }}
+                    />
+                  </Box>
+                )}
               </Stack>
             </Box>
           );

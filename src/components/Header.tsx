@@ -22,7 +22,7 @@ import {
   RevoxProcessTypeDoc,
 } from "../services/db/revoxQueue.service";
 import UserSelection from "./UserSelection";
-import { getCoverCreatorAvatar } from "../helpers";
+import { getUserAvatar } from "../helpers";
 // import axios from "axios";
 import { LoadingButton } from "@mui/lab";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
@@ -72,7 +72,7 @@ const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
     >
       {user ? (
         <Chip
-          avatar={<Avatar src={getCoverCreatorAvatar(user.uid, user.avatar)} />}
+          avatar={<Avatar src={getUserAvatar(user.uid, user.avatar)} />}
           deleteIcon={
             <Badge badgeContent={pendingRevoxes.length} color="warning">
               <ArrowDropDownIcon />
