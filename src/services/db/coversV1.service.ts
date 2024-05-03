@@ -59,6 +59,7 @@ export type CoverV1 = {
     [id: string]: number;
     total: number;
   };
+  commentsCount?: number;
 };
 
 const createCoverV1Doc = async (coverObj: CoverV1): Promise<string> => {
@@ -73,9 +74,14 @@ const updateCoverV1Doc = async (
   const d = doc(db, DB_NAME, id);
   await updateDoc(d, { ...coverObj, updatedAt: serverTimestamp() });
 };
+
+const SUB_COLLECTION = "comments";
+
 const addCommentToCover = async (id: string, commentInfo: Comment) => {
+  const c = collection(db, DB_NAME, id, SUB_COLLECTION);
+  await addDoc(c, { ...commentInfo, createdAt: serverTimestamp() });
   const d = doc(db, DB_NAME, id);
-  await updateDoc(d, { comments: arrayUnion(commentInfo) });
+  await updateDoc(d, { commentsCount: increment(1) });
 };
 const addLikesToCover = async (
   coverId: string,

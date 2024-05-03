@@ -52,6 +52,9 @@ import Header from "./Header";
 import SimpleAudioProgress from "./SimpleAudioProgress";
 import VoiceChips from "./VoiceChips";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import CommentsArea from "./CommentsArea";
+import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 
 export type YTP_CONTENT = {
   title: string;
@@ -127,6 +130,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [newCommentContent, setNewCommentContent] = useState("");
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+  const [showCommentsByCoverId, setShowCommentsByCoverId] = useState("");
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
@@ -455,43 +459,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       />
                     </Box>
                   )}
-                  {songId === id && coverDoc.comments?.length && (
-                    <Stack gap={0.5}>
-                      {coverDoc.comments.map((c) => (
-                        <Box
-                          display={"flex"}
-                          gap={1}
-                          alignItems="center"
-                          key={c.content}
-                        >
-                          <Tooltip title={c.shareInfo.name} placement="top">
-                            <Avatar
-                              src={getUserAvatar(
-                                c.shareInfo.id,
-                                c.shareInfo.avatar
-                              )}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                          </Tooltip>
-                          <Box
-                            display={"flex"}
-                            justifyContent="space-between"
-                            width={"100%"}
-                          >
-                            <Typography
-                              variant="caption"
-                              sx={{ fontStyle: "italic" }}
-                            >
-                              {c.content}
-                            </Typography>
-                            <Typography variant="caption" color={"#c3c3c3"}>
-                              #{c.voiceId} 🎧
-                            </Typography>
-                          </Box>
-                        </Box>
-                      ))}
-                    </Stack>
-                  )}
+                  {songId === id && <CommentsArea coverDocId={id} />}
                   {songId === id && (
                     <Box width={"100%"}>
                       <TextField
@@ -908,46 +876,42 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     {hoverSectionName}
                   </Typography>
                 </Popover> */}
-                  {songId === id && coverDoc.comments?.length && (
-                    <Stack gap={0.5}>
-                      {coverDoc.comments.map((c) => (
-                        <Box
-                          display={"flex"}
-                          gap={1}
-                          alignItems="center"
-                          key={c.content}
-                        >
-                          <Tooltip
-                            title={c.shareInfo.name}
-                            placement="top"
-                            disableInteractive
-                          >
-                            <Avatar
-                              src={getUserAvatar(
-                                c.shareInfo.id,
-                                c.shareInfo.avatar
-                              )}
-                              sx={{ width: 24, height: 24 }}
+                  <Box>
+                    <Box display={"flex"} gap={1} alignItems="center">
+                      {coverDoc.likes?.total && (
+                        <Tooltip title="Total Likes">
+                          <Box display={"flex"} alignItems="center" gap={0.2}>
+                            <FavoriteBorderRoundedIcon
+                              fontSize="small"
+                              sx={{ width: 12, height: 12, color: "#c3c3c3" }}
                             />
-                          </Tooltip>
-                          <Box
-                            display={"flex"}
-                            justifyContent="space-between"
-                            width={"100%"}
-                          >
-                            <Typography
-                              variant="caption"
-                              sx={{ fontStyle: "italic" }}
-                            >
-                              {c.content}
-                            </Typography>
                             <Typography variant="caption" color={"#c3c3c3"}>
-                              #{c.voiceId} 🎧
+                              {coverDoc.likes?.total}
                             </Typography>
                           </Box>
+                        </Tooltip>
+                      )}
+                      {coverDoc.commentsCount && (
+                        <Box
+                          display={"flex"}
+                          alignItems="center"
+                          gap={0.2}
+                          component="a"
+                          onClick={() => setShowCommentsByCoverId(id)}
+                        >
+                          <ChatBubbleOutlineRoundedIcon
+                            fontSize="small"
+                            sx={{ width: 12, height: 12, color: "#c3c3c3" }}
+                          />
+                          <Typography variant="caption" color={"#c3c3c3"}>
+                            {coverDoc.commentsCount}
+                          </Typography>
                         </Box>
-                      ))}
-                    </Stack>
+                      )}
+                    </Box>
+                  </Box>
+                  {(songId === id || showCommentsByCoverId === id) && (
+                    <CommentsArea coverDocId={id} />
                   )}
                   {songId === id && (
                     <Box width={"100%"}>
