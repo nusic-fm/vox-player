@@ -11,10 +11,7 @@ import {
 import { CoverV1, VoiceV1Cover } from "../services/db/coversV1.service";
 import { useEffect, useState } from "react";
 import { User } from "../services/db/users.service";
-import ThumbUpOffAltOutlinedIcon from "@mui/icons-material/ThumbUpOffAltOutlined";
-import ThumbDownOffAltOutlinedIcon from "@mui/icons-material/ThumbDownOffAltOutlined";
-import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
-import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
+import LikeDislikeGroup from "./LikeDislikeGroup";
 
 type Props = {
   coverDoc: CoverV1;
@@ -44,8 +41,6 @@ const VoiceChips = ({
   setRevoxSongInfo,
 }: Props) => {
   const [chipVoice, setChipVoice] = useState<VoiceV1Cover>();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isDisLiked, setIsDisLiked] = useState(false);
 
   useEffect(() => {
     if (voiceId && id === songId) {
@@ -190,42 +185,14 @@ const VoiceChips = ({
         </AvatarGroup> */}
       {songId === id && (
         <Box display={"flex"} gap={2}>
-          <Box display={"flex"}>
-            <IconButton
-              size="small"
-              onClick={() => {
-                if (isLiked) {
-                  setIsLiked(false);
-                } else {
-                  setIsLiked(true);
-                  setIsDisLiked(false);
-                }
-              }}
-            >
-              {isLiked ? (
-                <ThumbUpAltIcon fontSize="small" />
-              ) : (
-                <ThumbUpOffAltOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => {
-                if (isDisLiked) {
-                  setIsDisLiked(false);
-                } else {
-                  setIsDisLiked(true);
-                  setIsLiked(false);
-                }
-              }}
-            >
-              {isDisLiked ? (
-                <ThumbDownAltIcon fontSize="small" />
-              ) : (
-                <ThumbDownOffAltOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Box>
+          {user && (
+            <LikeDislikeGroup
+              user={user}
+              coverId={id}
+              voiceId={voiceId}
+              likesCount={coverDoc.likes?.[voiceId] || 0}
+            />
+          )}
           <Button
             variant="contained"
             size="small"

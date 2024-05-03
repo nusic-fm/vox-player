@@ -1,5 +1,12 @@
 import { db } from "../firebase.service";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 const DB_NAME = "users";
 
@@ -8,6 +15,8 @@ export type User = {
   uid: string;
   avatar: string;
   email: string;
+  likedVoiceCovers?: string[];
+  disLikedVoiceCovers?: string[];
 };
 const createUserDoc = async (
   uid: string,
@@ -43,9 +52,51 @@ const getUserDoc = async (id: string): Promise<any> => {
   return wdoc.data();
 };
 
-const updateUserDoc = async (id: string, userObj: any) => {
+const addLikeToUser = async (id: string, coverId: string, voiceId: string) => {
   const d = doc(db, DB_NAME, id);
-  await updateDoc(d, userObj);
+  await updateDoc(d, {
+    likedVoiceCovers: arrayUnion(coverId + "_" + voiceId),
+    disLikedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+  });
+};
+const removeLikeToUser = async (
+  id: string,
+  coverId: string,
+  voiceId: string
+) => {
+  const d = doc(db, DB_NAME, id);
+  await updateDoc(d, {
+    likedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+  });
+};
+const addDisLikeToUser = async (
+  id: string,
+  coverId: string,
+  voiceId: string
+) => {
+  const d = doc(db, DB_NAME, id);
+  await updateDoc(d, {
+    likedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+    disLikedVoiceCovers: arrayUnion(coverId + "_" + voiceId),
+  });
+};
+const removeDislikeToUser = async (
+  id: string,
+  coverId: string,
+  voiceId: string
+) => {
+  const d = doc(db, DB_NAME, id);
+  await updateDoc(d, {
+    disLikedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+  });
 };
 
-export { createUserDoc, getUserDoc, getUserById, updateUserDoc };
+export {
+  createUserDoc,
+  getUserDoc,
+  getUserById,
+  addLikeToUser,
+  removeLikeToUser,
+  addDisLikeToUser,
+  removeDislikeToUser,
+};
