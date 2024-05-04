@@ -41,15 +41,17 @@ const LikeDislikeGroup = ({ coverId, voiceId, user, likesCount }: Props) => {
           onClick={async () => {
             if (isLiked) {
               setIsLiked(false);
-              await removeLikesToCover(coverId, voiceId);
-              await removeLikeToUser(user.uid, coverId, voiceId);
+              await removeLikesToCover(user.uid, coverId, voiceId);
+              // await removeLikesToCover(coverId, voiceId);
+              // await removeLikeToUser(user.uid, coverId, voiceId);
             } else {
               setIsLiked(true);
               if (isDisLiked) {
                 setIsDisLiked(false);
               }
-              await addLikesToCover(coverId, voiceId, isDisLiked);
-              await addLikeToUser(user.uid, coverId, voiceId);
+              await addLikesToCover(user.uid, coverId, voiceId);
+              // await addLikesToCover(coverId, voiceId, isDisLiked);
+              // await addLikeToUser(user.uid, coverId, voiceId);
             }
           }}
         >
@@ -69,15 +71,17 @@ const LikeDislikeGroup = ({ coverId, voiceId, user, likesCount }: Props) => {
         onClick={async () => {
           if (isDisLiked) {
             setIsDisLiked(false);
-            await removeDisLikesToCover(coverId, voiceId);
-            await removeDislikeToUser(user.uid, coverId, voiceId);
+            await removeDisLikesToCover(user.uid, coverId, voiceId);
+            // await removeDisLikesToCover(coverId, voiceId);
+            // await removeDislikeToUser(user.uid, coverId, voiceId);
           } else {
             setIsDisLiked(true);
             if (isLiked) {
               setIsLiked(false);
             }
-            await addDisLikesToCover(coverId, voiceId, isLiked);
-            await addDisLikeToUser(user.uid, coverId, voiceId);
+            await addDisLikesToCover(user.uid, coverId, voiceId);
+            // await addDisLikesToCover(coverId, voiceId, isLiked);
+            // await addDisLikeToUser(user.uid, coverId, voiceId);
           }
         }}
       >

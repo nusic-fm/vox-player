@@ -10,7 +10,10 @@ import {
   // setDoc,
   updateDoc,
   increment,
+  runTransaction,
+  arrayRemove,
 } from "firebase/firestore";
+import { User } from "./users.service";
 
 const DB_NAME = "covers_v1";
 
@@ -60,6 +63,10 @@ export type CoverV1 = {
     total: number;
   };
   commentsCount?: number;
+  dislikes?: {
+    [id: string]: number;
+    total: number;
+  };
 };
 
 const createCoverV1Doc = async (coverObj: CoverV1): Promise<string> => {
@@ -84,73 +91,175 @@ const addCommentToCover = async (id: string, commentInfo: Comment) => {
   await updateDoc(d, { commentsCount: increment(1) });
 };
 const addLikesToCover = async (
+  uid: string,
   coverId: string,
-  voiceId: string,
-  removeDislike: boolean
+  voiceId: string
 ) => {
-  const d = doc(db, DB_NAME, coverId);
-  const updateObj: any = {
-    likes: {
-      [voiceId]: increment(1),
-      total: increment(1),
-    },
-  };
-  if (removeDislike) {
-    updateObj.disLikes = {
-      [voiceId]: increment(-1),
-      total: increment(-1),
-    };
-  }
-  await setDoc(d, updateObj, { merge: true });
+  await runTransaction(db, async (transaction) => {
+    const userRef = doc(db, "users", uid);
+    const userDocSs = await transaction.get(userRef);
+    const latestUserDoc = userDocSs.data() as undefined | User;
+    if (latestUserDoc?.likedVoiceCovers?.includes(coverId + "_" + voiceId)) {
+      // Already Liked and trying to Like again - ignore
+    } else {
+      const coverDocRef = doc(db, DB_NAME, coverId);
+      const updateObj: any = {
+        likes: {
+          [voiceId]: increment(1),
+          total: increment(1),
+        },
+      };
+      if (
+        latestUserDoc?.disLikedVoiceCovers?.includes(coverId + "_" + voiceId)
+      ) {
+        updateObj.disLikes = {
+          [voiceId]: increment(-1),
+          total: increment(-1),
+        };
+      }
+      await transaction.set(coverDocRef, updateObj, { merge: true });
+      await transaction.update(userRef, {
+        likedVoiceCovers: arrayUnion(coverId + "_" + voiceId),
+        disLikedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+      });
+    }
+  });
+  // const d = doc(db, DB_NAME, coverId);
+  // const updateObj: any = {
+  //   likes: {
+  //     [voiceId]: increment(1),
+  //     total: increment(1),
+  //   },
+  // };
+  // if (removeDislike) {
+  //   updateObj.disLikes = {
+  //     [voiceId]: increment(-1),
+  //     total: increment(-1),
+  //   };
+  // }
+  // await setDoc(d, updateObj, { merge: true });
   // await updateDoc(d, updateObj);
 };
-const removeLikesToCover = async (coverId: string, voiceId: string) => {
-  const d = doc(db, DB_NAME, coverId);
-  await setDoc(
-    d,
-    {
-      likes: {
-        [voiceId]: increment(-1),
-        total: increment(-1),
-      },
-    },
-    { merge: true }
-  );
+const removeLikesToCover = async (
+  uid: string,
+  coverId: string,
+  voiceId: string
+) => {
+  await runTransaction(db, async (transaction) => {
+    const userRef = doc(db, "users", uid);
+    const userDocSs = await transaction.get(userRef);
+    const latestUserDoc = userDocSs.data() as undefined | User;
+    if (latestUserDoc?.likedVoiceCovers?.includes(coverId + "_" + voiceId)) {
+      // Already Liked so Remove the like as per the request
+      const coverDocRef = doc(db, DB_NAME, coverId);
+      const updateObj: any = {
+        likes: {
+          [voiceId]: increment(-1),
+          total: increment(-1),
+        },
+      };
+      await transaction.set(coverDocRef, updateObj, { merge: true });
+      await transaction.update(userRef, {
+        likedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+      });
+    }
+  });
+  // const d = doc(db, DB_NAME, coverId);
+  // await setDoc(
+  //   d,
+  //   {
+  //     likes: {
+  //       [voiceId]: increment(-1),
+  //       total: increment(-1),
+  //     },
+  //   },
+  //   { merge: true }
+  // );
   // await updateDoc(d, );
 };
 const addDisLikesToCover = async (
+  uid: string,
   coverId: string,
-  voiceId: string,
-  removeLike: boolean
+  voiceId: string
 ) => {
-  const d = doc(db, DB_NAME, coverId);
-  const updateObj: any = {
-    disLikes: {
-      [voiceId]: increment(1),
-      total: increment(1),
-    },
-  };
-  if (removeLike) {
-    updateObj.likes = {
-      [voiceId]: increment(-1),
-      total: increment(-1),
-    };
-  }
-  await setDoc(d, updateObj, { merge: true });
+  await runTransaction(db, async (transaction) => {
+    const userRef = doc(db, "users", uid);
+    const userDocSs = await transaction.get(userRef);
+    const latestUserDoc = userDocSs.data() as undefined | User;
+    if (latestUserDoc?.disLikedVoiceCovers?.includes(coverId + "_" + voiceId)) {
+      // Already Liked and trying to Like again - ignore
+    } else {
+      const coverDocRef = doc(db, DB_NAME, coverId);
+      const updateObj: any = {
+        disLikes: {
+          [voiceId]: increment(1),
+          total: increment(1),
+        },
+      };
+      if (latestUserDoc?.likedVoiceCovers?.includes(coverId + "_" + voiceId)) {
+        updateObj.likes = {
+          [voiceId]: increment(-1),
+          total: increment(-1),
+        };
+      }
+      await transaction.set(coverDocRef, updateObj, { merge: true });
+      await transaction.update(userRef, {
+        disLikedVoiceCovers: arrayUnion(coverId + "_" + voiceId),
+        likedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+      });
+    }
+  });
+  // const d = doc(db, DB_NAME, coverId);
+  // const updateObj: any = {
+  //   disLikes: {
+  //     [voiceId]: increment(1),
+  //     total: increment(1),
+  //   },
+  // };
+  // if (removeLike) {
+  //   updateObj.likes = {
+  //     [voiceId]: increment(-1),
+  //     total: increment(-1),
+  //   };
+  // }
+  // await setDoc(d, updateObj, { merge: true });
   // await updateDoc(d, updateObj);
 };
-const removeDisLikesToCover = async (coverId: string, voiceId: string) => {
-  const d = doc(db, DB_NAME, coverId);
-  await setDoc(
-    d,
-    {
-      disLikes: {
-        [voiceId]: increment(-1),
-        total: increment(-1),
-      },
-    },
-    { merge: true }
-  );
+const removeDisLikesToCover = async (
+  uid: string,
+  coverId: string,
+  voiceId: string
+) => {
+  await runTransaction(db, async (transaction) => {
+    const userRef = doc(db, "users", uid);
+    const userDocSs = await transaction.get(userRef);
+    const latestUserDoc = userDocSs.data() as undefined | User;
+    if (latestUserDoc?.disLikedVoiceCovers?.includes(coverId + "_" + voiceId)) {
+      // Already Liked so Remove the like as per the request
+      const coverDocRef = doc(db, DB_NAME, coverId);
+      const updateObj: any = {
+        disLikes: {
+          [voiceId]: increment(-1),
+          total: increment(-1),
+        },
+      };
+      await transaction.set(coverDocRef, updateObj, { merge: true });
+      await transaction.update(userRef, {
+        disLikedVoiceCovers: arrayRemove(coverId + "_" + voiceId),
+      });
+    }
+  });
+  // const d = doc(db, DB_NAME, coverId);
+  // await setDoc(
+  //   d,
+  //   {
+  //     disLikes: {
+  //       [voiceId]: increment(-1),
+  //       total: increment(-1),
+  //     },
+  //   },
+  //   { merge: true }
+  // );
   // await updateDoc(d, {
   //   dislikes: {
   //     [voiceId]: increment(-1),

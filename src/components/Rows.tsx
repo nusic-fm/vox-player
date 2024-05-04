@@ -878,7 +878,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 </Popover> */}
                   <Box>
                     <Box display={"flex"} gap={1} alignItems="center">
-                      {coverDoc.likes?.total && (
+                      {!!coverDoc.likes?.total && (
                         <Tooltip title="Total Likes">
                           <Box display={"flex"} alignItems="center" gap={0.2}>
                             <FavoriteBorderRoundedIcon
@@ -891,7 +891,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           </Box>
                         </Tooltip>
                       )}
-                      {coverDoc.commentsCount && (
+                      {!!coverDoc.commentsCount && (
                         <Box
                           display={"flex"}
                           alignItems="center"
@@ -901,9 +901,23 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         >
                           <ChatBubbleOutlineRoundedIcon
                             fontSize="small"
-                            sx={{ width: 12, height: 12, color: "#c3c3c3" }}
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              color:
+                                showCommentsByCoverId === id
+                                  ? "#8973F8"
+                                  : "#c3c3c3",
+                            }}
                           />
-                          <Typography variant="caption" color={"#c3c3c3"}>
+                          <Typography
+                            variant="caption"
+                            color={
+                              showCommentsByCoverId === id
+                                ? "#8973F8"
+                                : "#c3c3c3"
+                            }
+                          >
                             {coverDoc.commentsCount}
                           </Typography>
                         </Box>
