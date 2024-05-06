@@ -50,7 +50,6 @@ const VoxPlayer = (props: Props) => {
         // https://cdn.discordapp.com/avatars/879400465861869638/5d69e3e90a6d07b3cd15e4cd4e8a1407.png
         setUser(userDocDb);
         setTempUserId(userDocDb.uid);
-        window.history.replaceState(null, "", window.location.origin);
       }
     } catch (e) {
       if (isAlertOnFail) {
@@ -73,6 +72,7 @@ const VoxPlayer = (props: Props) => {
       window.localStorage.setItem(localStorageAccessTokenKey, _accessToken);
       window.localStorage.setItem(localStorageTokenTypeKey, _tokenType);
       fetchUser(_tokenType, _accessToken);
+      window.history.replaceState(null, "", window.location.origin);
       // setTokenType(_tokenType);
       // setAccessToken(_accessToken);
     } else if (!user) {
@@ -133,7 +133,7 @@ const VoxPlayer = (props: Props) => {
             <img src="/nusic_purple.png" width={155} alt="" />
           </Box>
           <Typography variant="body2" textAlign={"center"}>
-            Streaming On Steroids
+            Post-Ironic Streaming
           </Typography>
         </Box>
         <Rows user={user} tempUserId={tempUserId} onUserChange={onUserChange} />

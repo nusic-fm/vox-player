@@ -49,6 +49,7 @@ const GlobalStateProvider = ({ children }: any) => {
     bpm: 0,
     duration: 0,
   });
+  const [lastSongLoadTime, setLastSongLoadTime] = useState(0);
 
   const updateGlobalState = async (newState: MusicState) => {
     setSongId(newState.songId);
@@ -60,6 +61,7 @@ const GlobalStateProvider = ({ children }: any) => {
     }));
     if (newState.coverVocalsUrl) {
       setLoading(true);
+      const startTime = Date.now();
       await playAudio(
         newState.songInstrUrl,
         newState.coverVocalsUrl,
@@ -67,6 +69,7 @@ const GlobalStateProvider = ({ children }: any) => {
         newState.duration,
         newState.fromStart
       );
+      setLastSongLoadTime(Number(((Date.now() - startTime) / 1000).toFixed(1)));
       setLoading(false);
     }
   };
@@ -84,6 +87,7 @@ const GlobalStateProvider = ({ children }: any) => {
         playPlayer,
         voiceId,
         loading,
+        lastSongLoadTime,
       }}
     >
       {/* <LoginModal /> */}

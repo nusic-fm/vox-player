@@ -30,7 +30,7 @@ import { db } from "../services/firebase.service";
 // import EqualizerRoundedIcon from "@mui/icons-material/EqualizerRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import { useGlobalState } from "../main";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
 import { getUserAvatar, getYouTubeVideoId, nameToSlug } from "../helpers";
 import VoiceModelDialog from "./VoiceModelDialog";
@@ -55,6 +55,7 @@ import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CommentsArea from "./CommentsArea";
 import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
+import { useLocation } from "react-router-dom";
 
 export type YTP_CONTENT = {
   title: string;
@@ -91,6 +92,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     playPlayer,
     voiceId,
     loading,
+    lastSongLoadTime,
   } = useGlobalState();
   const [anchorEl, setAnchorEl] = useState<{
     elem: HTMLDivElement;
@@ -131,6 +133,27 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
   const [showCommentsByCoverId, setShowCommentsByCoverId] = useState("");
+  const location = useLocation();
+
+  useEffect(() => {
+    if (coversCollectionSnapshot) {
+      const searchParams = new URLSearchParams(location.search);
+      const _coverId = searchParams.get("coverId");
+      const _voiceId = searchParams.get("voiceId");
+      if (_coverId && _voiceId) {
+        console.log("Cover:", _coverId);
+        console.log("Voice:", _voiceId);
+        onSongClick(
+          _coverId,
+          coversCollectionSnapshot?.docs
+            .find((d) => d.id === _coverId)
+            ?.data() as CoverV1,
+          _voiceId
+        );
+        window.history.replaceState(null, "", window.location.origin);
+      }
+    }
+  }, [location.search, coversCollectionSnapshot]);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
@@ -382,6 +405,16 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                               (v) => v.id === (voiceId || coverDoc.voices[0].id)
                             )?.creatorName
                           : coverDoc.voices[0].creatorName}
+                        {songId === id && !loading && !!lastSongLoadTime && (
+                          <Typography
+                            component={"span"}
+                            color="yellow"
+                            variant="caption"
+                          >
+                            {" "}
+                            - {lastSongLoadTime}s
+                          </Typography>
+                        )}
                       </Typography>
                       <Typography>{coverDoc.title}</Typography>
                     </Stack>
@@ -720,6 +753,16 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                               (v) => v.id === (voiceId || coverDoc.voices[0].id)
                             )?.creatorName
                           : coverDoc.voices[0].creatorName}
+                        {songId === id && !loading && !!lastSongLoadTime && (
+                          <Typography
+                            component={"span"}
+                            color="yellow"
+                            variant="caption"
+                          >
+                            {" "}
+                            - {lastSongLoadTime}s
+                          </Typography>
+                        )}
                       </Typography>
                       <Typography>{coverDoc.title}</Typography>
                     </Stack>
@@ -985,7 +1028,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             </Stack>
           )}
           <Box display={"flex"} gap={2} alignItems="center">
-            <IconButton>
+            <IconButton
+              disableFocusRipple
+              disableRipple
+              disableTouchRipple
+              sx={{ cursor: "unset" }}
+            >
               <AddCircleOutlineRoundedIcon />
             </IconButton>
             <TextField
