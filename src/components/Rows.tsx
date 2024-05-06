@@ -167,9 +167,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     setSongLoading(true);
     setNewCommentContent("");
     const voice_id = _voiceId || coverDoc.voices[0].id;
-    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
+    // const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
-    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2F${voice_id}.mp3?alt=media`;
+    // const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2F${voice_id}.mp3?alt=media`;
+    const _instrUrl = `https://voxaudio.nusic.fm/covers_v1/${_id}/instrumental.mp3`;
+    const _audioUrl = `https://voxaudio.nusic.fm/covers_v1/${_id}/${voice_id}.mp3`;
     // setVoice("");
     // setSongId(_id);
     if (endTime) pushLog(endTime);
@@ -250,8 +252,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
 
   const onVoiceChange = async (_voiceId: string, voiceObj: VoiceV1Cover) => {
     setVoiceLoading(true);
-    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${songId}%2Finstrumental.mp3?alt=media`;
-    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${songId}%2F${_voiceId}.mp3?alt=media`;
+    // "https://voxaudio.nusic.fm/nusic-vox-player.appspot.com/covers_v1/0SYPvwFyi24Y1I2oOVu0/instrumental.mp3";
+    const _instrUrl = `https://voxaudio.nusic.fm/covers_v1/${songId}/instrumental.mp3`;
+    const _audioUrl = `https://voxaudio.nusic.fm/covers_v1/${songId}/${_voiceId}.mp3`;
+    // const _instrUrl = `https://storage.googleapis.com/nusic-vox-player.appspot.com/covers_v1%2F${songId}%2Finstrumental.mp3`;
+    // const _audioUrl = `https://storage.googleapis.com/nusic-vox-player.appspot.com/covers_v1%2F${songId}%2F${_voiceId}.mp3`;
     // setVoice(_voiceId);
     // await playAudio(_instrUrl, _audioUrl);
     // if (globalStateHook?.updateGlobalState) {
