@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useRef, useState } from "react";
 import * as Tone from "tone";
 import { ToneAudioBuffer } from "tone";
@@ -86,15 +87,34 @@ export const useTonejs = () => {
       playerRef.current.dispose();
     }
     // Load and play the new audio
-    const player = new Tone.Player(vocalsUrl).sync().toDestination();
-    playerRef.current = player;
-    if (instrUrl) {
-      const instrPlayer = new Tone.Player(instrUrl).sync().toDestination();
-      instrPlayerRef.current = instrPlayer;
-    }
+    const responses = await Promise.all([
+      axios.get(vocalsUrl, {
+        headers: { Range: "bytes=0-120000" },
+        responseType: "arraybuffer",
+      }),
+      axios.get(instrUrl, {
+        headers: { Range: "bytes=0-120000" },
+        responseType: "arraybuffer",
+      }),
+    ]);
+
+    // new ToneBufferSource(responses[0].data);
+    // new ToneBufferSource(responses[1].data);
+    console.time("decode-audio");
+    const audioContext = new AudioContext();
+    const b1 = await audioContext.decodeAudioData(responses[0].data);
+    const b2 = await audioContext.decodeAudioData(responses[1].data);
+    console.timeEnd("decode-audio");
+    const tempPlayer = new Tone.Player(b1).sync().toDestination();
+    const tempInstrPlayer = new Tone.Player(b2).sync().toDestination();
+
+    playerRef.current = tempPlayer;
+    instrPlayerRef.current = tempInstrPlayer;
+    // player.buffer = responses[0].data;
+    // instrPlayer.buffer = responses[1].data;
     // setCurrentPlayer(player);
     await Tone.loaded();
-    if (isMuted) player.mute = true;
+    if (isMuted) playerRef.current.mute = true;
     if (isMuted && instrPlayerRef.current) instrPlayerRef.current.mute = true;
     // player.loop = true;
     // if (instrPlayerRef.current) instrPlayerRef.current.loop = true;
@@ -107,7 +127,29 @@ export const useTonejs = () => {
     playerRef.current?.start();
     instrPlayerRef.current?.start();
     Tone.Transport.start();
-    // startTimeRef.current = Tone.Transport.seconds;
+
+    Promise.all([
+      new Promise((res) => {
+        const audioBuffer = new Tone.Buffer(vocalsUrl);
+        audioBuffer.onload = (bf) => {
+          res(bf);
+        };
+      }),
+      new Promise((res) => {
+        const audioBuffer = new Tone.Buffer(instrUrl);
+        audioBuffer.onload = (bf) => {
+          res(bf);
+        };
+      }),
+    ]).then((fullAudioRespones: any) => {
+      if (playerRef.current && instrPlayerRef.current) {
+        playerRef.current.buffer = fullAudioRespones[0];
+        instrPlayerRef.current.buffer = fullAudioRespones[1];
+        playerRef.current.seek(Tone.Transport.seconds);
+        instrPlayerRef.current.seek(Tone.Transport.seconds);
+        console.log("Changed");
+      }
+    });
   };
 
   const switchAudio = async (url: string) => {
