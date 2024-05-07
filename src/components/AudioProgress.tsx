@@ -5,10 +5,11 @@ import { formatDuration } from "../helpers";
 
 type Props = {
   isTonePlaying: boolean;
+  loading: boolean;
   duration: number;
 };
 
-const AudioProgress = ({ isTonePlaying, duration }: Props) => {
+const AudioProgress = ({ isTonePlaying, duration, loading }: Props) => {
   const [currentValue, setCurrentValue] = useState(0);
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const AudioProgress = ({ isTonePlaying, duration }: Props) => {
         {formatDuration(currentValue)}
       </Typography>
       <Slider
+        disabled={loading}
         value={currentValue}
         min={0}
         step={1}

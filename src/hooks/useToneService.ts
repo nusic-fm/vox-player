@@ -78,11 +78,11 @@ export const useTonejs = () => {
     await initializeTone();
     if (Tone.Transport.seconds) Tone.Transport.stop();
     if (instrPlayerRef.current) {
-      instrPlayerRef.current.disconnect();
-      instrPlayerRef.current.disconnect();
+      instrPlayerRef.current.stop();
+      instrPlayerRef.current.dispose();
     }
     if (playerRef.current) {
-      playerRef.current.disconnect();
+      playerRef.current.stop();
       playerRef.current.dispose();
     }
     // Load and play the new audio
@@ -104,10 +104,9 @@ export const useTonejs = () => {
     Tone.Transport.setLoopPoints(0, duration);
     Tone.Transport.loop = true;
 
-    playerRef.current?.start();
-    instrPlayerRef.current?.start();
+    playerRef.current?.start(0);
+    instrPlayerRef.current?.start(0);
     Tone.Transport.start();
-    // startTimeRef.current = Tone.Transport.seconds;
   };
 
   const switchAudio = async (url: string) => {
@@ -121,7 +120,7 @@ export const useTonejs = () => {
           }
         } else if (playerRef.current) {
           playerRef.current.buffer = bf;
-          Tone.Transport.start();
+          // Tone.Transport.start();
           playerRef.current.start();
         }
         res("");

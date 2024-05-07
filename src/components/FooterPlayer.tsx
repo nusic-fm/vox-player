@@ -87,6 +87,7 @@ const FooterPlayer = ({
           </Box>
           <Box display={"flex"} alignItems={"center"} gap={2}>
             <AudioProgress
+              loading={loading}
               isTonePlaying={isTonePlaying}
               duration={songInfo.duration}
             />
@@ -180,6 +181,7 @@ const FooterPlayer = ({
               {songInfo.voices.filter((v) => v.id === voiceId).at(0)?.name}
             </Typography>
             <AudioProgress
+              loading={loading}
               isTonePlaying={isTonePlaying}
               duration={songInfo.duration}
             />
@@ -256,7 +258,6 @@ const FooterPlayer = ({
                   defaultValue={0}
                   step={1}
                   onChange={(e, val) => {
-                    console.log(val);
                     increaseVocalsVolume(val as number);
                   }}
                   sx={{ width: 100 }}

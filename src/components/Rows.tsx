@@ -16,6 +16,9 @@ import {
   MenuItem,
   Tooltip,
   useTheme,
+  CardActionArea,
+  CardContent,
+  Card,
 } from "@mui/material";
 import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
@@ -390,40 +393,59 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           onRevoxRetry={onRevoxRetry}
         />
         <Divider />
-        <Stack gap={2} py={2}>
+        <Stack gap={1} py={2}>
           {coversCollectionSnapshot?.docs.map((doc, i) => {
             const id = doc.id;
             const coverDoc = doc.data() as CoverV1;
             return (
               <Box key={id} display="flex" alignItems={"center"} gap={2}>
                 <Stack gap={1} maxWidth="100%">
-                  <Box display={"flex"} gap={1}>
-                    <Avatar
-                      src={coverDoc.metadata.videoThumbnail}
-                      onMouseEnter={(e) => handleClick(e, i)}
-                      sx={{ alignSelf: "start" }}
-                    />
-                    <Stack>
-                      <Typography variant="caption" component="a">
-                        {songId === id
-                          ? coverDoc.voices.find(
-                              (v) => v.id === (voiceId || coverDoc.voices[0].id)
-                            )?.creatorName
-                          : coverDoc.voices[0].creatorName}
-                        {songId === id && !loading && !!lastSongLoadTime && (
-                          <Typography
-                            component={"span"}
-                            color="yellow"
-                            variant="caption"
-                          >
-                            {" "}
-                            - {lastSongLoadTime}s
-                          </Typography>
-                        )}
-                      </Typography>
-                      <Typography>{coverDoc.title}</Typography>
-                    </Stack>
-                  </Box>
+                  <Card
+                    sx={{
+                      backgroundColor: "transparent",
+                      backgroundImage: "unset",
+                    }}
+                    onClick={(e) => {
+                      if (loading || voiceLoading) return;
+                      onPlay(id, coverDoc);
+                    }}
+                  >
+                    <CardActionArea>
+                      <CardContent sx={{ p: 1 }}>
+                        <Box display={"flex"} gap={1}>
+                          <Avatar
+                            src={coverDoc.metadata.videoThumbnail}
+                            onMouseEnter={(e) => handleClick(e, i)}
+                            sx={{ alignSelf: "start" }}
+                          />
+                          <Stack>
+                            <Typography variant="caption" component="a">
+                              {songId === id
+                                ? coverDoc.voices.find(
+                                    (v) =>
+                                      v.id ===
+                                      (voiceId || coverDoc.voices[0].id)
+                                  )?.creatorName
+                                : coverDoc.voices[0].creatorName}
+                              {songId === id &&
+                                !loading &&
+                                !!lastSongLoadTime && (
+                                  <Typography
+                                    component={"span"}
+                                    color="yellow"
+                                    variant="caption"
+                                  >
+                                    {" "}
+                                    - {lastSongLoadTime}s
+                                  </Typography>
+                                )}
+                            </Typography>
+                            <Typography>{coverDoc.title}</Typography>
+                          </Stack>
+                        </Box>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
                   <VoiceChips
                     coverDoc={coverDoc}
                     id={id}
@@ -709,7 +731,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               <Box key={id} display="flex" alignItems={"center"} gap={2}>
                 <Box display={"flex"} alignItems="center" alignSelf={"start"}>
                   <IconButton
-                    // disabled={loading || voiceLoading}
+                    disabled={loading || voiceLoading}
                     onClick={() => {
                       onPlay(id, coverDoc);
                     }}

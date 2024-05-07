@@ -59,6 +59,7 @@ const VoiceChips = ({
     >
       {chipVoice && (
         <Badge
+          sx={{ mr: 4 }}
           anchorOrigin={{ horizontal: "right", vertical: "top" }}
           badgeContent={
             <Box display={"flex"} position="absolute" top={12.5} left={4}>
@@ -72,6 +73,7 @@ const VoiceChips = ({
                       fontFamily: "inherit",
                     }}
                     onClick={(e) => {
+                      if (loading || voiceLoading) return;
                       setVoicesPopperEl({
                         anchorEl: e.currentTarget,
                         coverDoc,
@@ -102,12 +104,18 @@ const VoiceChips = ({
                   )
                   .slice(0, 2)
                   .map((v) => (
-                    <Tooltip key={v.id} title={v.name} placement="top" arrow>
+                    <Tooltip
+                      key={v.id + Math.random()}
+                      title={v.name}
+                      placement="top"
+                      arrow
+                    >
                       <Avatar
                         alt=""
                         src={v.imageUrl}
                         sx={{ width: 24, height: 24 }}
                         onClick={() => {
+                          if (loading || voiceLoading) return;
                           if (!voiceId || songId !== id)
                             onPlay(id, coverDoc, v.id);
                           else if (songId === id) onVoiceChange(v.id, v);
