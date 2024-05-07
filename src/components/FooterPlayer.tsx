@@ -6,6 +6,7 @@ import {
   Slider,
   useMediaQuery,
   useTheme,
+  Popover,
 } from "@mui/material";
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import PauseRounded from "@mui/icons-material/PauseRounded";
@@ -16,6 +17,8 @@ import { MusicState } from "./providers/GlobalStateProvider";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
 import AudioProgress from "./AudioProgress";
+import ShareIcon from "@mui/icons-material/Share";
+import { useState } from "react";
 
 type Props = {
   songInfo: MusicState;
@@ -42,6 +45,7 @@ const FooterPlayer = ({
 }: Props) => {
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+  const [copyPopEl, setCopyPopEl] = useState<null | HTMLButtonElement>(null);
 
   if (isMobileView)
     return (
@@ -149,10 +153,10 @@ const FooterPlayer = ({
         position={"absolute"}
         width={{ xs: "calc(100% - 16px)", md: "950px" }}
         bottom={0}
-        py={1}
-        px={4}
+        py={2}
+        px={2}
         display="flex"
-        gap={4}
+        gap={2}
         alignItems="center"
         sx={{ backgroundColor: "#212121" }}
         zIndex={9}
@@ -218,6 +222,30 @@ const FooterPlayer = ({
                   <Forward10RoundedIcon />
                 </IconButton>
               </Box>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  const input = `https://vox-player.netlify.app?coverId=${songInfo.songId}&voiceId=${voiceId}`;
+                  navigator.clipboard.writeText(input);
+                  setCopyPopEl(e.currentTarget);
+                  setTimeout(() => setCopyPopEl(null), 500);
+                }}
+              >
+                <ShareIcon fontSize="small" />
+              </IconButton>
+              <Popover
+                open={!!copyPopEl}
+                anchorEl={copyPopEl}
+                onClose={() => setCopyPopEl(null)}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <Typography px={1} variant="caption">
+                  Copied
+                </Typography>
+              </Popover>
               <Box display={"flex"} alignItems={"center"}>
                 <IconButton size="small" onClick={switchMute}>
                   {isMuted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
