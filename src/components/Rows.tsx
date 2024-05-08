@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
-import { collection, query, where } from "firebase/firestore";
+import { collection, orderBy, query, where } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import * as Tone from "tone";
 import { getWidthByDuration, timeToSeconds } from "../helpers/audio";
@@ -79,9 +79,14 @@ type Props = {
 };
 
 const Rows = ({ user, tempUserId, onUserChange }: Props) => {
-  const [coversCollectionSnapshot, coversLoading] = useCollection(
-    query(collection(db, "covers_v1"), where("audioUrl", "!=", ""))
+  const [coversCollectionSnapshot, coversLoading, error] = useCollection(
+    query(
+      collection(db, "covers_v1"),
+      orderBy("likes.total", "desc"),
+      where("audioUrl", "!=", "")
+    )
   );
+  console.error(error);
   // const [preCoversCollectionSnapshot] = useCollection(
   //   collection(db, "pre_covers")
   // );
