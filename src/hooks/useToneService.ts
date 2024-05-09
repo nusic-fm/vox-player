@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import { ToneAudioBuffer } from "tone";
 
-export const useTonejs = () => {
+export const useTonejs = (onPlayEnd?: () => void) => {
   // const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
   const playerRef = useRef<Tone.Player | null>(null);
   const instrPlayerRef = useRef<Tone.Player | null>(null);
@@ -17,6 +17,7 @@ export const useTonejs = () => {
   >(null);
   const [loop, setLoop] = useState(false);
   const onEndedCalledRef = useRef(false);
+  const [isEnded, setIsEnded] = useState(false);
 
   const initializeTone = async () => {
     if (!isToneInitialized) {
@@ -40,12 +41,18 @@ export const useTonejs = () => {
       console.log("Tone Paused");
       setIsTonePlaying(false);
     });
-    // Tone.Transport.on("loopStart", (...args) => {
-    //   console.log("Loop Started");
-    //   console.log(args);
-    //   console.log(Tone.Transport.seconds);
-    // });
+    Tone.Transport.on("loopEnd", (...args) => {
+      setIsEnded(true);
+    });
   };
+  useEffect(() => {
+    if (isEnded) {
+      if (!loop && onPlayEnd) {
+        Tone.Transport.stop();
+        onPlayEnd();
+      }
+    }
+  }, [isEnded]);
   const changePlayerBuffer = (
     bf: ToneAudioBuffer,
     offsetPosition: Tone.Unit.Time
@@ -107,6 +114,7 @@ export const useTonejs = () => {
     playerRef.current?.start(0);
     instrPlayerRef.current?.start(0);
     Tone.Transport.start();
+    setIsEnded(false);
   };
 
   const switchAudio = async (url: string) => {

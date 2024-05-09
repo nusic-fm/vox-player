@@ -86,10 +86,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       where("audioUrl", "!=", "")
     )
   );
-  console.error(error);
-  // const [preCoversCollectionSnapshot] = useCollection(
-  //   collection(db, "pre_covers")
-  // );
+
   const {
     updateGlobalState,
     songId,
@@ -172,8 +169,15 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     _voiceId?: string,
     endTime?: number
   ) => {
+    // if (!coversCollectionSnapshot) return;
     setSongLoading(true);
     setNewCommentContent("");
+    // const coverDoc =
+    //   _coverDoc ||
+    //   (coversCollectionSnapshot.docs
+    //     .find((d) => d.id === _id)
+    //     ?.data() as CoverV1);
+    // if (!coverDoc) return;
     const voice_id = _voiceId || coverDoc.voices[0].id;
     // const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
@@ -184,8 +188,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     // setSongId(_id);
     if (endTime) pushLog(endTime);
     // await playAudio(_instrUrl, _audioUrl, true);
-    // if (globalStateHook?.updateGlobalState) {
     if (coverDoc) {
+      const newPlaylistObj: any = {};
+      coversCollectionSnapshot?.docs.map((d) => {
+        newPlaylistObj[d.id] = d.data() as CoverV1;
+      });
       // `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`;
       await updateGlobalState({
         songImg: coverDoc.voices.find((v) => v.id === voice_id)?.imageUrl,
@@ -198,6 +205,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         bpm: coverDoc.bpm,
         voiceId: voice_id,
         duration: coverDoc.duration,
+        playlist: newPlaylistObj,
       });
       // }
       // const differences = [];
@@ -225,7 +233,10 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   };
   const onPreCoverSongClick = async (_id: string, preCoverDoc: CoverV1) => {
     setSongLoading(true);
-
+    const newPlaylistObj: any = {};
+    coversCollectionSnapshot?.docs.map((d) => {
+      newPlaylistObj[d.id] = d.data() as CoverV1;
+    });
     await updateGlobalState({
       songImg: preCoverDoc.voices[0].imageUrl,
       songName: preCoverDoc.title,
@@ -235,6 +246,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       songId: _id,
       bpm: 120,
       duration: preCoverDoc.duration,
+      playlist: newPlaylistObj,
     });
     if (preCoverDoc.sections?.length) {
       const differences = preCoverDoc.sections.map(
@@ -267,10 +279,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     // const _audioUrl = `https://storage.googleapis.com/nusic-vox-player.appspot.com/covers_v1%2F${songId}%2F${_voiceId}.mp3`;
     // setVoice(_voiceId);
     // await playAudio(_instrUrl, _audioUrl);
-    // if (globalStateHook?.updateGlobalState) {
     const cover = coversCollectionSnapshot?.docs.find((c) => c.id === songId);
     const coverDoc = cover?.data() as CoverV1;
     if (coverDoc) {
+      const newPlaylistObj: any = {};
+      coversCollectionSnapshot?.docs.map((d) => {
+        newPlaylistObj[d.id] = d.data() as CoverV1;
+      });
       await updateGlobalState({
         songImg: voiceObj.imageUrl,
         songName: coverDoc.title,
@@ -282,6 +297,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         voiceId: _voiceId,
         bpm: coverDoc.bpm,
         duration: coverDoc.duration,
+        playlist: newPlaylistObj,
       });
       // }
       pushLog(Math.round(Tone.Transport.seconds));
