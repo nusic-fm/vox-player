@@ -20,7 +20,7 @@ type Props = {};
 const localStorageAccessTokenKey = "nusic_discord_access_token";
 const localStorageTokenTypeKey = "nusic_discord_token_type";
 
-const VoxPlayer = (props: Props) => {
+const App = (props: Props) => {
   const [user, setUser] = useState<User>();
   const [tempUserId, setTempUserId] = useState<string>();
 
@@ -142,4 +142,4 @@ const VoxPlayer = (props: Props) => {
   );
 };
 
-export default VoxPlayer;
+export default App;

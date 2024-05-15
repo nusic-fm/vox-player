@@ -11,7 +11,7 @@ import {
   // Route,
   // Link,
 } from "react-router-dom";
-import VoxPlayer from "./App";
+import App from "./App";
 import GlobalStateProvider from "./components/providers/GlobalStateProvider";
 
 export const GlobalStateContext = createContext<any>(null);
@@ -21,7 +21,7 @@ export const useGlobalState = () => useContext(GlobalStateContext);
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <VoxPlayer />,
+    element: <App />,
   },
 ]);
 

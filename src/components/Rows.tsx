@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
-import { collection, orderBy, query, where } from "firebase/firestore";
+import { collection, limit, orderBy, query, where } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import * as Tone from "tone";
 import { getWidthByDuration, timeToSeconds } from "../helpers/audio";
@@ -83,11 +83,13 @@ type Props = {
 };
 
 const Rows = ({ user, tempUserId, onUserChange }: Props) => {
+  const [recordsLimit, setRecordsLimit] = useState(15);
   const [coversCollectionSnapshot, coversLoading, error] = useCollection(
     query(
       collection(db, "covers_v1"),
       orderBy("likes.total", "desc"),
-      where("audioUrl", "!=", "")
+      where("audioUrl", "!=", ""),
+      limit(recordsLimit)
     )
   );
 
@@ -672,7 +674,18 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               ))}
             </Stack>
           )}
-          <Box display={"flex"} gap={1} alignItems="center">
+          <Box display={"flex"} justifyContent="center" pt={1}>
+            <Button
+              onClick={() => {
+                setRecordsLimit(recordsLimit + 15);
+              }}
+              variant="text"
+              color="secondary"
+            >
+              Load More
+            </Button>
+          </Box>
+          <Box display={"flex"} gap={1} alignItems="center" py={1}>
             <TextField
               fullWidth
               placeholder="AI Cover Youtube URL"
@@ -1264,7 +1277,18 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               ))}
             </Stack>
           )}
-          <Box display={"flex"} gap={2} alignItems="center">
+          <Box display={"flex"} justifyContent="center" pt={2}>
+            <Button
+              onClick={() => {
+                setRecordsLimit(recordsLimit + 15);
+              }}
+              variant="text"
+              color="secondary"
+            >
+              Load More
+            </Button>
+          </Box>
+          <Box display={"flex"} gap={2} alignItems="center" py={2}>
             <IconButton
               disableFocusRipple
               disableRipple
