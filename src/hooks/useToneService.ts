@@ -1,6 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import { ToneAudioBuffer } from "tone";
+import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
+
+// Database Configuration
+const idbConfig = {
+  databaseName: "nusic-covers",
+  version: 1,
+  stores: [
+    {
+      name: "covers",
+      id: { keyPath: null },
+      indices: [
+        { name: "id", keyPath: "id", options: { unique: true } },
+        { name: "data", keyPath: "data", options: { unique: true } },
+      ],
+    },
+  ],
+};
 
 export const useTonejs = (onPlayEnd?: () => void) => {
   // const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
@@ -18,6 +35,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   const [loop, setLoop] = useState(false);
   const onEndedCalledRef = useRef(false);
   const [isEnded, setIsEnded] = useState(false);
+  const { add, getByID } = useIndexedDBStore("covers");
 
   const initializeTone = async () => {
     if (!isToneInitialized) {
@@ -25,6 +43,11 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       await Tone.start();
       console.log("context started");
       setEvents();
+      try {
+        await setupIndexedDB(idbConfig);
+      } catch (e: any) {
+        console.error(e.message);
+      }
     }
   };
 
@@ -92,11 +115,24 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       playerRef.current.stop();
       playerRef.current.dispose();
     }
+    let vocalsInput: string | Tone.ToneAudioBuffer = vocalsUrl;
+    const vocalsDataArray = await getByID(vocalsUrl);
+    if (vocalsDataArray) {
+      vocalsInput = Tone.Buffer.fromArray(vocalsDataArray as Float32Array);
+      console.log("Vocals from IndexedDB");
+    }
     // Load and play the new audio
-    const player = new Tone.Player(vocalsUrl).sync().toDestination();
+    const player = new Tone.Player(vocalsInput).sync().toDestination();
     playerRef.current = player;
+    let instrDataArray: null | Float32Array = null;
     if (instrUrl) {
-      const instrPlayer = new Tone.Player(instrUrl).sync().toDestination();
+      let instrInput: string | Tone.ToneAudioBuffer = instrUrl;
+      instrDataArray = (await getByID(instrUrl)) as Float32Array;
+      if (instrDataArray) {
+        instrInput = Tone.Buffer.fromArray(instrDataArray);
+        console.log("Instr from IndexedDB");
+      }
+      const instrPlayer = new Tone.Player(instrInput).sync().toDestination();
       instrPlayerRef.current = instrPlayer;
     }
     // setCurrentPlayer(player);
@@ -115,25 +151,37 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     instrPlayerRef.current?.start(0);
     Tone.Transport.start();
     setIsEnded(false);
+    if (!vocalsDataArray) add(player.buffer.toArray(), vocalsUrl);
+    if (!instrDataArray && instrPlayerRef.current)
+      add(instrPlayerRef.current.buffer.toArray(), instrUrl);
   };
 
   const switchAudio = async (url: string) => {
-    await new Promise((res) => {
-      const audioBuffer = new Tone.Buffer(url);
-      audioBuffer.onload = (bf) => {
-        // Audio is downloaded
-        if (isTonePlaying) {
-          if (playerRef.current) {
-            changePlayerBuffer(bf, Tone.Transport.seconds);
-          }
-        } else if (playerRef.current) {
-          playerRef.current.buffer = bf;
-          // Tone.Transport.start();
-          playerRef.current.start();
+    const audioArrayData = (await getByID(url)) as Float32Array;
+    let buffer: null | Tone.ToneAudioBuffer = null;
+    if (audioArrayData) {
+      buffer = Tone.ToneAudioBuffer.fromArray(audioArrayData);
+    } else {
+      buffer = await new Promise((res) => {
+        const audioBuffer = new Tone.Buffer(url);
+        audioBuffer.onload = (bf) => {
+          add(bf.toArray(), url);
+          res(bf);
+        };
+      });
+    }
+    if (buffer) {
+      // Audio is downloaded
+      if (isTonePlaying) {
+        if (playerRef.current) {
+          changePlayerBuffer(buffer, Tone.Transport.seconds);
         }
-        res("");
-      };
-    });
+      } else if (playerRef.current) {
+        playerRef.current.buffer = buffer;
+        // Tone.Transport.start();
+        playerRef.current.start();
+      }
+    }
   };
   // const changeInstrAudio = async (url: string) => {
   //   await new Promise((res) => {
