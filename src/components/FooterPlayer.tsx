@@ -17,8 +17,8 @@ import { MusicState } from "./providers/GlobalStateProvider";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
 import AudioProgress from "./AudioProgress";
-import ShareIcon from "@mui/icons-material/Share";
-import { useState } from "react";
+// import ShareIcon from "@mui/icons-material/Share";
+// import { useState } from "react";
 
 type Props = {
   songInfo: MusicState;
@@ -45,7 +45,7 @@ const FooterPlayer = ({
 }: Props) => {
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
-  const [copyPopEl, setCopyPopEl] = useState<null | HTMLButtonElement>(null);
+  // const [copyPopEl, setCopyPopEl] = useState<null | HTMLButtonElement>(null);
 
   if (isMobileView)
     return (
@@ -224,7 +224,7 @@ const FooterPlayer = ({
                   <Forward10RoundedIcon />
                 </IconButton>
               </Box>
-              <IconButton
+              {/* <IconButton
                 size="small"
                 onClick={(e) => {
                   const input = `https://vox-player.netlify.app?coverId=${songInfo.songId}&voiceId=${voiceId}`;
@@ -247,7 +247,7 @@ const FooterPlayer = ({
                 <Typography px={1} variant="caption">
                   Copied
                 </Typography>
-              </Popover>
+              </Popover> */}
               <Box display={"flex"} alignItems={"center"}>
                 <IconButton size="small" onClick={switchMute}>
                   {isMuted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}

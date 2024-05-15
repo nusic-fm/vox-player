@@ -7,11 +7,15 @@ import {
   Badge,
   IconButton,
   Tooltip,
+  useMediaQuery,
+  useTheme,
+  Stack,
 } from "@mui/material";
 import { CoverV1, VoiceV1Cover } from "../services/db/coversV1.service";
 import { useEffect, useState } from "react";
 import { User } from "../services/db/users.service";
 import LikeDislikeGroup from "./LikeDislikeGroup";
+// import RecordVoiceOverRoundedIcon from "@mui/icons-material/RecordVoiceOverRounded";
 
 type Props = {
   coverDoc: CoverV1;
@@ -41,6 +45,8 @@ const VoiceChips = ({
   setRevoxSongInfo,
 }: Props) => {
   const [chipVoice, setChipVoice] = useState<VoiceV1Cover>();
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     if (voiceId && id === songId) {
@@ -50,82 +56,149 @@ const VoiceChips = ({
     }
   }, [voiceId]);
 
+  if (isMobileView) {
+    return (
+      <Stack gap={1.5}>
+        <Box
+          display={"flex"}
+          flexGrow={1}
+          alignItems="center"
+          justifyContent={"space-between"}
+        >
+          {chipVoice && (
+            <Box display={"flex"}>
+              <Chip
+                avatar={
+                  <Avatar
+                    src={
+                      voiceId && voiceId === coverDoc.voices[0].id
+                        ? coverDoc.metadata.channelThumbnail
+                        : chipVoice.imageUrl
+                    }
+                  />
+                }
+                disabled={loading || voiceLoading}
+                label={chipVoice.name}
+                variant={
+                  songId === id && voiceId === chipVoice.id
+                    ? "outlined"
+                    : "filled"
+                }
+                color={
+                  songId === id && voiceId === chipVoice.id ? "info" : "default"
+                }
+                clickable={!(songId === id && voiceId === chipVoice.id)}
+                onClick={() => {
+                  if (songId === id && voiceId === chipVoice.id) return;
+                  if (songId === id) {
+                    onVoiceChange(chipVoice.id, coverDoc.voices[0]);
+                  } else {
+                    onPlay(id, coverDoc, chipVoice.id);
+                  }
+                }}
+              />
+              <Box display={"flex"}>
+                <AvatarGroup
+                  total={coverDoc.voices.length - 1}
+                  component="a"
+                  renderSurplus={(surplus) => (
+                    <IconButton
+                      sx={{
+                        fontSize: "0.8rem",
+                        fontFamily: "inherit",
+                      }}
+                      onClick={(e) => {
+                        if (loading || voiceLoading) return;
+                        setVoicesPopperEl({
+                          anchorEl: e.currentTarget,
+                          coverDoc,
+                          id,
+                        });
+                      }}
+                    >
+                      +{surplus}
+                    </IconButton>
+                  )}
+                  sx={{
+                    // ml: 2,
+                    ".MuiAvatar-colorDefault": {
+                      height: 24,
+                      width: 24,
+                      color: "#fff",
+                      fontSize: "0.8rem",
+                      backgroundColor: "rgba(255, 255, 255, 0.16)",
+                      ml: "-6px",
+                    },
+                  }}
+                >
+                  {coverDoc.voices
+                    .filter(
+                      (v) =>
+                        v.id !==
+                        ((songId === id && voiceId) || coverDoc.voices[0].id)
+                    )
+                    .slice(0, 2)
+                    .map((v) => (
+                      <Tooltip
+                        key={v.id + Math.random()}
+                        title={v.name}
+                        placement="top"
+                        arrow
+                      >
+                        <Avatar
+                          alt=""
+                          src={v.imageUrl}
+                          sx={{ width: 24, height: 24 }}
+                          onClick={() => {
+                            if (loading || voiceLoading) return;
+                            if (!voiceId || songId !== id)
+                              onPlay(id, coverDoc, v.id);
+                            else if (songId === id) onVoiceChange(v.id, v);
+                          }}
+                        />
+                      </Tooltip>
+                    ))}
+                </AvatarGroup>
+              </Box>
+            </Box>
+          )}
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => {
+              if (!user?.uid) alert("Sign in to continue with Revox");
+              else setRevoxSongInfo(coverDoc);
+            }}
+            disabled={!coverDoc.stemsReady}
+          >
+            Revox
+          </Button>
+        </Box>
+        {songId === id && (
+          <Box display={"flex"} gap={1} justifyContent="center">
+            {user && (
+              <LikeDislikeGroup
+                user={user}
+                coverId={id}
+                voiceId={voiceId}
+                likesCount={coverDoc.likes?.[voiceId] || 0}
+              />
+            )}
+          </Box>
+        )}
+      </Stack>
+    );
+  }
   return (
     <Box
       display={"flex"}
       flexGrow={1}
       alignItems="center"
       justifyContent={"space-between"}
+      flexWrap="wrap"
     >
       {chipVoice && (
-        <Badge
-          anchorOrigin={{ horizontal: "right", vertical: "top" }}
-          badgeContent={
-            <Box display={"flex"} position="absolute" top={12.5} left={4}>
-              <AvatarGroup
-                total={coverDoc.voices.length - 1}
-                component="a"
-                renderSurplus={(surplus) => (
-                  <IconButton
-                    sx={{
-                      fontSize: "0.8rem",
-                      fontFamily: "inherit",
-                    }}
-                    onClick={(e) => {
-                      if (loading || voiceLoading) return;
-                      setVoicesPopperEl({
-                        anchorEl: e.currentTarget,
-                        coverDoc,
-                        id,
-                      });
-                    }}
-                  >
-                    +{surplus}
-                  </IconButton>
-                )}
-                sx={{
-                  // ml: 2,
-                  ".MuiAvatar-colorDefault": {
-                    height: 24,
-                    width: 24,
-                    color: "#fff",
-                    fontSize: "0.8rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.16)",
-                    ml: "-6px",
-                  },
-                }}
-              >
-                {coverDoc.voices
-                  .filter(
-                    (v) =>
-                      v.id !==
-                      ((songId === id && voiceId) || coverDoc.voices[0].id)
-                  )
-                  .slice(0, 2)
-                  .map((v) => (
-                    <Tooltip
-                      key={v.id + Math.random()}
-                      title={v.name}
-                      placement="top"
-                      arrow
-                    >
-                      <Avatar
-                        alt=""
-                        src={v.imageUrl}
-                        sx={{ width: 24, height: 24 }}
-                        onClick={() => {
-                          if (loading || voiceLoading) return;
-                          if (!voiceId || songId !== id)
-                            onPlay(id, coverDoc, v.id);
-                          else if (songId === id) onVoiceChange(v.id, v);
-                        }}
-                      />
-                    </Tooltip>
-                  ))}
-              </AvatarGroup>
-            </Box>
-          }
-        >
+        <Box display={"flex"}>
           <Chip
             avatar={
               <Avatar
@@ -160,7 +233,70 @@ const VoiceChips = ({
             //   whiteSpace: "nowrap",
             // }}
           />
-        </Badge>
+          <Box display={"flex"}>
+            <AvatarGroup
+              total={coverDoc.voices.length - 1}
+              component="a"
+              renderSurplus={(surplus) => (
+                <IconButton
+                  sx={{
+                    fontSize: "0.8rem",
+                    fontFamily: "inherit",
+                  }}
+                  onClick={(e) => {
+                    if (loading || voiceLoading) return;
+                    setVoicesPopperEl({
+                      anchorEl: e.currentTarget,
+                      coverDoc,
+                      id,
+                    });
+                  }}
+                >
+                  +{surplus}
+                </IconButton>
+              )}
+              sx={{
+                // ml: 2,
+                ".MuiAvatar-colorDefault": {
+                  height: 24,
+                  width: 24,
+                  color: "#fff",
+                  fontSize: "0.8rem",
+                  backgroundColor: "rgba(255, 255, 255, 0.16)",
+                  ml: "-6px",
+                },
+              }}
+            >
+              {coverDoc.voices
+                .filter(
+                  (v) =>
+                    v.id !==
+                    ((songId === id && voiceId) || coverDoc.voices[0].id)
+                )
+                .slice(0, 2)
+                .map((v) => (
+                  <Tooltip
+                    key={v.id + Math.random()}
+                    title={v.name}
+                    placement="top"
+                    arrow
+                  >
+                    <Avatar
+                      alt=""
+                      src={v.imageUrl}
+                      sx={{ width: 24, height: 24 }}
+                      onClick={() => {
+                        if (loading || voiceLoading) return;
+                        if (!voiceId || songId !== id)
+                          onPlay(id, coverDoc, v.id);
+                        else if (songId === id) onVoiceChange(v.id, v);
+                      }}
+                    />
+                  </Tooltip>
+                ))}
+            </AvatarGroup>
+          </Box>
+        </Box>
       )}
       {/* <Box display={"flex"} flexGrow={1} justifyContent="space-between"> */}
       {/* <AvatarGroup
