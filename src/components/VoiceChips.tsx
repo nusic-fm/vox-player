@@ -59,7 +59,6 @@ const VoiceChips = ({
     >
       {chipVoice && (
         <Badge
-          sx={{ mr: 4 }}
           anchorOrigin={{ horizontal: "right", vertical: "top" }}
           badgeContent={
             <Box display={"flex"} position="absolute" top={12.5} left={4}>
@@ -155,6 +154,11 @@ const VoiceChips = ({
               }
               //   setVoice(v.id);
             }}
+            // sx={{
+            //   textOverflow: "ellipsis",
+            //   overflow: "hidden",
+            //   whiteSpace: "nowrap",
+            // }}
           />
         </Badge>
       )}

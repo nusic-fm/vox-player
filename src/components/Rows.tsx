@@ -1,4 +1,3 @@
-import { PauseRounded, PlayArrow } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -59,6 +58,11 @@ import CommentsArea from "./CommentsArea";
 import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import { useLocation } from "react-router-dom";
+import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
+import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 
 export type YTP_CONTENT = {
   title: string;
@@ -744,13 +748,28 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           onRevoxRetry={onRevoxRetry}
         />
         <Divider />
-        <Stack gap={2} py={2} width="100%">
+        <Stack py={2} width="100%">
           {coversCollectionSnapshot?.docs.map((doc, i) => {
             const id = doc.id;
             const coverDoc = doc.data() as CoverV1;
             return (
-              <Box key={id} display="flex" alignItems={"center"} gap={2}>
-                <Box display={"flex"} alignItems="center" alignSelf={"start"}>
+              <Box
+                key={id}
+                display="flex"
+                alignItems={"center"}
+                gap={2}
+                borderBottom="1px solid rgb(130, 137, 161)"
+                flexGrow={1}
+                sx={{
+                  ":hover": {
+                    ".avatar-play": {
+                      display: "flex",
+                    },
+                  },
+                }}
+                // py={2}
+              >
+                {/* <Box display={"flex"} alignItems="center" alignSelf={"start"}>
                   <IconButton
                     disabled={loading || voiceLoading}
                     onClick={() => {
@@ -765,14 +784,106 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       <PlayArrow />
                     )}
                   </IconButton>
+                </Box> */}
+                <Box
+                  minWidth={"85px"}
+                  display="flex"
+                  justifyContent={"center"}
+                  alignItems={"center"}
+                  height="100%"
+                  sx={{
+                    background: "rgba(29, 33, 38, 1)",
+                    borderTopRightRadius: i === 0 ? "6px" : "0px",
+                    borderTopLeftRadius: i === 0 ? "6px" : "0px",
+                    borderBottomLeftRadius:
+                      i === coversCollectionSnapshot.size - 1 ? "6px" : "0px",
+                    borderBottomRightRadius:
+                      i === coversCollectionSnapshot.size - 1 ? "6px" : "0px",
+                  }}
+                >
+                  <Typography
+                    fontFamily={"Space Grotesk"}
+                    fontWeight={900}
+                    fontSize="2rem"
+                    position="relative"
+                  >
+                    {i + 1}
+                    <Box
+                      position={"absolute"}
+                      bottom={-45}
+                      left={0}
+                      display="flex"
+                      justifyContent={"center"}
+                      alignContent={"center"}
+                      width="100%"
+                    >
+                      {i % 2 === 0 ? (
+                        <ExpandLessRoundedIcon
+                          color="success"
+                          fontSize="large"
+                        />
+                      ) : i % 3 === 0 ? (
+                        <ChevronRightRoundedIcon
+                          sx={{ color: "rgb(130, 137, 161)" }}
+                          fontSize="large"
+                        />
+                      ) : (
+                        <ExpandMoreRoundedIcon color="error" fontSize="large" />
+                      )}
+                    </Box>
+                  </Typography>
                 </Box>
-                <Avatar
-                  src={coverDoc.metadata.videoThumbnail}
-                  onMouseEnter={(e) => handleClick(e, i)}
-                  sx={{ alignSelf: "start" }}
-                  // onMouseLeave={handleClose}
-                />
-                <Stack gap={1} width="100%">
+                <Stack
+                  alignItems="center"
+                  justifyContent={"space-between"}
+                  my={4}
+                  position="relative"
+                >
+                  <Avatar
+                    src={coverDoc.metadata.videoThumbnail}
+                    onMouseEnter={(e) => handleClick(e, i)}
+                    sx={{
+                      alignSelf: "start",
+                      borderRadius: "8px",
+                      width: 100,
+                      height: 100,
+                    }}
+                    variant="square"
+
+                    // onMouseLeave={handleClose}
+                  />
+                  <Box
+                    className="avatar-play"
+                    position={"absolute"}
+                    top={0}
+                    left={0}
+                    width="100%"
+                    height={"100%"}
+                    zIndex={9}
+                    display={id === songId ? "flex" : "none"}
+                    justifyContent={"center"}
+                    alignItems="center"
+                    sx={{
+                      background: "rgba(0,0,0,0.6)",
+                    }}
+                  >
+                    <IconButton
+                      disabled={loading || voiceLoading}
+                      onClick={() => {
+                        onPlay(id, coverDoc);
+                      }}
+                    >
+                      {loading && id === songId ? (
+                        <CircularProgress size={"24px"} color="secondary" />
+                      ) : isTonePlaying && id === songId ? (
+                        <PauseRoundedIcon fontSize="large" />
+                      ) : (
+                        <PlayArrowRoundedIcon fontSize="large" />
+                      )}
+                    </IconButton>
+                  </Box>
+                </Stack>
+                <Stack gap={1} py={2} flexGrow={1}>
                   <Box
                     display={"flex"}
                     alignItems="center"
@@ -780,7 +891,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     width="100%"
                     flexWrap={"wrap"}
                   >
-                    <Stack maxWidth={"70%"}>
+                    <Stack flexBasis="70%">
                       <Typography
                         variant="caption"
                         // color={
@@ -812,7 +923,15 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           </Typography>
                         )}
                       </Typography>
-                      <Typography>{coverDoc.title}</Typography>
+                      <Typography
+                      // sx={{
+                      //   textOverflow: "ellipsis",
+                      //   overflow: "hidden",
+                      //   whiteSpace: "nowrap",
+                      // }}
+                      >
+                        {coverDoc.title}
+                      </Typography>
                     </Stack>
                     <VoiceChips
                       coverDoc={coverDoc}

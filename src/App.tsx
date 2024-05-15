@@ -133,7 +133,7 @@ const VoxPlayer = (props: Props) => {
             <img src="/nusic_purple.png" width={155} alt="" />
           </Box>
           <Typography variant="body2" textAlign={"center"}>
-            Post-Ironic Playlisting
+            AI Cover Charts
           </Typography>
         </Box>
         <Rows user={user} tempUserId={tempUserId} onUserChange={onUserChange} />

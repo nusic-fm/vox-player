@@ -3,7 +3,7 @@ import WebFont from "webfontloader";
 
 WebFont.load({
   google: {
-    families: ["Space Mono", "Roboto"],
+    families: ["Space Mono", "Roboto", "Space Grotesk"],
   },
 });
 declare module "@mui/material/styles/createPalette" {
