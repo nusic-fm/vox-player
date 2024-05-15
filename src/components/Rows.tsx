@@ -423,9 +423,25 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             const id = doc.id;
             const coverDoc = doc.data() as CoverV1;
             return (
-              <Box key={id} display="flex" alignItems={"center"} gap={2}>
-                <Stack gap={1} maxWidth="100%">
+              <Box
+                key={id}
+                display="flex"
+                alignItems={"center"}
+                gap={2}
+                borderBottom="1px solid rgb(130, 137, 161)"
+                flexGrow={1}
+                sx={{
+                  ":hover": {
+                    ".avatar-play": {
+                      display: "flex",
+                    },
+                  },
+                }}
+                // py={2}
+              >
+                <Stack gap={2} maxWidth="100%">
                   <Card
+                    elevation={0}
                     sx={{
                       backgroundColor: "transparent",
                       backgroundImage: "unset",
@@ -438,10 +454,64 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     <CardActionArea>
                       <CardContent sx={{ p: 1 }}>
                         <Box display={"flex"} gap={1}>
+                          <Box
+                            minWidth={"65px"}
+                            height="55px"
+                            display="flex"
+                            justifyContent={"center"}
+                            alignItems={"center"}
+                            sx={{
+                              background: "rgba(29, 33, 38, 1)",
+                              borderRadius: "6px",
+                            }}
+                          >
+                            <Typography
+                              fontFamily={"Space Grotesk"}
+                              fontWeight={900}
+                              fontSize="2rem"
+                              position="relative"
+                            >
+                              {i + 1}
+                              <Box
+                                position={"absolute"}
+                                bottom={-35}
+                                left={0}
+                                display="flex"
+                                justifyContent={"center"}
+                                alignContent={"center"}
+                                width="100%"
+                              >
+                                {i % 2 === 0 ? (
+                                  <ExpandLessRoundedIcon
+                                    color="success"
+                                    fontSize="large"
+                                  />
+                                ) : i % 3 === 0 ? (
+                                  <ChevronRightRoundedIcon
+                                    sx={{ color: "rgb(130, 137, 161)" }}
+                                    fontSize="large"
+                                  />
+                                ) : (
+                                  <ExpandMoreRoundedIcon
+                                    color="error"
+                                    fontSize="large"
+                                  />
+                                )}
+                              </Box>
+                            </Typography>
+                          </Box>
                           <Avatar
                             src={coverDoc.metadata.videoThumbnail}
                             onMouseEnter={(e) => handleClick(e, i)}
-                            sx={{ alignSelf: "start" }}
+                            sx={{
+                              alignSelf: "start",
+                              borderRadius: "8px",
+                              width: 50,
+                              height: 50,
+                            }}
+                            variant="square"
+
+                            // onMouseLeave={handleClose}
                           />
                           <Stack>
                             <Typography variant="caption" component="a">

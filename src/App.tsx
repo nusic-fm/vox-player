@@ -127,7 +127,7 @@ const VoxPlayer = (props: Props) => {
 
   return (
     <Box display={"flex"} justifyContent="center">
-      <Stack p={2} width={{ xs: "100vw", md: "950px" }}>
+      <Stack px={{ xs: 2, md: 0 }} py={2} width={{ xs: "100vw", md: "950px" }}>
         <Box>
           <Box display="flex" justifyContent={"center"} mb={1}>
             <img src="/nusic_purple.png" width={155} alt="" />
