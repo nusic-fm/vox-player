@@ -129,7 +129,7 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
   };
 
   return (
-    <Dialog open={!!coverInfo}>
+    <Dialog open={!!coverInfo} onClose={() => onClose()}>
       <DialogTitle>New Cover Info</DialogTitle>
       <DialogContent>
         <Box p={1}>

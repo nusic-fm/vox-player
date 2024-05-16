@@ -43,6 +43,7 @@ import CoverInfoDialog from "./CoverInfoDialog";
 import { User } from "../services/db/users.service";
 import {
   addCommentToCover,
+  checkIfYoutubeVideoIdExists,
   CoverV1,
   VoiceV1Cover,
 } from "../services/db/coversV1.service";
@@ -133,6 +134,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   // }>();
   const [revoxSongInfo, setRevoxSongInfo] = useState<CoverV1 | null>(null);
   const [successSnackbarMsg, setSuccessSnackbarMsg] = useState("");
+  const [errorSnackbarMsg, setErrorSnackbarMsg] = useState("");
   const [isNewCoverLoading, setIsNewCoverLoading] = useState(false);
   const [coverInfo, setCoverInfo] = useState<YTP_CONTENT>();
   const [voicesPopperEl, setVoicesPopperEl] = useState<null | {
@@ -1378,6 +1380,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               fullWidth
               placeholder="Add your AI Cover to this Playlist, Youtube or weights.gg url goes here"
               sx={{ transition: "1s width" }}
+              value={newAiCoverUrl}
               onChange={(e) => setNewAiCoverUrl(e.target.value)}
             />
             <LoadingButton
@@ -1388,6 +1391,14 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 setIsNewCoverLoading(true);
                 const vid = getYouTubeVideoId(newAiCoverUrl);
                 if (vid) {
+                  const isExists = await checkIfYoutubeVideoIdExists(vid);
+                  if (isExists) {
+                    setNewAiCoverUrl("");
+                    setIsNewCoverLoading(false);
+                    setErrorSnackbarMsg("Cover already Exists");
+                    // TODO: Play that cover
+                    return;
+                  }
                   const formData = new FormData();
                   formData.append("vid", vid);
                   const res = await axios.post(
@@ -1494,6 +1505,21 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               sx={{ width: "100%" }}
             >
               {successSnackbarMsg}
+            </Alert>
+          </Snackbar>
+          <Snackbar
+            open={!!errorSnackbarMsg}
+            autoHideDuration={6000}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            onClose={() => setErrorSnackbarMsg("")}
+          >
+            <Alert
+              onClose={() => setErrorSnackbarMsg("")}
+              severity="error"
+              variant="filled"
+              sx={{ width: "100%" }}
+            >
+              {errorSnackbarMsg}
             </Alert>
           </Snackbar>
         </Stack>

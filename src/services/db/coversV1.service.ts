@@ -12,6 +12,10 @@ import {
   increment,
   runTransaction,
   arrayRemove,
+  query,
+  where,
+  limit,
+  getDocs,
 } from "firebase/firestore";
 import { User } from "./users.service";
 
@@ -300,7 +304,11 @@ const removeDisLikesToCover = async (
 //   const c = doc(db, DB_NAME, coverId, "dis_likes", voiceId, userObj.uid);
 //   await setDoc(c, { ...userObj, likedAt: serverTimestamp() });
 // };
-
+const checkIfYoutubeVideoIdExists = async (vid: string): Promise<boolean> => {
+  const c = collection(db, DB_NAME);
+  const docSs = await getDocs(query(c, where("vid", "==", vid), limit(1)));
+  return !!docSs.size;
+};
 export {
   createCoverV1Doc,
   updateCoverV1Doc,
@@ -309,6 +317,7 @@ export {
   removeLikesToCover,
   addDisLikesToCover,
   removeDisLikesToCover,
+  checkIfYoutubeVideoIdExists,
   // addToDisLikes,
   // addToLikes,
 };
