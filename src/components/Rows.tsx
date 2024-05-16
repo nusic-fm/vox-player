@@ -215,16 +215,16 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       });
       // }
       // const differences = [];
-      if (coverDoc.sections) {
-        const differences = coverDoc.sections.map(
-          (s, i, arr) => (arr[i + 1]?.start || coverDoc.duration) - s.start
-        );
-        const durations = getWidthByDuration(
-          differences,
-          sectionsBarRef.current?.offsetWidth || 500
-        );
-        setSectionsWidth(durations);
-      }
+      // if (coverDoc.sections) {
+      //   const differences = coverDoc.sections.map(
+      //     (s, i, arr) => (arr[i + 1]?.start || coverDoc.duration) - s.start
+      //   );
+      //   const durations = getWidthByDuration(
+      //     differences,
+      //     sectionsBarRef.current?.offsetWidth || 500
+      //   );
+      //   setSectionsWidth(durations);
+      // }
 
       setStartLog({
         song: coverDoc.title,
@@ -237,6 +237,23 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     setPrevSeconds(0);
     setSongLoading(false);
   };
+  useEffect(() => {
+    if (songId) {
+      const coverDoc = coversCollectionSnapshot?.docs
+        .find((d) => d.id === songId)
+        ?.data() as CoverV1;
+      if (coverDoc?.sections) {
+        const differences = coverDoc.sections.map(
+          (s, i, arr) => (arr[i + 1]?.start || coverDoc.duration) - s.start
+        );
+        const durations = getWidthByDuration(
+          differences,
+          sectionsBarRef.current?.offsetWidth || 500
+        );
+        setSectionsWidth(durations);
+      }
+    }
+  }, [songId]);
   const onPreCoverSongClick = async (_id: string, preCoverDoc: CoverV1) => {
     setSongLoading(true);
     const newPlaylistObj: any = {};
@@ -439,7 +456,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     },
                   },
                 }}
-                // py={2}
+                py={1}
               >
                 <Stack gap={2} maxWidth="100%">
                   <Card
@@ -556,70 +573,125 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     user={user}
                     setRevoxSongInfo={setRevoxSongInfo}
                   />
-                  <Box
-                    display={"flex"}
-                    alignItems="center"
-                    ref={sectionsBarRef}
-                    position="relative"
-                    sx={{ overflowX: "auto" }}
-                  >
-                    {!songLoading &&
-                      songId === id &&
-                      coverDoc.sections?.map((section, i) => (
-                        <Button
-                          key={section.start}
-                          disabled={
-                            !sectionsWidth.length || loading || voiceLoading
-                          }
-                          // p={0.85}
-                          variant="contained"
-                          color="info"
+                  {!songLoading && songId === id && (
+                    <Stack>
+                      <Box
+                        display={"flex"}
+                        alignItems="center"
+                        ref={sectionsBarRef}
+                        position="relative"
+                        sx={{ overflowX: "auto" }}
+                      >
+                        {coverDoc.sections?.map((section, i, arr) => (
+                          <Button
+                            key={section.start}
+                            disabled={
+                              !sectionsWidth.length || loading || voiceLoading
+                            }
+                            // p={0.85}
+                            variant="contained"
+                            color="info"
+                            sx={{
+                              mr: i === arr.length - 1 ? 0 : 0.5,
+                              minWidth: 0,
+                              display:
+                                sectionsWidth[i] > 1 ? "inherit" : "none",
+                              width: sectionsWidth.length
+                                ? sectionsWidth[i] + "px"
+                                : "120px",
+                              p: 0,
+                              height: 10,
+                              transition: "transform 0.3s ease",
+                              ":hover": {
+                                zIndex: 999,
+                                transform: "scale(1.5)",
+                                background: "#563FC8",
+                              },
+                            }}
+                            onClick={() => {
+                              const startInSecs = timeToSeconds(
+                                Math.round(section.start || 0.1).toString()
+                              );
+                              if (!isTonePlaying)
+                                Tone.Transport.start(undefined, startInSecs);
+                              else Tone.Transport.seconds = startInSecs;
+                            }}
+                          />
+                        ))}
+                      </Box>
+                      {songId === id && (
+                        <Box
+                          // position={"absolute"}
+                          // left={0}
+                          // top={0}
+                          width="100%"
+                          height={1}
+                          display="flex"
+                          pt={1}
+                        >
+                          <SimpleAudioProgress
+                            isTonePlaying={isTonePlaying}
+                            duration={coverDoc.duration}
+                          />
+                        </Box>
+                      )}
+                    </Stack>
+                  )}
+                  <Box display={"flex"} gap={1} alignItems="center" px={1}>
+                    {!!coverDoc.likes?.total && (
+                      <Tooltip title="Total Likes">
+                        <Box display={"flex"} alignItems="center" gap={0.2}>
+                          <FavoriteBorderRoundedIcon
+                            fontSize="small"
+                            sx={{ width: 12, height: 12, color: "#c3c3c3" }}
+                          />
+                          <Typography variant="caption" color={"#c3c3c3"}>
+                            {coverDoc.likes?.total}
+                          </Typography>
+                        </Box>
+                      </Tooltip>
+                    )}
+                    {!!coverDoc.commentsCount && (
+                      <Box
+                        display={"flex"}
+                        alignItems="center"
+                        gap={0.2}
+                        component="a"
+                        onClick={() => setShowCommentsByCoverId(id)}
+                      >
+                        <ChatBubbleOutlineRoundedIcon
+                          fontSize="small"
                           sx={{
-                            mr: 0.5,
-                            minWidth: 0,
-                            display: sectionsWidth[i] > 1 ? "inherit" : "none",
-                            width: sectionsWidth.length
-                              ? sectionsWidth[i] + "px"
-                              : "120px",
-                            p: 0,
-                            height: 10,
-                            transition: "transform 0.3s ease",
-                            ":hover": {
-                              zIndex: 999,
-                              transform: "scale(1.5)",
-                              background: "#563FC8",
-                            },
-                          }}
-                          onClick={() => {
-                            const startInSecs = timeToSeconds(
-                              Math.round(section.start || 0.1).toString()
-                            );
-                            if (!isTonePlaying)
-                              Tone.Transport.start(undefined, startInSecs);
-                            else Tone.Transport.seconds = startInSecs;
+                            width: 12,
+                            height: 12,
+                            color:
+                              showCommentsByCoverId === id
+                                ? "#8973F8"
+                                : "#c3c3c3",
                           }}
                         />
-                      ))}
+                        <Typography
+                          variant="caption"
+                          color={
+                            showCommentsByCoverId === id ? "#8973F8" : "#c3c3c3"
+                          }
+                        >
+                          {coverDoc.commentsCount}
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
-                  {songId === id && (
-                    <Box
-                      // position={"absolute"}
-                      // left={0}
-                      // top={0}
-                      width="100%"
-                      height={1}
-                      display="flex"
-                    >
-                      <SimpleAudioProgress
-                        isTonePlaying={isTonePlaying}
-                        duration={coverDoc.duration}
-                      />
-                    </Box>
+                  {(songId === id || showCommentsByCoverId === id) && (
+                    <CommentsArea coverDocId={id} />
                   )}
-                  {songId === id && <CommentsArea coverDocId={id} />}
                   {songId === id && (
                     <Box width={"100%"}>
                       <TextField
+                        sx={{
+                          ".MuiInputBase-root::before": {
+                            borderBottomColor: "rgba(255, 255, 255, 0.1)",
+                          },
+                        }}
                         fullWidth
                         placeholder="say something..."
                         variant="standard"
@@ -1039,7 +1111,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                   >
                     {!songLoading &&
                       songId === id &&
-                      coverDoc.sections?.map((section, i) => (
+                      coverDoc.sections?.map((section, i, arr) => (
                         <Button
                           disabled={
                             !sectionsWidth.length || loading || voiceLoading
@@ -1049,7 +1121,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           variant="contained"
                           color="info"
                           sx={{
-                            mr: 0.5,
+                            mr: i === arr.length - 1 ? 0 : 0.5,
                             minWidth: 0,
                             display: sectionsWidth[i] > 1 ? "inherit" : "none",
                             width: sectionsWidth.length
@@ -1223,6 +1295,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                   {songId === id && (
                     <Box width={"100%"}>
                       <TextField
+                        sx={{
+                          ".MuiInputBase-root::before": {
+                            borderBottomColor: "rgba(255, 255, 255, 0.1)",
+                          },
+                        }}
                         fullWidth
                         placeholder="say something..."
                         variant="standard"
