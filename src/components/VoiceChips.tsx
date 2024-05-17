@@ -182,6 +182,7 @@ const VoiceChips = ({
                 coverId={id}
                 voiceId={voiceId}
                 likesCount={coverDoc.likes?.[voiceId] || 0}
+                disLikesCount={coverDoc.disLikes?.[voiceId] || 0}
               />
             )}
           </Box>
@@ -339,6 +340,7 @@ const VoiceChips = ({
               coverId={id}
               voiceId={voiceId}
               likesCount={coverDoc.likes?.[voiceId] || 0}
+              disLikesCount={coverDoc.disLikes?.[voiceId] || 0}
             />
           )}
           <Button
