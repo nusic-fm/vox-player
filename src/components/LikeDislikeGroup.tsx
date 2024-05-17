@@ -24,9 +24,16 @@ type Props = {
   voiceId: string;
   user: User;
   likesCount: number;
+  disLikesCount: number;
 };
 
-const LikeDislikeGroup = ({ coverId, voiceId, user, likesCount }: Props) => {
+const LikeDislikeGroup = ({
+  coverId,
+  voiceId,
+  user,
+  likesCount,
+  disLikesCount,
+}: Props) => {
   const [isLiked, setIsLiked] = useState(
     () => user?.likedVoiceCovers?.includes(coverId + "_" + voiceId) || false
   );
@@ -68,31 +75,36 @@ const LikeDislikeGroup = ({ coverId, voiceId, user, likesCount }: Props) => {
         )}
       </Box>
       <Divider orientation="vertical" sx={{ mx: 1 }} />
-      <IconButton
-        size="small"
-        onClick={async () => {
-          if (isDisLiked) {
-            setIsDisLiked(false);
-            await removeDisLikesToCover(user.uid, coverId, voiceId);
-            // await removeDisLikesToCover(coverId, voiceId);
-            // await removeDislikeToUser(user.uid, coverId, voiceId);
-          } else {
-            setIsDisLiked(true);
-            if (isLiked) {
-              setIsLiked(false);
+      <Box display={"flex"} alignItems="center" gap={0.2}>
+        <IconButton
+          size="small"
+          onClick={async () => {
+            if (isDisLiked) {
+              setIsDisLiked(false);
+              await removeDisLikesToCover(user.uid, coverId, voiceId);
+              // await removeDisLikesToCover(coverId, voiceId);
+              // await removeDislikeToUser(user.uid, coverId, voiceId);
+            } else {
+              setIsDisLiked(true);
+              if (isLiked) {
+                setIsLiked(false);
+              }
+              await addDisLikesToCover(user.uid, coverId, voiceId);
+              // await addDisLikesToCover(coverId, voiceId, isLiked);
+              // await addDisLikeToUser(user.uid, coverId, voiceId);
             }
-            await addDisLikesToCover(user.uid, coverId, voiceId);
-            // await addDisLikesToCover(coverId, voiceId, isLiked);
-            // await addDisLikeToUser(user.uid, coverId, voiceId);
-          }
-        }}
-      >
-        {isDisLiked ? (
-          <ThumbDownAltIcon fontSize="small" />
-        ) : (
-          <ThumbDownOffAltOutlinedIcon fontSize="small" />
+          }}
+        >
+          {isDisLiked ? (
+            <ThumbDownAltIcon fontSize="small" />
+          ) : (
+            <ThumbDownOffAltOutlinedIcon fontSize="small" />
+          )}
+        </IconButton>
+        {!!disLikesCount && (
+          <Typography variant="caption">{disLikesCount}</Typography>
         )}
-      </IconButton>
+      </Box>
       <Divider orientation="vertical" sx={{ mx: 1 }} />
       <IconButton
         size="small"
