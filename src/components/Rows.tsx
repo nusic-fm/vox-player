@@ -88,7 +88,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [coversCollectionSnapshot, coversLoading, error] = useCollection(
     query(
       collection(db, "covers_v1"),
-      orderBy("likes.total", "desc"),
+      orderBy("rank", "asc"),
       where("audioUrl", "!=", ""),
       limit(recordsLimit)
     )
@@ -429,6 +429,10 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     }
   };
 
+  const onRefreshUserObj = async (uid: string) => {
+    await onUserChange(uid);
+  };
+
   if (isMobileView) {
     return (
       <Stack>
@@ -502,12 +506,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                                 alignContent={"center"}
                                 width="100%"
                               >
-                                {i % 2 === 0 ? (
+                                {coverDoc.rank < coverDoc.prevRank ? (
                                   <ExpandLessRoundedIcon
                                     color="success"
                                     fontSize="large"
                                   />
-                                ) : i % 3 === 0 ? (
+                                ) : coverDoc.rank === coverDoc.prevRank ? (
                                   <ChevronRightRoundedIcon
                                     sx={{ color: "rgb(130, 137, 161)" }}
                                     fontSize="large"
@@ -574,6 +578,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     setVoicesPopperEl={setVoicesPopperEl}
                     user={user}
                     setRevoxSongInfo={setRevoxSongInfo}
+                    onRefreshUserObj={onRefreshUserObj}
                   />
                   {!songLoading && songId === id && (
                     <Stack>
@@ -974,12 +979,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       alignContent={"center"}
                       width="100%"
                     >
-                      {i % 2 === 0 ? (
+                      {coverDoc.rank < coverDoc.prevRank ? (
                         <ExpandLessRoundedIcon
                           color="success"
                           fontSize="large"
                         />
-                      ) : i % 3 === 0 ? (
+                      ) : coverDoc.rank === coverDoc.prevRank ? (
                         <ChevronRightRoundedIcon
                           sx={{ color: "rgb(130, 137, 161)" }}
                           fontSize="large"
@@ -1102,6 +1107,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       setVoicesPopperEl={setVoicesPopperEl}
                       user={user}
                       setRevoxSongInfo={setRevoxSongInfo}
+                      onRefreshUserObj={onRefreshUserObj}
                     />
                   </Box>
                   <Box

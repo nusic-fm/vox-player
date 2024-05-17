@@ -88,6 +88,10 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
           // From No-RVC
           stemsReady: false,
           likes: { total: 0 },
+          playCount: 0,
+          prevRank: 0,
+          rank: 0,
+          totalLikesValue: 0,
         });
         const res = await axios.post(
           `${import.meta.env.VITE_VOX_COVER_SERVER}/ytp-audio-extract`,

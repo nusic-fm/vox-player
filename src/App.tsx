@@ -1,19 +1,9 @@
-import {
-  Avatar,
-  Button,
-  Chip,
-  Divider,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { createUserDoc, getUserById, User } from "./services/db/users.service";
 import Rows from "./components/Rows";
-import Header from "./components/Header";
-import { setUserId } from "firebase/analytics";
 
 type Props = {};
 

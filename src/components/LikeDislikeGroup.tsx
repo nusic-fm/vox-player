@@ -18,6 +18,7 @@ import {
   removeLikesToCover,
 } from "../services/db/coversV1.service";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import axios from "axios";
 
 type Props = {
   coverId: string;
@@ -25,6 +26,7 @@ type Props = {
   user: User;
   likesCount: number;
   disLikesCount: number;
+  onRefreshUserObj: (uid: string) => void;
 };
 
 const LikeDislikeGroup = ({
@@ -33,6 +35,7 @@ const LikeDislikeGroup = ({
   user,
   likesCount,
   disLikesCount,
+  onRefreshUserObj,
 }: Props) => {
   const [isLiked, setIsLiked] = useState(
     () => user?.likedVoiceCovers?.includes(coverId + "_" + voiceId) || false
@@ -62,6 +65,12 @@ const LikeDislikeGroup = ({
               // await addLikesToCover(coverId, voiceId, isDisLiked);
               // await addLikeToUser(user.uid, coverId, voiceId);
             }
+            await Promise.all([
+              onRefreshUserObj(user.uid),
+              axios.post(
+                `${import.meta.env.VITE_VOX_COVER_SERVER}/refresh-ranking`
+              ),
+            ]);
           }}
         >
           {isLiked ? (
@@ -93,6 +102,12 @@ const LikeDislikeGroup = ({
               // await addDisLikesToCover(coverId, voiceId, isLiked);
               // await addDisLikeToUser(user.uid, coverId, voiceId);
             }
+            await Promise.all([
+              onRefreshUserObj(user.uid),
+              axios.post(
+                `${import.meta.env.VITE_VOX_COVER_SERVER}/refresh-ranking`
+              ),
+            ]);
           }}
         >
           {isDisLiked ? (

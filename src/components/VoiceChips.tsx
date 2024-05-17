@@ -29,6 +29,7 @@ type Props = {
   setVoicesPopperEl: any;
   user?: User;
   setRevoxSongInfo: any;
+  onRefreshUserObj: (uid: string) => void;
 };
 
 const VoiceChips = ({
@@ -43,6 +44,7 @@ const VoiceChips = ({
   setVoicesPopperEl,
   user,
   setRevoxSongInfo,
+  onRefreshUserObj,
 }: Props) => {
   const [chipVoice, setChipVoice] = useState<VoiceV1Cover>();
   const theme = useTheme();
@@ -183,6 +185,7 @@ const VoiceChips = ({
                 voiceId={voiceId}
                 likesCount={coverDoc.likes?.[voiceId] || 0}
                 disLikesCount={coverDoc.disLikes?.[voiceId] || 0}
+                onRefreshUserObj={onRefreshUserObj}
               />
             )}
           </Box>
@@ -341,6 +344,7 @@ const VoiceChips = ({
               voiceId={voiceId}
               likesCount={coverDoc.likes?.[voiceId] || 0}
               disLikesCount={coverDoc.disLikes?.[voiceId] || 0}
+              onRefreshUserObj={onRefreshUserObj}
             />
           )}
           <Button

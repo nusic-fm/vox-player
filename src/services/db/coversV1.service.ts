@@ -73,6 +73,8 @@ export type CoverV1 = {
   };
   totalLikesValue: number;
   playCount: number;
+  rank: number;
+  prevRank: number;
 };
 
 const createCoverV1Doc = async (coverObj: CoverV1): Promise<string> => {
