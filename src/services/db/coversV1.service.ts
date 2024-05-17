@@ -109,13 +109,13 @@ const addLikesToCover = async (
       // Already Liked and trying to Like again - ignore
     } else {
       const coverDocRef = doc(db, DB_NAME, coverId);
+      let incrementValue = 1;
       const updateObj: any = {
         likes: {
           [voiceId]: increment(1),
           total: increment(1),
         },
       };
-      // let incrementValue = 1;
       if (
         latestUserDoc?.disLikedVoiceCovers?.includes(coverId + "_" + voiceId)
       ) {
@@ -123,9 +123,9 @@ const addLikesToCover = async (
           [voiceId]: increment(-1),
           total: increment(-1),
         };
-        // incrementValue += 1.5;
+        incrementValue = 2.5;
       }
-      // updateObj.totalLikesValue = increment(incrementValue);
+      updateObj.totalLikesValue = increment(incrementValue);
       await transaction.set(coverDocRef, updateObj, { merge: true });
       await transaction.update(userRef, {
         likedVoiceCovers: arrayUnion(coverId + "_" + voiceId),
@@ -166,7 +166,7 @@ const removeLikesToCover = async (
           [voiceId]: increment(-1),
           total: increment(-1),
         },
-        // totalLikesValue: increment(-1),
+        totalLikesValue: increment(-1),
       };
       await transaction.set(coverDocRef, updateObj, { merge: true });
       await transaction.update(userRef, {
@@ -199,7 +199,7 @@ const addDisLikesToCover = async (
     if (latestUserDoc?.disLikedVoiceCovers?.includes(coverId + "_" + voiceId)) {
       // Already Liked and trying to Like again - ignore
     } else {
-      // let incrementValue = -1.5;
+      let incrementValue = -1.5;
       const coverDocRef = doc(db, DB_NAME, coverId);
       const updateObj: any = {
         disLikes: {
@@ -212,9 +212,9 @@ const addDisLikesToCover = async (
           [voiceId]: increment(-1),
           total: increment(-1),
         };
-        // incrementValue = -2.5;
+        incrementValue = -2.5;
       }
-      // updateObj.totalLikesValue = increment(incrementValue);
+      updateObj.totalLikesValue = increment(incrementValue);
       await transaction.set(coverDocRef, updateObj, { merge: true });
       await transaction.update(userRef, {
         disLikedVoiceCovers: arrayUnion(coverId + "_" + voiceId),
@@ -252,10 +252,10 @@ const removeDisLikesToCover = async (
       const coverDocRef = doc(db, DB_NAME, coverId);
       const updateObj: any = {
         disLikes: {
-          [voiceId]: increment(-1),
-          total: increment(-1),
+          [voiceId]: increment(1),
+          total: increment(1),
         },
-        // totalLikesValue: increment(1.5),
+        totalLikesValue: increment(1.5),
       };
       await transaction.set(coverDocRef, updateObj, { merge: true });
       await transaction.update(userRef, {
