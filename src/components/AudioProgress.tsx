@@ -42,9 +42,20 @@ const AudioProgress = ({ isTonePlaying, duration, loading }: Props) => {
           // flexShrink: 5,
           color: "#fff",
           height: 2,
+          transition: "height 0.1s",
           p: 1,
+          ":hover": {
+            height: 4,
+            "& .MuiSlider-thumb": {
+              width: 10,
+              height: 10,
+            },
+          },
           "&.MuiSlider-root": {
             padding: "0px !important",
+          },
+          "& .MuiSlider-track": {
+            transition: "0.3s cubic-bezier(.47,1.64,.41,.8)",
           },
           "& .MuiSlider-thumb": {
             width: 8,

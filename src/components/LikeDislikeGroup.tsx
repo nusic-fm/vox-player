@@ -17,7 +17,7 @@ import {
   removeDisLikesToCover,
   removeLikesToCover,
 } from "../services/db/coversV1.service";
-import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import ReplyRoundedIcon from "@mui/icons-material/ReplyRounded";
 import axios from "axios";
 
 type Props = {
@@ -124,13 +124,13 @@ const LikeDislikeGroup = ({
       <IconButton
         size="small"
         onClick={(e) => {
-          const input = `https://vox-player.netlify.app?coverId=${coverId}&voiceId=${voiceId}`;
+          const input = `${location.origin}?coverId=${coverId}&voiceId=${voiceId}`;
           navigator.clipboard.writeText(input);
           setCopyPopEl(e.currentTarget);
           setTimeout(() => setCopyPopEl(null), 500);
         }}
       >
-        <ContentCopyRoundedIcon fontSize="small" />
+        <ReplyRoundedIcon sx={{ transform: "rotateY(180deg)" }} />
       </IconButton>
       <Popover
         open={!!copyPopEl}

@@ -16,6 +16,7 @@ import {
   where,
   limit,
   getDocs,
+  getDoc,
 } from "firebase/firestore";
 import { User } from "./users.service";
 
@@ -75,6 +76,11 @@ export type CoverV1 = {
   playCount: number;
   rank: number;
   prevRank: number;
+};
+
+const getCoverDocById = async (docId: string) => {
+  const d = doc(db, DB_NAME, docId);
+  return (await getDoc(d)).data() as CoverV1;
 };
 
 const createCoverV1Doc = async (coverObj: CoverV1): Promise<string> => {
@@ -330,6 +336,7 @@ export {
   addDisLikesToCover,
   removeDisLikesToCover,
   checkIfYoutubeVideoIdExists,
+  getCoverDocById,
   // addToDisLikes,
   // addToLikes,
 };

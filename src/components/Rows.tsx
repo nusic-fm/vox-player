@@ -53,6 +53,7 @@ import {
   addCommentToCover,
   checkIfYoutubeVideoIdExists,
   CoverV1,
+  getCoverDocById,
   VoiceV1Cover,
 } from "../services/db/coversV1.service";
 import {
@@ -93,6 +94,7 @@ type Props = {
 
 const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [recordsLimit, setRecordsLimit] = useState(15);
+  const [queriedCover, setQueriedCover] = useState<CoverV1 | null>(null);
   const [coversCollectionSnapshot, coversLoading, error] = useCollection(
     query(
       collection(db, "covers_v1"),
@@ -126,7 +128,6 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   // );
   // const [hoverSectionName, setHoverSectionName] = useState("");
   const [newAiCoverUrl, setNewAiCoverUrl] = useState("");
-  const [newAiCoverContentUrl, setNewAiContentCoverUrl] = useState("");
   const [songLoading, setSongLoading] = useState(false);
   const [sectionsWidth, setSectionsWidth] = useState<number[]>([]);
   const { pushLog, setPrevSeconds, setStartLog } = useSession();
@@ -160,21 +161,25 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (coversCollectionSnapshot) {
+    if (coversCollectionSnapshot && location.search) {
       const searchParams = new URLSearchParams(location.search);
       const _coverId = searchParams.get("coverId");
       const _voiceId = searchParams.get("voiceId");
       if (_coverId && _voiceId) {
         console.log("Cover:", _coverId);
         console.log("Voice:", _voiceId);
-        onSongClick(
-          _coverId,
-          coversCollectionSnapshot?.docs
-            .find((d) => d.id === _coverId)
-            ?.data() as CoverV1,
-          _voiceId
-        );
+        const doc = coversCollectionSnapshot?.docs
+          .find((d) => d.id === _coverId)
+          ?.data() as CoverV1;
+        if (doc) onSongClick(_coverId, doc, _voiceId);
+        else {
+          getCoverDocById(_coverId).then((_doc) => {
+            setQueriedCover(_doc);
+            onSongClick(_coverId, _doc, _voiceId);
+          });
+        }
         window.history.replaceState(null, "", window.location.origin);
+        location.search = "";
       }
     }
   }, [location.search, coversCollectionSnapshot]);
@@ -513,7 +518,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                               fontSize="2rem"
                               position="relative"
                             >
-                              {i + 1}
+                              {coverDoc.rank}
                               <Box
                                 position={"absolute"}
                                 bottom={-35}
@@ -550,6 +555,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                               borderRadius: "8px",
                               width: 50,
                               height: 50,
+                              border: "2px solid rgba(255,255,255,0.2)",
                             }}
                             variant="square"
 
@@ -1026,6 +1032,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       borderRadius: "8px",
                       width: 100,
                       height: 100,
+                      border: "1px solid",
                     }}
                     variant="square"
 
@@ -1042,11 +1049,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     display={id === songId ? "flex" : "none"}
                     justifyContent={"center"}
                     alignItems="center"
+                    borderRadius="8px"
                     sx={{
                       background: "rgba(0,0,0,0.6)",
                     }}
                   >
                     <IconButton
+                      size="small"
                       disabled={loading || voiceLoading}
                       onClick={() => {
                         onPlay(id, coverDoc);
