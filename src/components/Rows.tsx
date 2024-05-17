@@ -21,7 +21,15 @@ import {
 } from "@mui/material";
 import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
-import { collection, limit, orderBy, query, where } from "firebase/firestore";
+import {
+  collection,
+  DocumentData,
+  limit,
+  orderBy,
+  query,
+  QuerySnapshot,
+  where,
+} from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import * as Tone from "tone";
 import { getWidthByDuration, timeToSeconds } from "../helpers/audio";
@@ -90,10 +98,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       collection(db, "covers_v1"),
       orderBy("rank", "asc"),
       where("audioUrl", "!=", ""),
+      orderBy("playCount", "desc"),
       limit(recordsLimit)
     )
   );
-
+  const [coversSnapshot, setCoversSnapshot] = useState<
+    QuerySnapshot<DocumentData, DocumentData> | undefined
+  >();
   const {
     updateGlobalState,
     songId,
@@ -433,6 +444,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     await onUserChange(uid);
   };
 
+  useEffect(() => {
+    if (coversCollectionSnapshot?.size) {
+      setCoversSnapshot(coversCollectionSnapshot);
+    }
+  }, [coversCollectionSnapshot]);
+
   if (isMobileView) {
     return (
       <Stack>
@@ -444,7 +461,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         />
         <Divider />
         <Stack gap={1} py={2}>
-          {coversCollectionSnapshot?.docs.map((doc, i) => {
+          {coversSnapshot?.docs.map((doc, i) => {
             const id = doc.id;
             const coverDoc = doc.data() as CoverV1;
             return (
@@ -464,7 +481,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 }}
                 py={1}
               >
-                <Stack gap={2} maxWidth="100%">
+                <Stack gap={2} width="100%">
                   <Card
                     elevation={0}
                     sx={{
@@ -911,7 +928,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         />
         <Divider />
         <Stack py={2} width="100%">
-          {coversCollectionSnapshot?.docs.map((doc, i) => {
+          {coversSnapshot?.docs.map((doc, i) => {
             const id = doc.id;
             const coverDoc = doc.data() as CoverV1;
             return (
@@ -958,9 +975,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     borderTopRightRadius: i === 0 ? "6px" : "0px",
                     borderTopLeftRadius: i === 0 ? "6px" : "0px",
                     borderBottomLeftRadius:
-                      i === coversCollectionSnapshot.size - 1 ? "6px" : "0px",
+                      i === coversSnapshot.size - 1 ? "6px" : "0px",
                     borderBottomRightRadius:
-                      i === coversCollectionSnapshot.size - 1 ? "6px" : "0px",
+                      i === coversSnapshot.size - 1 ? "6px" : "0px",
                   }}
                 >
                   <Typography
@@ -1036,7 +1053,10 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       }}
                     >
                       {loading && id === songId ? (
-                        <CircularProgress size={"24px"} color="secondary" />
+                        <CircularProgress
+                          size={"24px"}
+                          sx={{ color: "rgba(255,255,255,0.5)" }}
+                        />
                       ) : isTonePlaying && id === songId ? (
                         <PauseRoundedIcon fontSize="large" />
                       ) : (
@@ -1350,7 +1370,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               </Box>
             );
           })}
-          {coversLoading && (
+          {coversLoading && !coversSnapshot?.size && (
             <Stack gap={2} py={2}>
               {new Array(5).fill(".").map((x, i) => (
                 <Skeleton
