@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
-import { ToneAudioBuffer } from "tone";
+import { Reverb, ToneAudioBuffer } from "tone";
 import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
 
 // Database Configuration
@@ -23,6 +23,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   // const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
   const playerRef = useRef<Tone.Player | null>(null);
   const instrPlayerRef = useRef<Tone.Player | null>(null);
+  const reverbRef = useRef<Reverb>(new Reverb().toDestination());
   // const startTimeRef = useRef(0);
   const scheduledNextTrackBf = useRef<Tone.ToneAudioBuffer | null>(null);
 
@@ -124,6 +125,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     // Load and play the new audio
     const player = new Tone.Player(vocalsInput).sync().toDestination();
     playerRef.current = player;
+    playerRef.current.connect(reverbRef.current);
     let instrDataArray: null | Float32Array = null;
     if (instrUrl) {
       let instrInput: string | Tone.ToneAudioBuffer = instrUrl;
@@ -244,7 +246,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   };
   const increaseVocalsVolume = (db: number) => {
     if (playerRef.current) {
-      playerRef.current.volume.value = db;
+      reverbRef.current.decay = db;
+      // playerRef.current.volume.value = db;
     }
   };
   return {

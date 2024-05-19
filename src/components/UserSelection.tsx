@@ -1,8 +1,8 @@
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
-type Props = { onUserChange: (uid: string) => void };
+type Props = { onUserChange: (uid: string) => void; source: string[] };
 
-const UserSelection = ({ onUserChange }: Props) => {
+const UserSelection = ({ onUserChange, source }: Props) => {
   return (
     <FormControl size="small" sx={{ width: "180px" }}>
       <InputLabel>Change User</InputLabel>
@@ -10,17 +10,32 @@ const UserSelection = ({ onUserChange }: Props) => {
         label="Change User"
         onChange={(e) => onUserChange(e.target.value as string)}
       >
-        <MenuItem value={"upsDmsN77H3AQgDBi3tQ"}>Pammy</MenuItem>
-        <MenuItem value={"Hq075VWWLYVjnWdLhfah"}>Gr8Fairee</MenuItem>
-        <MenuItem value={"4C8CrwUMB7k9Bst5FfWK"}>paradroid68</MenuItem>
-        <MenuItem value={"LcCC807hUeGCLEV5Hscj"}>Emkatters</MenuItem>
-        <MenuItem value={"38XkUcZIXTiJC51gjjzr"}>AstralVisions</MenuItem>
-        <MenuItem value={"GC7KjOf6BS913nZM8apb"}>samUrI</MenuItem>
-        <MenuItem value={"LtFqRMsmMZvZdf2AIERu"}>readi-playa</MenuItem>
-        <MenuItem value={"826040837275910154"}>adamnusic</MenuItem>
+        {source.map((s) => (
+          <MenuItem key={s} value={s.split(" ")[0]}>
+            {s.split(" ").slice(1).join(" ")}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   );
 };
 
 export default UserSelection;
+// 3Cx4l7iMeFMKx2ywnaqS samUrI
+// ugKfRzQqn6yUFitpPapN Pammy
+// ENxvDxiBSsUy6TaupP3g AstralVisions
+// JEIOJky1oU90XsMFnvAw Emkatters
+// ZUKKbz0etLsdkGB2BUTM paradroid68
+// yA7gbZ85WIGPalUn3BjJ Gr8Fairee
+// OFBeiFrt6AvMNmbMScmz readi-playa
+
+// dYCM8E7Wfz3JjyyRA17V Jason Voorhees
+// I5ZljIvkolMOHOiJiYJ6 Cyber Monkey
+// CAbXJvrMXAeV5r8kfbHA AI Audio Lab
+// geEf5ZwcHOJNKZHR86Pv Frank Costello
+// Z3IG8LHJK2S03L7BcZiD AI Mafia
+// ve0Yg5v3jNLrxq6Ez3Zp Sad Cellist
+// Mak3wXEn3OzrleoRx4hO The Thing
+// rTU6Pbn3eEGhYjV4zgev Shut GPT
+// fVbXnhQHPfK5Zy7n4a3b Queen Orchid
+// DkcrmVEysfjfKAKeB6Fq Black Widow

@@ -248,22 +248,27 @@ const FooterPlayer = ({
                   Copied
                 </Typography>
               </Popover> */}
-              <Box display={"flex"} alignItems={"center"}>
+              <Box display={"flex"} alignItems={"center"} gap={2}>
+                <Stack justifyContent={"center"} height="100%" pt={1.5}>
+                  <Slider
+                    min={0}
+                    max={10}
+                    defaultValue={0}
+                    step={1}
+                    onChange={(e, val) => {
+                      increaseVocalsVolume(val as number);
+                    }}
+                    sx={{ width: 100, pt: 0, pb: 0.8 }}
+                    color="secondary"
+                    size="small"
+                  />
+                  <Typography variant="caption" align="center">
+                    Reverb
+                  </Typography>
+                </Stack>
                 <IconButton size="small" onClick={switchMute}>
                   {isMuted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
                 </IconButton>
-                <Slider
-                  min={-10}
-                  max={10}
-                  defaultValue={0}
-                  step={1}
-                  onChange={(e, val) => {
-                    increaseVocalsVolume(val as number);
-                  }}
-                  sx={{ width: 100 }}
-                  color="secondary"
-                  size="small"
-                />
               </Box>
             </Box>
           </Box>

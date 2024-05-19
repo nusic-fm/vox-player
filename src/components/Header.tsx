@@ -95,9 +95,38 @@ const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
           Sign in
         </Button>
       )}
-      {"826040837275910154" === tempUserId && (
-        <UserSelection onUserChange={onUserChange} />
-      )}
+      {tempUserId &&
+        ["826040837275910154", "362272367063597056"].includes(tempUserId) && (
+          <UserSelection
+            onUserChange={onUserChange}
+            source={
+              tempUserId === "826040837275910154"
+                ? [
+                    "3Cx4l7iMeFMKx2ywnaqS samUrI",
+                    "ugKfRzQqn6yUFitpPapN Pammy",
+                    "ENxvDxiBSsUy6TaupP3g AstralVisions",
+                    "JEIOJky1oU90XsMFnvAw Emkatters",
+                    "ZUKKbz0etLsdkGB2BUTM paradroid68",
+                    "yA7gbZ85WIGPalUn3BjJ Gr8Fairee",
+                    "OFBeiFrt6AvMNmbMScmz readi-playa",
+                    "826040837275910154 adamnusic",
+                  ]
+                : [
+                    "dYCM8E7Wfz3JjyyRA17V Jason Voorhees",
+                    "I5ZljIvkolMOHOiJiYJ6 Cyber Monkey",
+                    "CAbXJvrMXAeV5r8kfbHA AI Audio Lab",
+                    "geEf5ZwcHOJNKZHR86Pv Frank Costello",
+                    "Z3IG8LHJK2S03L7BcZiD AI Mafia",
+                    "ve0Yg5v3jNLrxq6Ez3Zp Sad Cellist",
+                    "Mak3wXEn3OzrleoRx4hO The Thing",
+                    "rTU6Pbn3eEGhYjV4zgev Shut GPT",
+                    "fVbXnhQHPfK5Zy7n4a3b Queen Orchid",
+                    "DkcrmVEysfjfKAKeB6Fq Black Widow",
+                    "362272367063597056 alesalis",
+                  ]
+            }
+          />
+        )}
       <Popover
         sx={{ mt: 1 }}
         open={!!anchorEl}
