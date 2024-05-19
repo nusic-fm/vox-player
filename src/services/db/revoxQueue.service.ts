@@ -21,6 +21,7 @@ export type RevoxProcessType = {
   title: string;
   isComplete: boolean;
   status: string;
+  // taskId: "revox" | "no-rvc" | "allin1";
 };
 export type RevoxProcessTypeDoc = RevoxProcessType & {
   id: string;
@@ -35,6 +36,19 @@ const createRevoxProgressDoc = async (
   });
   return ref.id;
 };
+
+// const createProgressDoc = async (voiceModelObj: {
+//   coverId: string;
+//   taskId: "revox" | "no-rvc" | "allin1";
+//   voiceId?: string;
+// }): Promise<string> => {
+//   const d = collection(db, DB_NAME);
+//   const ref = await addDoc(d, {
+//     ...voiceModelObj,
+//     createdAt: serverTimestamp(),
+//   });
+//   return ref.id;
+// };
 
 const getOnGoingProgress = async (uid: string) => {
   const q = query(
@@ -59,4 +73,9 @@ const deleteRevoxQueue = async (id: string) => {
   });
 };
 
-export { createRevoxProgressDoc, getOnGoingProgress, deleteRevoxQueue };
+export {
+  createRevoxProgressDoc,
+  getOnGoingProgress,
+  deleteRevoxQueue,
+  // createProgressDoc,
+};

@@ -104,6 +104,15 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
               res.data.audioPath
             )}?alt=media`,
           });
+          // createProgressDoc({
+          //     coverId: coverV1DocId,
+          //     voiceId,
+          //     taskId: "no-rvc",
+          //   }),
+          //   createProgressDoc({
+          //     coverId: coverV1DocId,
+          //     taskId: "allin1",
+          //   }),
           // `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
           //   res.data?.audioPath
           // )}?alt=media`;

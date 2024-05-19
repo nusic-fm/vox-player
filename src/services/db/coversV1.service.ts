@@ -20,7 +20,7 @@ import {
 } from "firebase/firestore";
 import { User } from "./users.service";
 
-const DB_NAME = "covers_v1";
+const DB_NAME = "covers";
 
 type ShareInfo = {
   id: string;

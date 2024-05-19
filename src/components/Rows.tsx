@@ -73,6 +73,7 @@ import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 
 export type YTP_CONTENT = {
   title: string;
@@ -97,7 +98,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [queriedCover, setQueriedCover] = useState<CoverV1 | null>(null);
   const [coversCollectionSnapshot, coversLoading, error] = useCollection(
     query(
-      collection(db, "covers_v1"),
+      collection(db, "covers"),
       orderBy("rank", "asc"),
       where("audioUrl", "!=", ""),
       orderBy("playCount", "desc"),
@@ -117,7 +118,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     playPlayer,
     voiceId,
     loading,
-    lastSongLoadTime,
+    // lastSongLoadTime,
   } = useGlobalState();
   const [anchorEl, setAnchorEl] = useState<{
     elem: HTMLDivElement;
@@ -206,8 +207,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     // const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2Finstrumental.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
     // const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers_v1%2F${_id}%2F${voice_id}.mp3?alt=media`;
-    const _instrUrl = `https://voxaudio.nusic.fm/covers_v1/${_id}/instrumental.mp3`;
-    const _audioUrl = `https://voxaudio.nusic.fm/covers_v1/${_id}/${voice_id}.mp3`;
+    const _instrUrl = `https://voxaudio.nusic.fm/covers/${_id}/instrumental.mp3`;
+    const _audioUrl = `https://voxaudio.nusic.fm/covers/${_id}/${voice_id}.mp3`;
     // setVoice("");
     // setSongId(_id);
     if (endTime) pushLog(endTime);
@@ -289,16 +290,16 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       duration: preCoverDoc.duration,
       playlist: newPlaylistObj,
     });
-    if (preCoverDoc.sections?.length) {
-      const differences = preCoverDoc.sections.map(
-        (s, i, arr) => (arr[i + 1]?.start || 20) - s.start
-      );
-      const durations = getWidthByDuration(
-        differences,
-        sectionsBarRef.current?.offsetWidth || 500
-      );
-      setSectionsWidth(durations);
-    }
+    // if (preCoverDoc.sections?.length) {
+    //   const differences = preCoverDoc.sections.map(
+    //     (s, i, arr) => (arr[i + 1]?.start || 20) - s.start
+    //   );
+    //   const durations = getWidthByDuration(
+    //     differences,
+    //     sectionsBarRef.current?.offsetWidth || 500
+    //   );
+    //   setSectionsWidth(durations);
+    // }
     // setStartLog({
     //   song: coverDoc.songName,
     //   voice: coverDoc.artistName,
@@ -314,8 +315,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const onVoiceChange = async (_voiceId: string, voiceObj: VoiceV1Cover) => {
     setVoiceLoading(true);
     // "https://voxaudio.nusic.fm/nusic-vox-player.appspot.com/covers_v1/0SYPvwFyi24Y1I2oOVu0/instrumental.mp3";
-    const _instrUrl = `https://voxaudio.nusic.fm/covers_v1/${songId}/instrumental.mp3`;
-    const _audioUrl = `https://voxaudio.nusic.fm/covers_v1/${songId}/${_voiceId}.mp3`;
+    const _instrUrl = `https://voxaudio.nusic.fm/covers/${songId}/instrumental.mp3`;
+    const _audioUrl = `https://voxaudio.nusic.fm/covers/${songId}/${_voiceId}.mp3`;
     // const _instrUrl = `https://storage.googleapis.com/nusic-vox-player.appspot.com/covers_v1%2F${songId}%2Finstrumental.mp3`;
     // const _audioUrl = `https://storage.googleapis.com/nusic-vox-player.appspot.com/covers_v1%2F${songId}%2F${_voiceId}.mp3`;
     // setVoice(_voiceId);
@@ -464,8 +465,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           onUserChange={onUserChange}
           onRevoxRetry={onRevoxRetry}
         />
-        <Divider />
+        <img src="/cover_banner.png" alt="" />
         <Stack gap={1} py={2}>
+          {(!coversSnapshot || coversSnapshot?.docs.length === 0) &&
+            !coversLoading && (
+              <Typography align="center">No Covers are available</Typography>
+            )}
           {coversSnapshot?.docs.map((doc, i) => {
             const id = doc.id;
             const coverDoc = doc.data() as CoverV1;
@@ -570,7 +575,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                                       (voiceId || coverDoc.voices[0].id)
                                   )?.creatorName
                                 : coverDoc.voices[0].creatorName}
-                              {songId === id &&
+                              {/* {songId === id &&
                                 !loading &&
                                 !!lastSongLoadTime && (
                                   <Typography
@@ -581,7 +586,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                                     {" "}
                                     - {lastSongLoadTime}s
                                   </Typography>
-                                )}
+                                )} */}
                             </Typography>
                             <Typography>{coverDoc.title}</Typography>
                           </Stack>
@@ -776,28 +781,82 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               ))}
             </Stack>
           )}
-          <Box display={"flex"} justifyContent="center" pt={1}>
-            <Button
-              onClick={() => {
-                setRecordsLimit(recordsLimit + 15);
-              }}
-              variant="text"
-              color="secondary"
-            >
-              Load More
-            </Button>
-          </Box>
+          {!!coversSnapshot && coversSnapshot.size >= 15 && (
+            <Box display={"flex"} justifyContent="center" pt={1}>
+              <Button
+                onClick={() => {
+                  setRecordsLimit(recordsLimit + 15);
+                }}
+                variant="text"
+                color="secondary"
+              >
+                Load More
+              </Button>
+            </Box>
+          )}
           <Box display={"flex"} gap={1} alignItems="center" py={1}>
             <TextField
               fullWidth
               placeholder="AI Cover Youtube URL"
-              sx={{ transition: "1s width" }}
+              sx={{ transition: "1s width", ".MuiInputBase-root": { pr: 0 } }}
               onChange={(e) => setNewAiCoverUrl(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <IconButton
+                    disabled={!newAiCoverUrl || isNewCoverLoading}
+                    onClick={async () => {
+                      setIsNewCoverLoading(true);
+                      const vid = getYouTubeVideoId(newAiCoverUrl);
+                      if (vid) {
+                        const formData = new FormData();
+                        formData.append("vid", vid);
+                        const res = await axios.post(
+                          `${import.meta.env.VITE_YOUTUBE_API}/ytp-content`,
+                          formData
+                        );
+                        // return {
+                        //   title: title,
+                        //   channelId: channel_id,
+                        //   videoThumbnail: video_thumbnail,
+                        //   channelTitle: channel_title,
+                        //   channelThumbnail: channel_thumbnail,
+                        //   videoDescription: video_description,
+                        //   channelDescription: channel_description,
+                        // };
+
+                        const {
+                          channelId,
+                          channelTitle,
+                          title,
+                          videoThumbnail,
+                          channelThumbnail,
+                          videoDescription,
+                          channelDescription,
+                        } = res.data;
+                        setCoverInfo({
+                          channelDescription,
+                          channelThumbnail,
+                          videoDescription,
+                          videoThumbnail,
+                          channelId,
+                          channelTitle,
+                          title,
+                          vid,
+                          url: newAiCoverUrl,
+                        });
+                        setIsNewCoverLoading(false);
+                      }
+                    }}
+                  >
+                    <FileUploadRoundedIcon />
+                  </IconButton>
+                ),
+              }}
             />
             {/* <IconButton>
               <AddCircleOutlineRoundedIcon />
             </IconButton> */}
-            <LoadingButton
+            {/* <LoadingButton
               size="small"
               variant="contained"
               disabled={!newAiCoverUrl}
@@ -847,7 +906,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               }}
             >
               Add
-            </LoadingButton>
+            </LoadingButton> */}
           </Box>
           <CoverInfoDialog
             coverInfo={coverInfo}
@@ -932,8 +991,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           onUserChange={onUserChange}
           onRevoxRetry={onRevoxRetry}
         />
-        <Divider />
+        <img src="/cover_banner.png" alt="" />
         <Stack py={2} width="100%">
+          {(!coversSnapshot || coversSnapshot?.docs.length === 0) &&
+            !coversLoading && (
+              <Typography align="center">No Covers are available</Typography>
+            )}
           {coversSnapshot?.docs.map((doc, i) => {
             const id = doc.id;
             const coverDoc = doc.data() as CoverV1;
@@ -1103,7 +1166,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                               (v) => v.id === (voiceId || coverDoc.voices[0].id)
                             )?.creatorName
                           : coverDoc.voices[0].creatorName}
-                        {songId === id && !loading && !!lastSongLoadTime && (
+                        {/* {songId === id && !loading && !!lastSongLoadTime && (
                           <Typography
                             component={"span"}
                             color="yellow"
@@ -1112,7 +1175,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                             {" "}
                             - {lastSongLoadTime}s
                           </Typography>
-                        )}
+                        )} */}
                       </Typography>
                       <Typography
                       // sx={{
@@ -1391,17 +1454,19 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               ))}
             </Stack>
           )}
-          <Box display={"flex"} justifyContent="center" pt={2}>
-            <Button
-              onClick={() => {
-                setRecordsLimit(recordsLimit + 15);
-              }}
-              variant="text"
-              color="secondary"
-            >
-              Load More
-            </Button>
-          </Box>
+          {!!coversSnapshot && coversSnapshot.size >= 15 && (
+            <Box display={"flex"} justifyContent="center" pt={2}>
+              <Button
+                onClick={() => {
+                  setRecordsLimit(recordsLimit + 15);
+                }}
+                variant="text"
+                color="secondary"
+              >
+                Load More
+              </Button>
+            </Box>
+          )}
           <Box display={"flex"} gap={2} alignItems="center" py={2}>
             <IconButton
               disableFocusRipple

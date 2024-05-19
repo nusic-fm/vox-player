@@ -9,7 +9,7 @@ type Props = { coverDocId: string };
 const CommentsArea = ({ coverDocId }: Props) => {
   const [collectionSs] = useCollection(
     query(
-      collection(db, "covers_v1", coverDocId, "comments"),
+      collection(db, "covers", coverDocId, "comments"),
       orderBy("createdAt")
     )
   );
