@@ -36,7 +36,7 @@ const storage = getStorage(app);
 //   content_id: spotifyArtistId,
 // });
 const logFirebaseEvent = (
-  type: "login" | "purchase" | "select_content" | "share",
+  type: "login" | "sign_up" | "purchase" | "select_content" | "share",
   additionalParams: any
 ) => {
   logEvent(analytics, type as any, additionalParams);

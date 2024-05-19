@@ -1,4 +1,4 @@
-import { db } from "../firebase.service";
+import { db, logFirebaseEvent } from "../firebase.service";
 import {
   arrayRemove,
   arrayUnion,
@@ -30,8 +30,10 @@ const createUserDoc = async (
       if (docData.avatar !== userDoc.avatar) {
         await updateDoc(userRef, { avatar: userDoc.avatar });
       }
+      logFirebaseEvent("login", { name: userDoc.name, id: uid });
       return userDocRef.data() as User;
     } else {
+      logFirebaseEvent("sign_up", { name: userDoc.name, id: uid });
       await setDoc(userRef, userDoc);
       return userDoc;
     }
