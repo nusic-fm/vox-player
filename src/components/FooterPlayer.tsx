@@ -249,7 +249,7 @@ const FooterPlayer = ({
                 </Typography>
               </Popover> */}
               <Box display={"flex"} alignItems={"center"} gap={2}>
-                <Stack justifyContent={"center"} height="100%" pt={1.5}>
+                {/* <Stack justifyContent={"center"} height="100%" pt={1.5}>
                   <Slider
                     min={0}
                     max={10}
@@ -265,7 +265,7 @@ const FooterPlayer = ({
                   <Typography variant="caption" align="center">
                     Reverb
                   </Typography>
-                </Stack>
+                </Stack> */}
                 <IconButton size="small" onClick={switchMute}>
                   {isMuted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
                 </IconButton>
