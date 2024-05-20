@@ -11,7 +11,7 @@ export type MusicState = {
   voiceId?: string;
   songImg: string;
   songName: string;
-  songInstrUrl: string;
+  songInstrUrl: string | "";
   coverVocalsUrl: string;
   fromStart: boolean;
   voices: {
@@ -55,8 +55,12 @@ const GlobalStateProvider = ({ children }: any) => {
       const _coverDoc = playlist[newSongId];
       if (!_coverDoc) return;
       const _voiceId = _coverDoc.voices[0].id;
-      const _instrUrl = `https://voxaudio.nusic.fm/covers_v1/${newSongId}/instrumental.mp3`;
-      const _audioUrl = `https://voxaudio.nusic.fm/covers_v1/${newSongId}/${_voiceId}.mp3`;
+      const _instrUrl = _coverDoc.stemsReady
+        ? `https://voxaudio.nusic.fm/covers/${newSongId}/instrumental.mp3`
+        : "";
+      const _audioUrl = _coverDoc.stemsReady
+        ? `https://voxaudio.nusic.fm/covers/${newSongId}/${_voiceId}.mp3`
+        : _coverDoc.audioUrl;
 
       setSongId(newSongId);
       setVoiceId(playlist[newSongId].voices[0].id);

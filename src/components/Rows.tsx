@@ -1478,7 +1478,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             </IconButton>
             <TextField
               fullWidth
-              placeholder="Add your AI Cover to this Playlist, Youtube or weights.gg url goes here"
+              placeholder="Add your AI Cover to this Playlist, Youtube url goes here"
               sx={{ transition: "1s width" }}
               value={newAiCoverUrl}
               onChange={(e) => setNewAiCoverUrl(e.target.value)}
