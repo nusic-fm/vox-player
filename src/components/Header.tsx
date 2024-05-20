@@ -26,6 +26,8 @@ import { getUserAvatar } from "../helpers";
 // import axios from "axios";
 import { LoadingButton } from "@mui/lab";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import DisplaySettingsRoundedIcon from "@mui/icons-material/DisplaySettingsRounded";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   user?: User;
@@ -48,6 +50,7 @@ const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [pendingIdLoading, setPendingIdLoading] = useState("");
   const [deleteIdLoading, setDeleteIdLoading] = useState("");
+  const navigate = useNavigate();
 
   const fetchPendingRevoxes = async (uid: string) => {
     setIsLoading(true);
@@ -126,6 +129,16 @@ const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
                   ]
             }
           />
+        )}
+      {tempUserId &&
+        [
+          "826040837275910154",
+          "362272367063597056",
+          "879400465861869638",
+        ].includes(tempUserId) && (
+          <IconButton onClick={() => navigate("/admin")}>
+            <DisplaySettingsRoundedIcon />
+          </IconButton>
         )}
       <Popover
         sx={{ mt: 1 }}

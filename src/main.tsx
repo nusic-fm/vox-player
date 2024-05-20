@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import App from "./App";
 import GlobalStateProvider from "./components/providers/GlobalStateProvider";
+import Admin from "./Admin";
 
 export const GlobalStateContext = createContext<any>(null);
 
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+  },
+  {
+    path: "/admin",
+    element: <Admin />,
   },
 ]);
 
