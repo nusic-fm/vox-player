@@ -9,12 +9,33 @@ import {
   where,
   limit,
   or,
+  DocumentData,
 } from "firebase/firestore";
 import { useState } from "react";
-import { useCollection } from "react-firebase-hooks/firestore";
+import {
+  useCollection,
+  useCollectionData,
+} from "react-firebase-hooks/firestore";
 import { db } from "./services/firebase.service";
 
 type Props = {};
+
+const checkIfProgressIdExistInCollection = (
+  id: string,
+  docs?: DocumentData[]
+) => {
+  let isExist = false;
+  docs
+    ?.filter((d) => d.name !== "revox")
+    ?.map((d) => {
+      (d.progressId as string[])?.map((progressId) => {
+        if (progressId.split("_")[0] === id) {
+          isExist = true;
+        }
+      });
+    });
+  return isExist;
+};
 
 const Admin = (props: Props) => {
   const [noRVCSnapshot, ,] = useCollection(
@@ -24,7 +45,7 @@ const Admin = (props: Props) => {
       limit(10)
     )
   );
-  const [machines, ,] = useCollection(
+  const [machines, ,] = useCollectionData(
     query(collection(db, "machines"), limit(10))
   );
   const [progressIds, setProgressIds] = useState<string[]>([]);
@@ -37,18 +58,21 @@ const Admin = (props: Props) => {
         <Box display={"flex"} key={d.id} gap={4} alignItems="center">
           <Typography>{d.data().title}</Typography>
           <LoadingButton
-            loading={progressIds.includes(d.id)}
+            loading={
+              progressIds.includes(d.id) ||
+              checkIfProgressIdExistInCollection(d.id, machines)
+            }
             variant="contained"
             onClick={async () => {
+              setProgressIds((ids) => [...ids, coverDoc.id]);
               const coverDoc = d.data();
               if (coverDoc.sections.length === 0) {
-                const isAllInOneAvailable = machines?.docs.findIndex(
-                  (d) => d.data().name === "all-in-1" && !!d.data().isAvailable
+                const isAllInOneAvailable = machines?.findIndex(
+                  (d) => d.name === "all-in-1" && !!d.data().isAvailable
                 );
                 if (isAllInOneAvailable !== -1) {
                   try {
-                    setProgressIds((ids) => [...ids, coverDoc.id]);
-                    await axios.post(
+                    axios.post(
                       `${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`,
                       {
                         cover_doc_id: d.id,
@@ -58,13 +82,12 @@ const Admin = (props: Props) => {
                 } else alert("allin1 machine not available");
               }
               if (coverDoc.stemsReady === false) {
-                const isMachineAvailable = machines?.docs.findIndex(
-                  (d) => d.data().name === "no-rvc" && !!d.data().isAvailable
+                const isMachineAvailable = machines?.findIndex(
+                  (d) => d.name === "no-rvc" && !!d.data().isAvailable
                 );
                 if (isMachineAvailable !== -1) {
                   try {
-                    setProgressIds((ids) => [...ids, coverDoc.id]);
-                    await axios.post(
+                    axios.post(
                       `${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`,
                       {
                         cover_doc_id: d.id,
@@ -81,13 +104,12 @@ const Admin = (props: Props) => {
         </Box>
       ))}
       <Typography>-----Machines-----</Typography>
-      {!machines?.size && <Typography>No Available Machines</Typography>}
-      {machines?.docs.map((d) => {
-        const doc = d.data();
+      {!machines?.length && <Typography>No Available Machines</Typography>}
+      {machines?.map((doc) => {
         return (
           <Box
             display={"flex"}
-            key={d.id}
+            key={Math.random()}
             gap={4}
             alignItems="center"
             width={"350px"}
