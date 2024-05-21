@@ -1,4 +1,4 @@
-import { db, logFirebaseEvent } from "../firebase.service";
+import { analytics, db, logFirebaseEvent } from "../firebase.service";
 import {
   arrayRemove,
   arrayUnion,
@@ -7,6 +7,8 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import { setUserId } from "firebase/analytics";
+import { nameToSlug } from "../../helpers";
 
 const DB_NAME = "users";
 
@@ -31,10 +33,12 @@ const createUserDoc = async (
         await updateDoc(userRef, { avatar: userDoc.avatar });
       }
       logFirebaseEvent("login", { name: userDoc.name, id: uid });
+      setUserId(analytics, nameToSlug(userDoc.name));
       return userDocRef.data() as User;
     } else {
       logFirebaseEvent("sign_up", { name: userDoc.name, id: uid });
       await setDoc(userRef, userDoc);
+      setUserId(analytics, nameToSlug(userDoc.name));
       return userDoc;
     }
   } catch (e) {

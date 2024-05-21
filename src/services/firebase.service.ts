@@ -42,4 +42,4 @@ const logFirebaseEvent = (
   logEvent(analytics, type as any, additionalParams);
 };
 
-export { app, auth, logFirebaseEvent, db, storage };
+export { app, auth, logFirebaseEvent, db, storage, analytics };

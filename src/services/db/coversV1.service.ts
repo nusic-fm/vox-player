@@ -17,6 +17,7 @@ import {
   limit,
   getDocs,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { User } from "./users.service";
 
@@ -327,6 +328,11 @@ const checkIfYoutubeVideoIdExists = async (vid: string): Promise<boolean> => {
   const docSs = await getDocs(query(c, where("vid", "==", vid), limit(1)));
   return !!docSs.size;
 };
+
+const deleteCoverDoc = async (coverId: string) => {
+  const c = doc(db, DB_NAME, coverId);
+  await deleteDoc(c);
+};
 export {
   createCoverV1Doc,
   updateCoverV1Doc,
@@ -337,6 +343,7 @@ export {
   removeDisLikesToCover,
   checkIfYoutubeVideoIdExists,
   getCoverDocById,
+  deleteCoverDoc,
   // addToDisLikes,
   // addToLikes,
 };

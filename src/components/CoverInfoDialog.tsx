@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { nameToSlug } from "../helpers";
 import {
   createCoverV1Doc,
+  deleteCoverDoc,
   updateCoverV1Doc,
 } from "../services/db/coversV1.service";
 // import {
@@ -48,7 +49,6 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
     if (coverInfo && title && voiceName && creator && user) {
       setIsLoading(true);
       const voiceId = nameToSlug(voiceName);
-      // TODO: Check for existing id in the voices []
       try {
         const coverV1DocId = await createCoverV1Doc({
           audioUrl: "",
@@ -93,44 +93,53 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
           rank: 0,
           totalLikesValue: 0,
         });
-        const res = await axios.post(
-          `${import.meta.env.VITE_VOX_COVER_SERVER}/ytp-audio-extract`,
-          { youtube_url: coverInfo.url, cover_doc_id: coverV1DocId }
-        );
-        if (res.data?.audioPath) {
-          await updateCoverV1Doc(coverV1DocId, {
-            duration: res.data.duration,
-            audioUrl: `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
-              res.data.audioPath
-            )}?alt=media`,
-          });
-          // createProgressDoc({
-          //     coverId: coverV1DocId,
-          //     voiceId,
-          //     taskId: "no-rvc",
-          //   }),
-          //   createProgressDoc({
-          //     coverId: coverV1DocId,
-          //     taskId: "allin1",
-          //   }),
-          // `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
-          //   res.data?.audioPath
-          // )}?alt=media`;
-          // res.data?.audioPath;
-          try {
-            axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`, {
-              cover_doc_id: coverV1DocId,
+        try {
+          const res = await axios.post(
+            `${import.meta.env.VITE_VOX_COVER_SERVER}/ytp-audio-extract`,
+            { youtube_url: coverInfo.url, cover_doc_id: coverV1DocId }
+          );
+          if (res.data?.audioPath) {
+            await updateCoverV1Doc(coverV1DocId, {
+              duration: res.data.duration,
+              audioUrl: `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                res.data.audioPath
+              )}?alt=media`,
             });
-            axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`, {
-              cover_doc_id: coverV1DocId,
-              voice_id: voiceId,
-            });
-          } catch (e: any) {
-            console.log(e);
-            // await updatePreCoverDoc(preCoverDocId, { error: e.message });
-          } finally {
-            onClose("New Cover is Added Successfully");
+            // createProgressDoc({
+            //     coverId: coverV1DocId,
+            //     voiceId,
+            //     taskId: "no-rvc",
+            //   }),
+            //   createProgressDoc({
+            //     coverId: coverV1DocId,
+            //     taskId: "allin1",
+            //   }),
+            // `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+            //   res.data?.audioPath
+            // )}?alt=media`;
+            // res.data?.audioPath;
+            try {
+              // axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`, {
+              //   cover_doc_id: coverV1DocId,
+              // });
+              // axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`, {
+              //   cover_doc_id: coverV1DocId,
+              //   voice_id: voiceId,
+              // });
+            } catch (e: any) {
+              console.log(e);
+              // await updatePreCoverDoc(preCoverDocId, { error: e.message });
+            } finally {
+              onClose("New Cover is Added Successfully");
+            }
           }
+        } catch (e) {
+          console.log(e);
+          await deleteCoverDoc(coverV1DocId);
+        } finally {
+          await axios.post(
+            `${import.meta.env.VITE_VOX_COVER_SERVER}/refresh-ranking`
+          );
         }
       } catch (e) {
         console.log(e);

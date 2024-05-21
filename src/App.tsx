@@ -118,14 +118,12 @@ const App = (props: Props) => {
   return (
     <Box display={"flex"} justifyContent="center">
       <Stack px={{ xs: 2, md: 0 }} py={2} width={{ xs: "100vw", md: "950px" }}>
-        <Box>
-          <Box display="flex" justifyContent={"center"} mb={1}>
-            <img src="/nusic_purple.png" width={155} alt="" />
-          </Box>
-          <Typography variant="body2" textAlign={"center"}>
-            AI Cover Charts
-          </Typography>
+        <Box display="flex" justifyContent={"center"}>
+          <img src="/nusic_purple.png" width={155} alt="" />
         </Box>
+        {/* <Typography variant="body2" textAlign={"center"}>
+            AI Cover Charts
+          </Typography> */}
         <Rows user={user} tempUserId={tempUserId} onUserChange={onUserChange} />
       </Stack>
     </Box>

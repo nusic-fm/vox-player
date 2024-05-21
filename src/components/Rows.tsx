@@ -273,6 +273,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       }
     }
   }, [songId]);
+
   const onPreCoverSongClick = async (_id: string, preCoverDoc: CoverV1) => {
     setSongLoading(true);
     const newPlaylistObj: any = {};
@@ -284,7 +285,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       songName: preCoverDoc.title,
       coverVocalsUrl: preCoverDoc.audioUrl,
       fromStart: true,
-      voices: [],
+      voices: preCoverDoc.voices,
       songId: _id,
       bpm: 120,
       duration: preCoverDoc.duration,
@@ -388,7 +389,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       if (docInfo) {
         const coverDoc = docInfo.data() as CoverV1;
         const newVoiceId = nameToSlug(voiceModelName);
-        const voiceIdx = coverDoc.voices.findIndex((v) => v.id === newVoiceId); // check for existing voice id in the voices[]
+        // check the newVoiceId for existing voice id in the voices[]
+        const voiceIdx = coverDoc.voices.findIndex((v) => v.id === newVoiceId);
         if (voiceIdx === -1) {
           const progressDocId = await createRevoxProgressDoc({
             voiceObj: {
