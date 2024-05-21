@@ -1477,14 +1477,21 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             </Box>
           )}
           <Box display={"flex"} gap={2} alignItems="center" py={2}>
-            <IconButton
-              disableFocusRipple
-              disableRipple
-              disableTouchRipple
-              sx={{ cursor: "unset" }}
+            <Box
+              minWidth={"85px"}
+              display="flex"
+              justifyContent={"center"}
+              alignItems="center"
             >
-              <AddCircleOutlineRoundedIcon />
-            </IconButton>
+              <IconButton
+                disableFocusRipple
+                disableRipple
+                disableTouchRipple
+                sx={{ cursor: "unset" }}
+              >
+                <AddCircleOutlineRoundedIcon />
+              </IconButton>
+            </Box>
             <TextField
               fullWidth
               placeholder="Add your AI Cover to this Playlist, Youtube url goes here"
