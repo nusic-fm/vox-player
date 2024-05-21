@@ -109,10 +109,7 @@ const GlobalStateProvider = ({ children }: any) => {
     if (newState.playlist) {
       setPlaylist(newState.playlist);
     }
-    setSongInfo((prevState: MusicState) => ({
-      ...prevState,
-      ...newState,
-    }));
+    setSongInfo(newState);
   };
 
   useEffect(() => {

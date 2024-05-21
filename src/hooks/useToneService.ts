@@ -77,6 +77,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       }
     }
   }, [isEnded]);
+
   const changePlayerBuffer = (
     bf: ToneAudioBuffer,
     offsetPosition: Tone.Unit.Time
@@ -96,7 +97,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     duration: number,
     changeInstr: boolean = false // Change the whole track
   ): Promise<void> => {
-    Tone.Transport.bpm.value = bpm;
+    if (bpm) Tone.Transport.bpm.value = bpm;
+    else Tone.Transport.bpm.dispose();
     if (toneLoadingForSection) {
       scheduledNextTrackBf.current = null;
       setToneLoadingForSection(null);
@@ -111,6 +113,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     if (instrPlayerRef.current) {
       instrPlayerRef.current.stop();
       instrPlayerRef.current.dispose();
+      instrPlayerRef.current = null;
     }
     if (playerRef.current) {
       playerRef.current.stop();

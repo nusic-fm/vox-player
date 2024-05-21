@@ -20,7 +20,7 @@ const Admin = (props: Props) => {
   const [noRVCSnapshot, ,] = useCollection(
     query(
       collection(db, "covers"),
-      or(where("stemsReady", "!=", true), where("sections", "==", [])),
+      or(where("stemsReady", "==", false), where("sections", "==", [])),
       limit(10)
     )
   );
@@ -34,10 +34,11 @@ const Admin = (props: Props) => {
       <Typography variant="h5">Admin Portal</Typography>
       {!noRVCSnapshot?.size && <Typography>No pending processes</Typography>}
       {noRVCSnapshot?.docs.map((d) => (
-        <Box display={"flex"} key={d.id} gap={4}>
+        <Box display={"flex"} key={d.id} gap={4} alignItems="center">
           <Typography>{d.data().title}</Typography>
           <LoadingButton
             loading={progressIds.includes(d.id)}
+            variant="contained"
             onClick={async () => {
               const coverDoc = d.data();
               if (coverDoc.sections.length === 0) {
@@ -55,7 +56,8 @@ const Admin = (props: Props) => {
                     );
                   } catch (e) {}
                 } else alert("allin1 machine not available");
-              } else if (coverDoc.stemsReady === false) {
+              }
+              if (coverDoc.stemsReady === false) {
                 const isMachineAvailable = machines?.docs.findIndex(
                   (d) => d.data().name === "no-rvc" && !!d.data().isAvailable
                 );

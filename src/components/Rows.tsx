@@ -283,13 +283,15 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     await updateGlobalState({
       songImg: preCoverDoc.voices[0].imageUrl,
       songName: preCoverDoc.title,
+      songInstrUrl: "",
       coverVocalsUrl: preCoverDoc.audioUrl,
       fromStart: true,
       voices: preCoverDoc.voices,
       songId: _id,
-      bpm: 120,
+      // bpm: 120,
       duration: preCoverDoc.duration,
       playlist: newPlaylistObj,
+      voiceId: preCoverDoc.voices[0].id,
     });
     // if (preCoverDoc.sections?.length) {
     //   const differences = preCoverDoc.sections.map(
