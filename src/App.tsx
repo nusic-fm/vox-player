@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { createUserDoc, getUserById, User } from "./services/db/users.service";
 import Rows from "./components/Rows";
+import HelperTextContent from "./components/HelperTextContent";
 
 type Props = {};
 
@@ -125,6 +126,7 @@ const App = (props: Props) => {
             AI Cover Charts
           </Typography> */}
         <Rows user={user} tempUserId={tempUserId} onUserChange={onUserChange} />
+        <HelperTextContent />
       </Stack>
     </Box>
   );
