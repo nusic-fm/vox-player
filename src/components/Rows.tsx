@@ -33,7 +33,7 @@ import {
 import { useCollection } from "react-firebase-hooks/firestore";
 import * as Tone from "tone";
 import { getWidthByDuration, timeToSeconds } from "../helpers/audio";
-import { db } from "../services/firebase.service";
+import { db, logFirebaseEvent } from "../services/firebase.service";
 // import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 // import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 // import RepeatRoundedIcon from "@mui/icons-material/RepeatRounded";
@@ -417,6 +417,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             cover_doc_id: songId,
             voice_model_url: voiceModelUrl,
             voice_model_name: voiceModelName,
+            voice_id: newVoiceId,
+          });
+          logFirebaseEvent("revox", {
+            name: user.name,
+            content_id: songId,
             voice_id: newVoiceId,
           });
           setRevoxSongInfo(null);
