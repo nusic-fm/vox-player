@@ -22,7 +22,7 @@ const HelperTextContent = (props: Props) => {
           How Do I Share My AI Cover?
         </Typography>
         <Typography variant="body2">
-          Simpy paste the Youtube url of your AI Cover into the input field at
+          Simply paste the Youtube url of your AI Cover into the input field at
           the bottom of the charts.
         </Typography>
         <Typography variant="body2">
@@ -55,7 +55,7 @@ const HelperTextContent = (props: Props) => {
         borderRadius={2}
       >
         <Typography color={"rgb(140, 118, 253)"}>
-          How Do I Share My AI Cover
+          How Do I Make An AI Cover?
         </Typography>
         <Typography variant="body2">
           Visit{" "}
