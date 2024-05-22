@@ -119,18 +119,21 @@ const CoverInfoDialog = ({ coverInfo, onClose, user }: Props) => {
             // )}?alt=media`;
             // res.data?.audioPath;
             try {
-              // axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`, {
-              //   cover_doc_id: coverV1DocId,
-              // });
-              // axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`, {
-              //   cover_doc_id: coverV1DocId,
-              //   voice_id: voiceId,
-              // });
+              axios.post(
+                `${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`,
+                {
+                  cover_doc_id: coverV1DocId,
+                }
+              );
+              axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`, {
+                cover_doc_id: coverV1DocId,
+                voice_id: voiceId,
+              });
+              onClose("New Cover is Added Successfully");
             } catch (e: any) {
+              onClose();
               console.log(e);
               // await updatePreCoverDoc(preCoverDocId, { error: e.message });
-            } finally {
-              onClose("New Cover is Added Successfully");
             }
           }
         } catch (e) {
