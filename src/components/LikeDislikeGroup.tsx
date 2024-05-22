@@ -53,11 +53,7 @@ const LikeDislikeGroup = ({
           onClick={async () => {
             if (isLiked) {
               setIsLiked(false);
-              await removeLikesToCover(
-                user.uid,
-                coverId,
-                voiceId || "original"
-              );
+              await removeLikesToCover(user.uid, coverId, voiceId);
               // await removeLikesToCover(coverId, voiceId);
               // await removeLikeToUser(user.uid, coverId, voiceId);
             } else {
@@ -65,7 +61,7 @@ const LikeDislikeGroup = ({
               if (isDisLiked) {
                 setIsDisLiked(false);
               }
-              await addLikesToCover(user.uid, coverId, voiceId || "original");
+              await addLikesToCover(user.uid, coverId, voiceId);
               // await addLikesToCover(coverId, voiceId, isDisLiked);
               // await addLikeToUser(user.uid, coverId, voiceId);
             }
@@ -94,11 +90,7 @@ const LikeDislikeGroup = ({
           onClick={async () => {
             if (isDisLiked) {
               setIsDisLiked(false);
-              await removeDisLikesToCover(
-                user.uid,
-                coverId,
-                voiceId || "original"
-              );
+              await removeDisLikesToCover(user.uid, coverId, voiceId);
               // await removeDisLikesToCover(coverId, voiceId);
               // await removeDislikeToUser(user.uid, coverId, voiceId);
             } else {
@@ -106,11 +98,7 @@ const LikeDislikeGroup = ({
               if (isLiked) {
                 setIsLiked(false);
               }
-              await addDisLikesToCover(
-                user.uid,
-                coverId,
-                voiceId || "original"
-              );
+              await addDisLikesToCover(user.uid, coverId, voiceId);
               // await addDisLikesToCover(coverId, voiceId, isLiked);
               // await addDisLikeToUser(user.uid, coverId, voiceId);
             }
