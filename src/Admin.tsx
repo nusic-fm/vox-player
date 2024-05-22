@@ -1,5 +1,5 @@
 import { LoadingButton } from "@mui/lab";
-import { Button, Chip, Stack, Typography } from "@mui/material";
+import { Button, Chip, Divider, Stack, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import {
@@ -16,6 +16,7 @@ import {
   useCollection,
   useCollectionData,
 } from "react-firebase-hooks/firestore";
+import { RevoxProcessTypeDoc } from "./services/db/revoxQueue.service";
 import { db } from "./services/firebase.service";
 
 type Props = {};
@@ -48,7 +49,15 @@ const Admin = (props: Props) => {
   const [machines, ,] = useCollectionData(
     query(collection(db, "machines"), limit(10))
   );
+  const [revoxQueue, ,] = useCollection(
+    query(
+      collection(db, "revox_queue"),
+      where("isComplete", "==", false),
+      limit(10)
+    )
+  );
   const [progressIds, setProgressIds] = useState<string[]>([]);
+  const [revoxLoadingIds, setRevoxLoadingIds] = useState<string[]>([]);
 
   return (
     <Stack p={4} gap={2}>
@@ -68,7 +77,7 @@ const Admin = (props: Props) => {
               const coverDoc = d.data();
               if (coverDoc.sections.length === 0) {
                 const isAllInOneAvailable = machines?.findIndex(
-                  (d) => d.name === "all-in-1" && !!d.data().isAvailable
+                  (d) => d.name === "all-in-1" && !!d.isAvailable
                 );
                 if (isAllInOneAvailable !== -1) {
                   try {
@@ -83,7 +92,7 @@ const Admin = (props: Props) => {
               }
               if (coverDoc.stemsReady === false) {
                 const isMachineAvailable = machines?.findIndex(
-                  (d) => d.name === "no-rvc" && !!d.data().isAvailable
+                  (d) => d.name === "no-rvc" && !!d.isAvailable
                 );
                 if (isMachineAvailable !== -1) {
                   try {
@@ -103,6 +112,7 @@ const Admin = (props: Props) => {
           </LoadingButton>
         </Box>
       ))}
+      <Divider />
       <Typography>-----Machines-----</Typography>
       {!machines?.length && <Typography>No Available Machines</Typography>}
       {machines?.map((doc) => {
@@ -122,6 +132,52 @@ const Admin = (props: Props) => {
               color={doc.isAvailable ? "success" : "error"}
               label={doc.isAvailable ? "Available" : "Not Available"}
             />
+          </Box>
+        );
+      })}
+      <Divider />
+      <Typography>-----Failed Revoxes-----</Typography>
+      {revoxQueue?.docs.map((d) => {
+        const id = d.id;
+        const doc = d.data() as RevoxProcessTypeDoc;
+        return (
+          <Box key={id} display={"flex"} gap={2} width="400">
+            <Stack justifyContent={"center"}>
+              <Typography>{doc.title}</Typography>
+              <Box display={"flex"} gap={2}>
+                <Typography
+                  component="a"
+                  href={doc.voiceModelUrl}
+                  target="_blank"
+                >
+                  {doc.voiceModelName}
+                </Typography>
+                <Divider orientation="vertical" flexItem />
+                <Typography>UserName: {doc.voiceObj.shareInfo.name}</Typography>
+              </Box>
+            </Stack>
+            <Chip label={doc.error} color="error" />
+            <LoadingButton
+              loading={revoxLoadingIds.includes(id)}
+              variant="contained"
+              onClick={async () => {
+                try {
+                  setRevoxLoadingIds((ids) => [...ids, id]);
+                  await axios.post(
+                    `${import.meta.env.VITE_VOX_COVER_SERVER}/revox`,
+                    {
+                      progress_doc_id: id,
+                      voice_model_url: doc.voiceModelUrl,
+                      voice_model_name: doc.voiceModelName,
+                      voice_id: doc.voiceObj.id,
+                      cover_doc_id: doc.coverDocId,
+                    }
+                  );
+                } catch (e) {}
+              }}
+            >
+              Retry
+            </LoadingButton>
           </Box>
         );
       })}

@@ -21,6 +21,7 @@ export type RevoxProcessType = {
   title: string;
   isComplete: boolean;
   status: string;
+  error?: string;
   // taskId: "revox" | "no-rvc" | "allin1";
 };
 export type RevoxProcessTypeDoc = RevoxProcessType & {
