@@ -131,7 +131,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [newAiCoverUrl, setNewAiCoverUrl] = useState("");
   const [songLoading, setSongLoading] = useState(false);
   const [sectionsWidth, setSectionsWidth] = useState<number[]>([]);
-  const { pushLog, setPrevSeconds, setStartLog } = useSession();
+  const { pushLog, setStartLog } = useSession();
   const [userName, setUserName] = useState(() => {
     return window.localStorage.getItem("KAMU_USERNAME") || "";
   });
@@ -166,6 +166,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       const searchParams = new URLSearchParams(location.search);
       const _coverId = searchParams.get("coverId");
       const _voiceId = searchParams.get("voiceId");
+      const _uid = searchParams.get("uid");
       if (_coverId && _voiceId) {
         console.log("Cover:", _coverId);
         console.log("Voice:", _voiceId);
@@ -179,6 +180,20 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             onSongClick(_coverId, _doc, _voiceId);
           });
         }
+        axios.post(
+          "https://api.nusic.kamu.dev/nusic/cover-share-events/ingest",
+          {
+            user_id: _uid,
+            cover_id: _coverId,
+            voice_id: _voiceId,
+          },
+          {
+            headers: {
+              "Content-Type": "application/x-ndjson",
+              Authorization: `Bearer ${import.meta.env.VITE_KAMU_AUTH_TOKEN}`,
+            },
+          }
+        );
         window.history.replaceState(null, "", window.location.origin);
         location.search = "";
       }
@@ -246,14 +261,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       // }
 
       setStartLog({
-        song: coverDoc.title,
-        voice: coverDoc.voices[0].name,
-        start: 0,
-        end: 0,
-        userName,
+        coverId: _id,
+        voiceId: voice_id,
+        startTime: Math.round(Tone.Transport.seconds),
+        endTime: 0,
+        uid: user?.uid,
       });
     }
-    setPrevSeconds(0);
     setSongLoading(false);
   };
   useEffect(() => {
@@ -310,8 +324,6 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
     //   end: 0,
     //   userName,
     // });
-
-    setPrevSeconds(0);
     setSongLoading(false);
   };
 
@@ -347,11 +359,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       // }
       pushLog(Math.round(Tone.Transport.seconds));
       setStartLog({
-        song: coverDoc.title,
-        voice: voiceObj.name,
-        start: Math.round(Tone.Transport.seconds),
-        end: 0,
-        userName,
+        coverId: songId,
+        voiceId: _voiceId,
+        startTime: Math.round(Tone.Transport.seconds),
+        endTime: 0,
+        uid: user?.uid,
       });
     }
     setVoiceLoading(false);

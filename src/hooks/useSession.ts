@@ -2,34 +2,24 @@ import axios from "axios";
 import { useState } from "react";
 
 export const useSession = () => {
-  const [prevSeconds, setPrevSeconds] = useState(-1);
-  const [logs, setLogs] = useState<
-    {
-      voice: string;
-      song: string;
-      start: number;
-      end: number;
-    }[]
-  >([]);
   const [startLog, setStartLog] = useState<{
-    voice: string;
-    song: string;
-    userName: string;
-    start: number;
-    end: number;
+    uid?: string;
+    coverId: string;
+    voiceId: string;
+    startTime: number;
+    endTime: number;
   } | null>(null);
 
   const pushLog = (endTime: number) => {
     if (startLog) {
-      setLogs((l) => [...l, { ...startLog, end: endTime }]);
       try {
         axios.post(
-          "https://api.nusic.kamu.dev/nusic/nuvox-sessions/ingest",
+          "https://api.nusic.kamu.dev/nusic/cover-playtimes/ingest",
           {
-            song: startLog.song,
-            voice: startLog.voice,
-            user_name: startLog.userName || "test",
-            start_time: startLog.start,
+            user_id: startLog.uid,
+            cover_id: startLog.coverId,
+            voice_id: startLog.voiceId,
+            start_time: startLog.startTime,
             end_time: endTime,
           },
           {
@@ -47,8 +37,6 @@ export const useSession = () => {
 
   return {
     setStartLog,
-    setPrevSeconds,
     pushLog,
-    logs,
   };
 };

@@ -124,7 +124,7 @@ const LikeDislikeGroup = ({
       <IconButton
         size="small"
         onClick={(e) => {
-          const input = `${location.origin}?coverId=${coverId}&voiceId=${voiceId}`;
+          const input = `${location.origin}?coverId=${coverId}&voiceId=${voiceId}&uid=${user.uid}`;
           navigator.clipboard.writeText(input);
           setCopyPopEl(e.currentTarget);
           setTimeout(() => setCopyPopEl(null), 500);
