@@ -29,7 +29,7 @@ type Props = {
   isMuted: boolean;
   pausePlayer: any;
   switchMute: any;
-  increaseVocalsVolume: (db: number) => void;
+  addReverb: (db: number) => void;
 };
 
 const FooterPlayer = ({
@@ -41,7 +41,7 @@ const FooterPlayer = ({
   pausePlayer,
   switchMute,
   isMuted,
-  increaseVocalsVolume,
+  addReverb,
 }: Props) => {
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
@@ -249,14 +249,18 @@ const FooterPlayer = ({
                 </Typography>
               </Popover> */}
               <Box display={"flex"} alignItems={"center"} gap={2}>
-                {/* <Stack justifyContent={"center"} height="100%" pt={1.5}>
+                <Stack justifyContent={"center"} height="100%" pt={1.5}>
                   <Slider
+                    defaultValue={parseFloat(
+                      localStorage.getItem("nuvox_reverb") || "0.2"
+                    )}
                     min={0}
+                    marks
                     max={10}
-                    defaultValue={0}
                     step={1}
                     onChange={(e, val) => {
-                      increaseVocalsVolume(val as number);
+                      localStorage.setItem("nuvox_reverb", val.toString());
+                      addReverb(val as number);
                     }}
                     sx={{ width: 100, pt: 0, pb: 0.8 }}
                     color="secondary"
@@ -265,7 +269,7 @@ const FooterPlayer = ({
                   <Typography variant="caption" align="center">
                     Reverb
                   </Typography>
-                </Stack> */}
+                </Stack>
                 <IconButton size="small" onClick={switchMute}>
                   {isMuted ? <VolumeOffRoundedIcon /> : <VolumeUpRoundedIcon />}
                 </IconButton>

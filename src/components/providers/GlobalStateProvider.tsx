@@ -100,7 +100,7 @@ const GlobalStateProvider = ({ children }: any) => {
     playPlayer,
     switchMute,
     isMuted,
-    increaseVocalsVolume,
+    addReverb,
   } = useTonejs(onPlayEndCallback);
 
   const updateGlobalState = async (newState: MusicState) => {
@@ -162,7 +162,7 @@ const GlobalStateProvider = ({ children }: any) => {
           pausePlayer={pausePlayer}
           switchMute={switchMute}
           isMuted={isMuted}
-          increaseVocalsVolume={increaseVocalsVolume}
+          addReverb={addReverb}
         />
       )}
     </GlobalStateContext.Provider>

@@ -23,7 +23,11 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   // const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
   const playerRef = useRef<Tone.Player | null>(null);
   const instrPlayerRef = useRef<Tone.Player | null>(null);
-  // const reverbRef = useRef<Reverb>(new Reverb().toDestination());
+  const reverbRef = useRef<Reverb>(
+    new Reverb(
+      parseFloat(localStorage.getItem("nuvox_reverb") || "0.2")
+    ).toDestination()
+  );
   // const startTimeRef = useRef(0);
   const scheduledNextTrackBf = useRef<Tone.ToneAudioBuffer | null>(null);
 
@@ -128,7 +132,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     // Load and play the new audio
     const player = new Tone.Player(vocalsInput).sync().toDestination();
     playerRef.current = player;
-    // playerRef.current.connect(reverbRef.current);
+    playerRef.current.connect(reverbRef.current);
     let instrDataArray: null | Float32Array = null;
     if (instrUrl) {
       let instrInput: string | Tone.ToneAudioBuffer = instrUrl;
@@ -247,9 +251,9 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   const stopPlayer = () => {
     Tone.Transport.stop();
   };
-  const increaseVocalsVolume = (db: number) => {
+  const addReverb = (decay: number) => {
     if (playerRef.current) {
-      // reverbRef.current.decay = db;
+      reverbRef.current.decay = decay;
       // playerRef.current.volume.value = db;
     }
   };
@@ -267,7 +271,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     loop,
     initializeTone,
     switchMute,
-    increaseVocalsVolume,
+    addReverb,
     // changeInstrAudio,
   };
 };
