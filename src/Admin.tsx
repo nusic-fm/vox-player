@@ -1,5 +1,12 @@
 import { LoadingButton } from "@mui/lab";
-import { Button, Chip, Divider, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Chip,
+  Divider,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import {
@@ -18,6 +25,8 @@ import {
 } from "react-firebase-hooks/firestore";
 import { RevoxProcessTypeDoc } from "./services/db/revoxQueue.service";
 import { db } from "./services/firebase.service";
+import { useNavigate } from "react-router-dom";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 
 type Props = {};
 
@@ -58,10 +67,16 @@ const Admin = (props: Props) => {
   );
   const [progressIds, setProgressIds] = useState<string[]>([]);
   const [revoxLoadingIds, setRevoxLoadingIds] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   return (
     <Stack p={4} gap={2}>
-      <Typography variant="h5">Admin Portal</Typography>
+      <Box display={"flex"} gap={4}>
+        <IconButton onClick={() => navigate("/")}>
+          <ArrowBackRoundedIcon />
+        </IconButton>
+        <Typography variant="h5">Admin Portal</Typography>
+      </Box>
       {!noRVCSnapshot?.size && <Typography>No pending processes</Typography>}
       {noRVCSnapshot?.docs.map((d) => (
         <Box display={"flex"} key={d.id} gap={4} alignItems="center">
