@@ -34,6 +34,7 @@ type Props = {
   onUserChange: (uid: string) => void;
   tempUserId?: string;
   onRevoxRetry: (p: RevoxProcessTypeDoc) => Promise<void>;
+  refreshHeader: boolean;
 };
 
 const baseUrl = "https://discord.com/api/oauth2/authorize";
@@ -42,7 +43,13 @@ const redirectUri = import.meta.env.VITE_REDIRECT_URL as string;
 const responseType = "token";
 const scope = "identify+email";
 
-const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
+const Header = ({
+  user,
+  onUserChange,
+  tempUserId,
+  onRevoxRetry,
+  refreshHeader,
+}: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [pendingRevoxes, setPendingRevoxes] = useState<RevoxProcessTypeDoc[]>(
     []
@@ -63,7 +70,7 @@ const Header = ({ user, onUserChange, tempUserId, onRevoxRetry }: Props) => {
     if (user) {
       fetchPendingRevoxes(user.uid);
     }
-  }, [user]);
+  }, [user, refreshHeader]);
 
   return (
     <Box

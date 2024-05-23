@@ -160,6 +160,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
   const [showCommentsByCoverId, setShowCommentsByCoverId] = useState("");
   const location = useLocation();
+  const [refreshHeader, setRefreshHeader] = useState(false);
 
   useEffect(() => {
     if (coversCollectionSnapshot && location.search) {
@@ -425,7 +426,6 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             isComplete: false,
             status: "Processing",
           });
-          setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
           axios.post(`${import.meta.env.VITE_VOX_COVER_SERVER}/revox`, {
             progress_doc_id: progressDocId,
             cover_doc_id: songId,
@@ -438,7 +438,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             content_id: songId,
             voice_id: newVoiceId,
           });
+          setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
           setRevoxSongInfo(null);
+          setRefreshHeader(!refreshHeader);
         } else {
           alert("Voice already exists, try a different name or voice-model");
         }
@@ -485,6 +487,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           tempUserId={tempUserId}
           onUserChange={onUserChange}
           onRevoxRetry={onRevoxRetry}
+          refreshHeader={refreshHeader}
         />
         <img src="/cover_banner.png" alt="" />
         <Stack gap={1} py={2}>
@@ -1011,6 +1014,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           tempUserId={tempUserId}
           onUserChange={onUserChange}
           onRevoxRetry={onRevoxRetry}
+          refreshHeader={refreshHeader}
         />
         <img src="/cover_banner.png" alt="" />
         <Stack py={2} width="100%">
