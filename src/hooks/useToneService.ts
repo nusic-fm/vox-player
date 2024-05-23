@@ -25,7 +25,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   const instrPlayerRef = useRef<Tone.Player | null>(null);
   const reverbRef = useRef<Reverb>(
     new Reverb(
-      parseFloat(localStorage.getItem("nuvox_reverb") || "0.2")
+      parseFloat(localStorage.getItem("nuvox_reverb") || "1")
     ).toDestination()
   );
   // const startTimeRef = useRef(0);

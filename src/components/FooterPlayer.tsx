@@ -252,7 +252,7 @@ const FooterPlayer = ({
                 <Stack justifyContent={"center"} height="100%" pt={1.5}>
                   <Slider
                     defaultValue={parseFloat(
-                      localStorage.getItem("nuvox_reverb") || "0.2"
+                      localStorage.getItem("nuvox_reverb") || "1"
                     )}
                     min={0}
                     marks
