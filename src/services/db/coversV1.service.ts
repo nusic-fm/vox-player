@@ -18,6 +18,7 @@ import {
   getDocs,
   getDoc,
   deleteDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { User } from "./users.service";
 
@@ -77,6 +78,7 @@ export type CoverV1 = {
   playCount: number;
   rank: number;
   prevRank: number;
+  createdAt: Timestamp;
 };
 
 const getCoverDocById = async (docId: string) => {

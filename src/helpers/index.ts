@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export const getClosesNoInArr = (arr: number[], goal: number) =>
   arr.reduce((prev, curr) =>
     Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev
@@ -47,3 +49,35 @@ export const formatDuration = (value: number) => {
 
 //     return urlPattern.test(text);
 // }
+
+// Convert Firebase timestamp to a date string formatted to either "1h ago" or "May 21"
+export const timestampToDateString = (timestamp: Timestamp) => {
+  const date = timestamp.toDate();
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const seconds = diff / 1000;
+  const minutes = seconds / 60;
+  const hours = minutes / 60;
+  const days = hours / 24;
+
+  if (hours < 24) {
+    return `${Math.floor(hours)}h ago`;
+  } else {
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  }
+};
+
+// export const timestampToDateString = (timestamp: Timestamp) => {
+//   const date = timestamp.toDate();
+//   const options = { weekday: "long", hour: "numeric", minute: "numeric" };
+//   //No overload matches this call.
+//   // return date.toLocaleDateString("en-US", options);
+//   return date.toLocaleDateString("en-US", {
+//     weekday: "long",
+//     hour: "numeric",
+//     minute: "numeric",
+//   });
+// };

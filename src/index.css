@@ -1,6 +1,6 @@
 :root {
   color: rgba(255, 255, 255, 0.87);
-  background-color: rgb(20, 20, 20);
+  background-color: #000;
 }
 * {
   box-sizing: border-box;

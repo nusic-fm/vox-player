@@ -18,6 +18,7 @@ import {
   CardActionArea,
   CardContent,
   Card,
+  Select,
 } from "@mui/material";
 import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
@@ -42,7 +43,12 @@ import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRou
 import { useGlobalState } from "../main";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
-import { getUserAvatar, getYouTubeVideoId, nameToSlug } from "../helpers";
+import {
+  timestampToDateString,
+  getUserAvatar,
+  getYouTubeVideoId,
+  nameToSlug,
+} from "../helpers";
 import VoiceModelDialog from "./VoiceModelDialog";
 // import { createRevoxProgressDoc } from "../services/db/revoxQueue.service";
 import { LoadingButton } from "@mui/lab";
@@ -74,6 +80,7 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
+import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 
 export type YTP_CONTENT = {
   title: string;
@@ -93,18 +100,34 @@ type Props = {
   onUserChange: (uid: string) => Promise<void>;
 };
 
-const Rows = ({ user, tempUserId, onUserChange }: Props) => {
-  const [recordsLimit, setRecordsLimit] = useState(15);
-  const [queriedCover, setQueriedCover] = useState<CoverV1 | null>(null);
-  const [coversCollectionSnapshot, coversLoading, error] = useCollection(
-    query(
+const getRowsQuery = (recordsLimit: number, isLatest: boolean) => {
+  if (isLatest) {
+    return query(
+      collection(db, "covers"),
+      orderBy("createdAt", "desc"),
+      where("audioUrl", "!=", ""),
+      limit(recordsLimit)
+    );
+  } else {
+    return query(
       collection(db, "covers"),
       orderBy("rank", "asc"),
       where("audioUrl", "!=", ""),
       orderBy("playCount", "desc"),
       limit(recordsLimit)
-    )
+    );
+  }
+};
+
+const Rows = ({ user, tempUserId, onUserChange }: Props) => {
+  const [recordsLimit, setRecordsLimit] = useState(15);
+  // TODO: Queried cover needs to show at the end of the chart
+  const [queriedCover, setQueriedCover] = useState<CoverV1 | null>(null);
+  const [isLatest, setIsLatest] = useState(false);
+  const [coversCollectionSnapshot, coversLoading, error] = useCollection(
+    getRowsQuery(recordsLimit, isLatest)
   );
+  console.info(error);
   const [coversSnapshot, setCoversSnapshot] = useState<
     QuerySnapshot<DocumentData, DocumentData> | undefined
   >();
@@ -490,6 +513,26 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           refreshHeader={refreshHeader}
         />
         <img src="/cover_banner.png" alt="" />
+        <Box display={"flex"} justifyContent="end" pt={2}>
+          <Select
+            size="small"
+            sx={{ width: "135px" }}
+            startAdornment={
+              <FilterListOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+            }
+            value={isLatest ? "latest" : "top"}
+            onChange={(e) => {
+              if (e.target.value === "latest") {
+                setIsLatest(true);
+              } else {
+                setIsLatest(false);
+              }
+            }}
+          >
+            <MenuItem value="top">Top</MenuItem>
+            <MenuItem value="latest">Latest</MenuItem>
+          </Select>
+        </Box>
         <Stack gap={1} py={2}>
           {(!coversSnapshot || coversSnapshot?.docs.length === 0) &&
             !coversLoading && (
@@ -528,7 +571,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     }}
                   >
                     <CardActionArea>
-                      <CardContent sx={{ p: 1 }}>
+                      <CardContent sx={{ p: 0 }}>
                         <Box display={"flex"} gap={1}>
                           <Box
                             minWidth={"65px"}
@@ -591,27 +634,32 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                             // onMouseLeave={handleClose}
                           />
                           <Stack>
-                            <Typography variant="caption" component="a">
-                              {songId === id
-                                ? coverDoc.voices.find(
-                                    (v) =>
-                                      v.id ===
-                                      (voiceId || coverDoc.voices[0].id)
-                                  )?.creatorName
-                                : coverDoc.voices[0].creatorName}
-                              {/* {songId === id &&
-                                !loading &&
-                                !!lastSongLoadTime && (
-                                  <Typography
-                                    component={"span"}
-                                    color="yellow"
-                                    variant="caption"
-                                  >
-                                    {" "}
-                                    - {lastSongLoadTime}s
-                                  </Typography>
-                                )} */}
-                            </Typography>
+                            <Box display="flex" alignItems="center" gap={1}>
+                              <Typography
+                                variant="caption"
+                                component="a"
+                                sx={{
+                                  maxWidth: "130px",
+                                  overflow: "hidden",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {songId === id
+                                  ? coverDoc.voices.find(
+                                      (v) =>
+                                        v.id ===
+                                        (voiceId || coverDoc.voices[0].id)
+                                    )?.creatorName
+                                  : coverDoc.voices[0].creatorName}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color={"rgb(113, 118, 123)"}
+                                component="a"
+                              >
+                                · {timestampToDateString(coverDoc.createdAt)}
+                              </Typography>
+                            </Box>
                             <Typography>{coverDoc.title}</Typography>
                           </Stack>
                         </Box>
@@ -1036,6 +1084,26 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           refreshHeader={refreshHeader}
         />
         <img src="/cover_banner.png" alt="" />
+        <Box display={"flex"} justifyContent="end" pt={2}>
+          <Select
+            size="small"
+            sx={{ width: "135px" }}
+            startAdornment={
+              <FilterListOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+            }
+            value={isLatest ? "latest" : "top"}
+            onChange={(e) => {
+              if (e.target.value === "latest") {
+                setIsLatest(true);
+              } else {
+                setIsLatest(false);
+              }
+            }}
+          >
+            <MenuItem value="top">Top</MenuItem>
+            <MenuItem value="latest">Latest</MenuItem>
+          </Select>
+        </Box>
         <Stack py={2} width="100%">
           {(!coversSnapshot || coversSnapshot?.docs.length === 0) &&
             !coversLoading && (
@@ -1099,7 +1167,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     fontSize="2rem"
                     position="relative"
                   >
-                    {i + 1}
+                    {coverDoc.rank}
                     <Box
                       position={"absolute"}
                       bottom={-45}
@@ -1190,27 +1258,15 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     flexWrap={"wrap"}
                   >
                     <Stack flexBasis="70%">
-                      <Typography
-                        variant="caption"
-                        // color={
-                        //   voiceId === coverDoc.voices[0].id && songId === id
-                        //     ? "#8973F8"
-                        //     : "#fff"
-                        // }
-                        component="a"
-                        // onClick={() =>
-                        //   onVoiceChange(
-                        //     coverDoc.voices[0].id,
-                        //     coverDoc.voices[0].name
-                        //   )
-                        // }
-                      >
-                        {songId === id
-                          ? coverDoc.voices.find(
-                              (v) => v.id === (voiceId || coverDoc.voices[0].id)
-                            )?.creatorName
-                          : coverDoc.voices[0].creatorName}
-                        {/* {songId === id && !loading && !!lastSongLoadTime && (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography variant="caption" component="a">
+                          {songId === id
+                            ? coverDoc.voices.find(
+                                (v) =>
+                                  v.id === (voiceId || coverDoc.voices[0].id)
+                              )?.creatorName
+                            : coverDoc.voices[0].creatorName}
+                          {/* {songId === id && !loading && !!lastSongLoadTime && (
                           <Typography
                             component={"span"}
                             color="yellow"
@@ -1220,7 +1276,15 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                             - {lastSongLoadTime}s
                           </Typography>
                         )} */}
-                      </Typography>
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color={"rgb(113, 118, 123)"}
+                          component="a"
+                        >
+                          · {timestampToDateString(coverDoc.createdAt)}
+                        </Typography>
+                      </Box>
                       <Typography
                       // sx={{
                       //   textOverflow: "ellipsis",

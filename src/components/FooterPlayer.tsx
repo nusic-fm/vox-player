@@ -56,7 +56,8 @@ const FooterPlayer = ({
         p={1}
         display="flex"
         alignItems="center"
-        sx={{ backgroundColor: "#212121" }}
+        sx={{ backgroundColor: "rgba(29, 33, 38, 1)" }}
+        border="1px solid rgb(47, 51, 54)"
         zIndex={9}
       >
         <Stack width={"100%"}>
@@ -159,7 +160,8 @@ const FooterPlayer = ({
         display="flex"
         gap={2}
         alignItems="center"
-        sx={{ backgroundColor: "#212121" }}
+        sx={{ backgroundColor: "rgba(29, 33, 38, 1)" }}
+        border="1px solid rgb(47, 51, 54)"
         zIndex={9}
         borderRadius={"4px"}
       >
