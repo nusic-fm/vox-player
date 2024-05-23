@@ -100,10 +100,16 @@ const updateCoverV1Doc = async (
 const SUB_COLLECTION = "comments";
 
 const addCommentToCover = async (id: string, commentInfo: Comment) => {
-  const c = collection(db, DB_NAME, id, SUB_COLLECTION);
-  await addDoc(c, { ...commentInfo, createdAt: serverTimestamp() });
-  const d = doc(db, DB_NAME, id);
-  await updateDoc(d, { commentsCount: increment(1) });
+  await runTransaction(db, async (transaction) => {
+    const collectionDocRef = doc(collection(db, DB_NAME, id, SUB_COLLECTION));
+    transaction.set(collectionDocRef, {
+      ...commentInfo,
+      createdAt: serverTimestamp(),
+    });
+    // await addDoc(c, { ...commentInfo, createdAt: serverTimestamp() });
+    const d = doc(db, DB_NAME, id);
+    transaction.update(d, { commentsCount: increment(1) });
+  });
 };
 const addLikesToCover = async (
   uid: string,

@@ -756,6 +756,25 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         variant="standard"
                         size="small"
                         value={newCommentContent}
+                        onKeyDown={(e) => {
+                          // check if the key is enter
+                          if (e.key === "Enter") {
+                            if (!user) return alert("Kindly Sign In...");
+                            if (user && newCommentContent) {
+                              addCommentToCover(id, {
+                                content: newCommentContent,
+                                shareInfo: {
+                                  avatar: user.avatar,
+                                  id: user.uid,
+                                  name: user.name,
+                                },
+                                timeInAudio: Tone.Transport.seconds,
+                                voiceId,
+                              });
+                              setNewCommentContent("");
+                            }
+                          }
+                        }}
                         onChange={(e) => setNewCommentContent(e.target.value)}
                         InputProps={{
                           endAdornment: (
@@ -1431,6 +1450,25 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         size="small"
                         value={newCommentContent}
                         onChange={(e) => setNewCommentContent(e.target.value)}
+                        onKeyDown={(e) => {
+                          // check if the key is enter
+                          if (e.key === "Enter") {
+                            if (!user) return alert("Kindly Sign In...");
+                            if (user && newCommentContent) {
+                              addCommentToCover(id, {
+                                content: newCommentContent,
+                                shareInfo: {
+                                  avatar: user.avatar,
+                                  id: user.uid,
+                                  name: user.name,
+                                },
+                                timeInAudio: Tone.Transport.seconds,
+                                voiceId,
+                              });
+                              setNewCommentContent("");
+                            }
+                          }
+                        }}
                         InputProps={{
                           endAdornment: (
                             <IconButton
