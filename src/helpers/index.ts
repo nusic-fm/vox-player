@@ -51,7 +51,8 @@ export const formatDuration = (value: number) => {
 // }
 
 // Convert Firebase timestamp to a date string formatted to either "1h ago" or "May 21"
-export const timestampToDateString = (timestamp: Timestamp) => {
+export const timestampToDateString = (timestamp?: Timestamp) => {
+  if (!timestamp) return "";
   const date = timestamp.toDate();
   const now = new Date();
   const diff = now.getTime() - date.getTime();

@@ -78,7 +78,7 @@ export type CoverV1 = {
   playCount: number;
   rank: number;
   prevRank: number;
-  createdAt: Timestamp;
+  createdAt?: Timestamp;
 };
 
 const getCoverDocById = async (docId: string) => {
