@@ -61,7 +61,7 @@ const HelperTextContent = (props: Props) => {
           {getValue(remoteConfig, "a3").asString().split("_")[0]}
         </Typography>
         <Typography variant="body2">
-          {getValue(remoteConfig, "a3").asString().split("_")[0]}
+          {getValue(remoteConfig, "a3").asString().split("_")[1]}
         </Typography>
       </Stack>
     </Box>

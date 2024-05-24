@@ -513,7 +513,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           refreshHeader={refreshHeader}
         />
         <img src="/cover_banner.png" alt="" />
-        <Box display={"flex"} justifyContent="end" pt={2}>
+        <Box display={"flex"} justifyContent="center" pt={2}>
           <Select
             size="small"
             sx={{ width: "135px" }}
