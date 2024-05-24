@@ -113,8 +113,29 @@ const Header = ({
             onUserChange={onUserChange}
             source={
               tempUserId === "826040837275910154"
-                ? JSON.parse(getValue(remoteConfig, "adam_users").asString())
-                : JSON.parse(getValue(remoteConfig, "alex_users").asString())
+                ? [
+                    "3Cx4l7iMeFMKx2ywnaqS samUrI",
+                    "ugKfRzQqn6yUFitpPapN Pammy",
+                    "ENxvDxiBSsUy6TaupP3g AstralVisions",
+                    "JEIOJky1oU90XsMFnvAw Emkatters",
+                    "ZUKKbz0etLsdkGB2BUTM paradroid68",
+                    "yA7gbZ85WIGPalUn3BjJ Gr8Fairee",
+                    "OFBeiFrt6AvMNmbMScmz readi-playa",
+                    "826040837275910154 adamnusic",
+                  ]
+                : [
+                    "dYCM8E7Wfz3JjyyRA17V j_voorhees",
+                    "I5ZljIvkolMOHOiJiYJ6 Cyber Monkey",
+                    "CAbXJvrMXAeV5r8kfbHA AI Audio Lab",
+                    "geEf5ZwcHOJNKZHR86Pv frank_costello",
+                    "Z3IG8LHJK2S03L7BcZiD aimafia77",
+                    "ve0Yg5v3jNLrxq6Ez3Zp peterpunk12",
+                    "Mak3wXEn3OzrleoRx4hO the_bugg88",
+                    "rTU6Pbn3eEGhYjV4zgev SilencioGPT",
+                    "fVbXnhQHPfK5Zy7n4a3b OrchidQueen",
+                    "DkcrmVEysfjfKAKeB6Fq mystic_muse",
+                    "362272367063597056 alesalis",
+                  ]
             }
           />
         )}

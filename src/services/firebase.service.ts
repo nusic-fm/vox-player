@@ -42,29 +42,6 @@ remoteConfig.defaultConfig = {
   a1: "Simply paste the Youtube url of your AI Cover into the input field at           the bottom of the charts._Only Youtube urls are currently supported. More options will be coming           soon...",
   q2: "What is REVOX?",
   a2: "REVOX enables loading of RVC models to an AI Cover of your choice, so           you can hear it in an alternative voice._Alternatively you can select a voice another user has already loaded           into the chart...",
-  alex_users: JSON.stringify([
-    "dYCM8E7Wfz3JjyyRA17V j_voorhees",
-    "I5ZljIvkolMOHOiJiYJ6 Cyber Monkey",
-    "CAbXJvrMXAeV5r8kfbHA AI Audio Lab",
-    "geEf5ZwcHOJNKZHR86Pv frank_costello",
-    "Z3IG8LHJK2S03L7BcZiD aimafia77",
-    "ve0Yg5v3jNLrxq6Ez3Zp peterpunk12",
-    "Mak3wXEn3OzrleoRx4hO the_bugg88",
-    "rTU6Pbn3eEGhYjV4zgev SilencioGPT",
-    "fVbXnhQHPfK5Zy7n4a3b OrchidQueen",
-    "DkcrmVEysfjfKAKeB6Fq mystic_muse",
-    "362272367063597056 alesalis",
-  ]),
-  adam_users: JSON.stringify([
-    "3Cx4l7iMeFMKx2ywnaqS samUrI",
-    "ugKfRzQqn6yUFitpPapN Pammy",
-    "ENxvDxiBSsUy6TaupP3g AstralVisions",
-    "JEIOJky1oU90XsMFnvAw Emkatters",
-    "ZUKKbz0etLsdkGB2BUTM paradroid68",
-    "yA7gbZ85WIGPalUn3BjJ Gr8Fairee",
-    "OFBeiFrt6AvMNmbMScmz readi-playa",
-    "826040837275910154 adamnusic",
-  ]),
 };
 fetchAndActivate(remoteConfig);
 // const payments = getStripePayments(app, {
