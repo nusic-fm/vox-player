@@ -62,6 +62,7 @@ const Admin = (props: Props) => {
     query(
       collection(db, "revox_queue"),
       where("isComplete", "==", false),
+      where("error", "!=", ""),
       limit(10)
     )
   );
