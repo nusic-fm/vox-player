@@ -34,7 +34,7 @@ const convertHoursToMilliseconds = (hours: number) => {
 };
 
 remoteConfig.settings.minimumFetchIntervalMillis =
-  convertHoursToMilliseconds(3);
+  convertHoursToMilliseconds(0.17);
 
 remoteConfig.defaultConfig = {
   reverb_default_value: "1",
@@ -42,6 +42,8 @@ remoteConfig.defaultConfig = {
   a1: "Simply paste the Youtube url of your AI Cover into the input field at           the bottom of the charts._Only Youtube urls are currently supported. More options will be coming           soon...",
   q2: "What is REVOX?",
   a2: "REVOX enables loading of RVC models to an AI Cover of your choice, so           you can hear it in an alternative voice._Alternatively you can select a voice another user has already loaded           into the chart...",
+  q3: "How Do I Make An AI Cover?",
+  a3: "Visit vox.nusic.fm to access the tooling to create AI Covers for free(Hugging Face account required)._There are also numerous paid tools available online, Google is your friend!",
 };
 fetchAndActivate(remoteConfig);
 // const payments = getStripePayments(app, {

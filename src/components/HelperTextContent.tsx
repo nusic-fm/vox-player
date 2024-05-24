@@ -55,24 +55,13 @@ const HelperTextContent = (props: Props) => {
         borderRadius={2}
       >
         <Typography color={"rgb(140, 118, 253)"}>
-          How Do I Make An AI Cover?
+          {getValue(remoteConfig, "q3").asString()}
         </Typography>
         <Typography variant="body2">
-          Visit{" "}
-          <Typography
-            component={"a"}
-            href="https://vox.nusic.fm"
-            target={"_blank"}
-            sx={{ textDecoration: "underline" }}
-          >
-            vox.nusic.fm
-          </Typography>{" "}
-          to access the tooling to create AI Covers for free (Hugging Face
-          account required).
+          {getValue(remoteConfig, "a3").asString().split("_")[0]}
         </Typography>
         <Typography variant="body2">
-          There are also numerous paid tools available online, Google is your
-          friend!
+          {getValue(remoteConfig, "a3").asString().split("_")[0]}
         </Typography>
       </Stack>
     </Box>
