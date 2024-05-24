@@ -33,19 +33,18 @@ const convertHoursToMilliseconds = (hours: number) => {
   return hours * 60 * 60 * 1000;
 };
 
-remoteConfig.settings.minimumFetchIntervalMillis =
-  convertHoursToMilliseconds(0.17);
+remoteConfig.settings.minimumFetchIntervalMillis = 600000;
 
 remoteConfig.defaultConfig = {
   reverb_default_value: "1",
-  q1: "How Do I Share My AI Cover?",
-  a1: "Simply paste the Youtube url of your AI Cover into the input field at           the bottom of the charts._Only Youtube urls are currently supported. More options will be coming           soon...",
-  q2: "What is REVOX?",
-  a2: "REVOX enables loading of RVC models to an AI Cover of your choice, so           you can hear it in an alternative voice._Alternatively you can select a voice another user has already loaded           into the chart...",
-  q3: "How Do I Make An AI Cover?",
-  a3: "Visit vox.nusic.fm to access the tooling to create AI Covers for free(Hugging Face account required)._There are also numerous paid tools available online, Google is your friend!",
+  q1: "What Is An AI Cover?",
+  a1: "An AI Cover is a cover of a song in an AI generated voice of an alternative personality than the original singer._The AI Cover charts collects and ranks the best AI Cover songs on the internet.",
+  q2: "How Do I Share My AI Cover?",
+  a2: "Simply paste the Youtube url of your AI Cover into the input field at           the bottom of the charts._Only Youtube urls are currently supported. More options will be coming           soon...",
+  q3: "What is REVOX?",
+  a3: "REVOX enables loading of RVC models to an AI Cover of your choice, so           you can hear it in an alternative voice._Alternatively you can select a voice another user has already loaded           into the chart...",
 };
-fetchAndActivate(remoteConfig);
+(async () => await fetchAndActivate(remoteConfig))();
 // const payments = getStripePayments(app, {
 //   productsCollection: "products",
 //   customersCollection: "customers",

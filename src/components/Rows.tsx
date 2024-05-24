@@ -44,7 +44,7 @@ import { useGlobalState } from "../main";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
 import {
-  timestampToDateString,
+  // timestampToDateString,
   getUserAvatar,
   getYouTubeVideoId,
   nameToSlug,
@@ -652,13 +652,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                                     )?.creatorName
                                   : coverDoc.voices[0].creatorName}
                               </Typography>
-                              <Typography
+                              {/* <Typography
                                 variant="caption"
                                 color={"rgb(113, 118, 123)"}
                                 component="a"
                               >
                                 · {timestampToDateString(coverDoc.createdAt)}
-                              </Typography>
+                              </Typography> */}
                             </Box>
                             <Typography>{coverDoc.title}</Typography>
                           </Stack>
@@ -1277,13 +1277,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           </Typography>
                         )} */}
                         </Typography>
-                        <Typography
+                        {/* <Typography
                           variant="caption"
                           color={"rgb(113, 118, 123)"}
                           component="a"
                         >
                           · {timestampToDateString(coverDoc.createdAt)}
-                        </Typography>
+                        </Typography> */}
                       </Box>
                       <Typography
                       // sx={{
