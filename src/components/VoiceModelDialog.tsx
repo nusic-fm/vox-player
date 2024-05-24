@@ -135,7 +135,7 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
           <input {...getInputProps()} />
           <Box display={"flex"} gap={2}>
             <TextField
-              label="Name"
+              label="Model Name"
               color="secondary"
               size="small"
               value={voiceModelName}

@@ -66,7 +66,7 @@ remoteConfig.defaultConfig = {
     "826040837275910154 adamnusic",
   ]),
 };
-await fetchAndActivate(remoteConfig);
+fetchAndActivate(remoteConfig);
 // const payments = getStripePayments(app, {
 //   productsCollection: "products",
 //   customersCollection: "customers",
