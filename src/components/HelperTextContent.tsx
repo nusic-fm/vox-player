@@ -1,4 +1,6 @@
 import { Box, Stack, Typography } from "@mui/material";
+import { getValue } from "firebase/remote-config";
+import { remoteConfig } from "../services/firebase.service";
 
 type Props = {};
 
@@ -19,15 +21,13 @@ const HelperTextContent = (props: Props) => {
         borderRadius={2}
       >
         <Typography color={"rgb(140, 118, 253)"}>
-          How Do I Share My AI Cover?
+          {getValue(remoteConfig, "q1").asString()}
         </Typography>
         <Typography variant="body2">
-          Simply paste the Youtube url of your AI Cover into the input field at
-          the bottom of the charts.
+          {getValue(remoteConfig, "a1").asString().split("_")[0]}
         </Typography>
         <Typography variant="body2">
-          Only Youtube urls are currently supported. More options will be coming
-          soon...
+          {getValue(remoteConfig, "a1").asString().split("_")[1]}
         </Typography>
       </Stack>
       <Stack
@@ -37,14 +37,14 @@ const HelperTextContent = (props: Props) => {
         flex={1}
         borderRadius={2}
       >
-        <Typography color={"rgb(140, 118, 253)"}>What is REVOX?</Typography>
-        <Typography variant="body2">
-          REVOX enables loading of RVC models to an AI Cover of your choice, so
-          you can hear it in an alternative voice.
+        <Typography color={"rgb(140, 118, 253)"}>
+          {getValue(remoteConfig, "q2").asString()}
         </Typography>
         <Typography variant="body2">
-          Alternatively you can select a voice another user has already loaded
-          into the chart...
+          {getValue(remoteConfig, "a2").asString().split("_")[0]}
+        </Typography>
+        <Typography variant="body2">
+          {getValue(remoteConfig, "a2").asString().split("_")[1]}
         </Typography>
       </Stack>
       <Stack

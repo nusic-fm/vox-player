@@ -17,6 +17,8 @@ import { MusicState } from "./providers/GlobalStateProvider";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
 import AudioProgress from "./AudioProgress";
+import { getValue } from "firebase/remote-config";
+import { remoteConfig } from "../services/firebase.service";
 // import ShareIcon from "@mui/icons-material/Share";
 // import { useState } from "react";
 
@@ -254,7 +256,11 @@ const FooterPlayer = ({
                 <Stack justifyContent={"center"} height="100%" pt={1.5}>
                   <Slider
                     defaultValue={parseFloat(
-                      localStorage.getItem("nuvox_reverb") || "1"
+                      localStorage.getItem("nuvox_reverb") ||
+                        getValue(
+                          remoteConfig,
+                          "reverb_default_value"
+                        ).asString()
                     )}
                     min={0}
                     marks

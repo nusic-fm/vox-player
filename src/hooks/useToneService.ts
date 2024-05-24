@@ -1,7 +1,9 @@
+import { getValue } from "firebase/remote-config";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import { Reverb, ToneAudioBuffer } from "tone";
 import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
+import { remoteConfig } from "../services/firebase.service";
 
 // Database Configuration
 const idbConfig = {
@@ -25,7 +27,10 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   const instrPlayerRef = useRef<Tone.Player | null>(null);
   const reverbRef = useRef<Reverb>(
     new Reverb(
-      parseFloat(localStorage.getItem("nuvox_reverb") || "1")
+      parseFloat(
+        localStorage.getItem("nuvox_reverb") ||
+          getValue(remoteConfig, "reverb_default_value").asString()
+      )
     ).toDestination()
   );
   // const startTimeRef = useRef(0);
