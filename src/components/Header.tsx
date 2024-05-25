@@ -41,7 +41,7 @@ type Props = {
 
 const baseUrl = "https://discord.com/api/oauth2/authorize";
 const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID as string;
-const redirectUri = import.meta.env.VITE_REDIRECT_URL as string;
+const redirectUri = encodeURIComponent(window.location.origin);
 const responseType = "token";
 const scope = "identify+email";
 
