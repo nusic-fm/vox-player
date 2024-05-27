@@ -21,7 +21,7 @@ const HelperTextContent = (props: Props) => {
   const [email, setEmail] = useState<string>();
   const [countryCode, setCountryCode] = useState<{
     name: string;
-    dial_code: string;
+    flag: string;
     code: string;
   }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,7 +101,7 @@ const HelperTextContent = (props: Props) => {
             {getValue(remoteConfig, "footer_content").asString()}
           </Typography>
         </Stack>
-        <Stack gap={1}>
+        <Stack gap={1.5}>
           <Box
             display={"flex"}
             alignItems="center"
@@ -128,7 +128,6 @@ const HelperTextContent = (props: Props) => {
               Email:
             </Typography>
             <TextField
-              fullWidth
               size="small"
               type="email"
               value={email}
@@ -144,9 +143,14 @@ const HelperTextContent = (props: Props) => {
             <Typography flexBasis={{ md: "180px" }} flexShrink={0}>
               Phone:
             </Typography>
-            <Box display={"flex"} gap={1} flexGrow={1} flexWrap="wrap">
+            <Box
+              display={"flex"}
+              gap={1}
+              flexGrow={1}
+              flexWrap={{ xs: "wrap", md: "unset" }}
+            >
               <Autocomplete
-                sx={{ width: 150 }}
+                sx={{ width: 310 }}
                 color="info"
                 options={CountryCodes}
                 renderInput={(params) => (
@@ -166,7 +170,7 @@ const HelperTextContent = (props: Props) => {
                   }
                 }}
                 getOptionLabel={(option) => {
-                  return option.code;
+                  return `${option.flag} ${option.name}`;
                 }}
               />
               <TextField
@@ -186,7 +190,7 @@ const HelperTextContent = (props: Props) => {
                 InputProps={{
                   startAdornment: (
                     <Typography mr={2} sx={{ color: "#878787" }}>
-                      {countryCode?.dial_code || "+"}
+                      {countryCode?.code || "+"}
                     </Typography>
                   ),
                 }}

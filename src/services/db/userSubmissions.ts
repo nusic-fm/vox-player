@@ -6,7 +6,7 @@ const DB_NAME = "user_submissions";
 const createUserSubmissionDoc = async (obj: {
   name: string;
   email: string;
-  countryCode: { name: string; dial_code: string; code: string };
+  countryCode: { name: string; flag: string; code: string };
   mobile: string;
 }): Promise<string> => {
   const d = collection(db, DB_NAME);

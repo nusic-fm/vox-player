@@ -66,6 +66,10 @@ const Admin = (props: Props) => {
       limit(10)
     )
   );
+  const [submissions, ,] = useCollectionData(
+    query(collection(db, "user_submissions"), limit(10))
+  );
+
   const [progressIds, setProgressIds] = useState<string[]>([]);
   const [revoxLoadingIds, setRevoxLoadingIds] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -197,6 +201,13 @@ const Admin = (props: Props) => {
           </Box>
         );
       })}
+      <Divider />
+      <Typography>-----Submissions-----</Typography>
+      {submissions?.map((s) => (
+        <Box key={s.name}>
+          {s.name}-{s.email}-{s.countryCode.code}-{s.mobile}
+        </Box>
+      ))}
     </Stack>
   );
 };
