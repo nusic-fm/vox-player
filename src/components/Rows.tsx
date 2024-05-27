@@ -34,7 +34,11 @@ import {
 import { useCollection } from "react-firebase-hooks/firestore";
 import * as Tone from "tone";
 import { getWidthByDuration, timeToSeconds } from "../helpers/audio";
-import { db, logFirebaseEvent } from "../services/firebase.service";
+import {
+  db,
+  logFirebaseEvent,
+  remoteConfig,
+} from "../services/firebase.service";
 // import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 // import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 // import RepeatRoundedIcon from "@mui/icons-material/RepeatRounded";
@@ -81,6 +85,7 @@ import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
+import { getValue } from "firebase/remote-config";
 
 export type YTP_CONTENT = {
   title: string;
