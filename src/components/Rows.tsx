@@ -578,52 +578,53 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     <CardActionArea>
                       <CardContent sx={{ p: 0 }}>
                         <Box display={"flex"} gap={1}>
-                          <Box
-                            minWidth={"65px"}
-                            height="55px"
-                            display="flex"
-                            justifyContent={"center"}
-                            alignItems={"center"}
-                            sx={{
-                              background: "rgba(29, 33, 38, 1)",
-                              borderRadius: "6px",
-                            }}
-                          >
-                            <Typography
-                              fontFamily={"Space Grotesk"}
-                              fontWeight={900}
-                              fontSize="2rem"
-                              position="relative"
+                          <Stack>
+                            <Box
+                              minWidth={"50px"}
+                              height="50px"
+                              display="flex"
+                              justifyContent={"center"}
+                              alignItems={"center"}
+                              sx={{
+                                background: "rgba(29, 33, 38, 1)",
+                                borderRadius: "6px",
+                              }}
                             >
-                              {coverDoc.rank}
-                              <Box
-                                position={"absolute"}
-                                bottom={-35}
-                                left={0}
-                                display="flex"
-                                justifyContent={"center"}
-                                alignContent={"center"}
-                                width="100%"
+                              <Typography
+                                fontFamily={"Space Grotesk"}
+                                fontWeight={900}
+                                fontSize="2rem"
+                                position="relative"
                               >
-                                {coverDoc.rank < coverDoc.prevRank ? (
-                                  <ExpandLessRoundedIcon
-                                    color="success"
-                                    fontSize="large"
-                                  />
-                                ) : coverDoc.rank === coverDoc.prevRank ? (
-                                  <ChevronRightRoundedIcon
-                                    sx={{ color: "rgb(130, 137, 161)" }}
-                                    fontSize="large"
-                                  />
-                                ) : (
-                                  <ExpandMoreRoundedIcon
-                                    color="error"
-                                    fontSize="large"
-                                  />
-                                )}
-                              </Box>
-                            </Typography>
-                          </Box>
+                                {coverDoc.rank}
+                              </Typography>
+                            </Box>
+                            <Box
+                              // position={"absolute"}
+                              // top={0}
+                              // left={0}
+                              display="flex"
+                              justifyContent={"center"}
+                              alignContent={"center"}
+                            >
+                              {coverDoc.rank < coverDoc.prevRank ? (
+                                <ExpandLessRoundedIcon
+                                  color="success"
+                                  fontSize="large"
+                                />
+                              ) : coverDoc.rank === coverDoc.prevRank ? (
+                                <ChevronRightRoundedIcon
+                                  sx={{ color: "rgb(130, 137, 161)" }}
+                                  fontSize="large"
+                                />
+                              ) : (
+                                <ExpandMoreRoundedIcon
+                                  color="error"
+                                  fontSize="large"
+                                />
+                              )}
+                            </Box>
+                          </Stack>
                           <Avatar
                             src={coverDoc.metadata.videoThumbnail}
                             onMouseEnter={(e) => handleClick(e, i)}

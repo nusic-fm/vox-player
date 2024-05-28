@@ -60,7 +60,7 @@ const FooterPlayer = ({
         alignItems="center"
         sx={{ backgroundColor: "rgba(29, 33, 38, 1)" }}
         border="1px solid rgb(47, 51, 54)"
-        zIndex={9}
+        zIndex={9999}
       >
         <Stack width={"100%"}>
           <Box display={"flex"} gap={1}>
@@ -164,7 +164,7 @@ const FooterPlayer = ({
         alignItems="center"
         sx={{ backgroundColor: "rgba(29, 33, 38, 1)" }}
         border="1px solid rgb(47, 51, 54)"
-        zIndex={9}
+        zIndex={9999}
         borderRadius={"4px"}
       >
         <img
@@ -264,7 +264,7 @@ const FooterPlayer = ({
                     )}
                     min={0}
                     marks
-                    max={10}
+                    max={8}
                     step={1}
                     onChange={(e, val) => {
                       localStorage.setItem("nuvox_reverb", val.toString());

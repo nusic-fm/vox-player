@@ -2,7 +2,8 @@ import { LoadingButton } from "@mui/lab";
 import {
   Autocomplete,
   Box,
-  Button,
+  Divider,
+  Fab,
   Stack,
   TextField,
   Typography,
@@ -101,6 +102,7 @@ const HelperTextContent = (props: Props) => {
             {getValue(remoteConfig, "footer_content").asString()}
           </Typography>
         </Stack>
+        <Divider />
         <Stack gap={1.5}>
           <Box
             display={"flex"}
@@ -128,6 +130,7 @@ const HelperTextContent = (props: Props) => {
               Email:
             </Typography>
             <TextField
+              sx={{ width: { xs: "100%", md: "280px" } }}
               size="small"
               type="email"
               value={email}
@@ -145,12 +148,12 @@ const HelperTextContent = (props: Props) => {
             </Typography>
             <Box
               display={"flex"}
-              gap={1}
+              gap={2}
               flexGrow={1}
               flexWrap={{ xs: "wrap", md: "unset" }}
             >
               <Autocomplete
-                sx={{ width: 310 }}
+                sx={{ width: { xs: 220, md: 280 } }}
                 color="info"
                 options={CountryCodes}
                 renderInput={(params) => (
@@ -178,7 +181,6 @@ const HelperTextContent = (props: Props) => {
                 color="info"
                 size="small"
                 value={mobile}
-                fullWidth
                 onChange={(e) => {
                   if (
                     !isNaN(Number(e.target.value)) &&
@@ -190,13 +192,16 @@ const HelperTextContent = (props: Props) => {
                 InputProps={{
                   startAdornment: (
                     <Typography mr={2} sx={{ color: "#878787" }}>
-                      {countryCode?.code || "+"}
+                      {countryCode?.code || ""}
                     </Typography>
                   ),
                 }}
                 type="tel"
                 variant="outlined"
-                sx={{ ".MuiFormLabel-root": { color: "#878787" } }}
+                sx={{
+                  ".MuiFormLabel-root": { color: "#878787" },
+                  width: { xs: "100%", md: 250 },
+                }}
               />
             </Box>
           </Box>
@@ -230,6 +235,26 @@ const HelperTextContent = (props: Props) => {
           </LoadingButton>
         </Box>
       </Stack>
+      <Box display={"flex"} width="100%" justifyContent="center" gap={1}>
+        <Fab
+          sx={{ bgcolor: "rgba(48, 48, 48, 1)", width: 40, height: 40 }}
+          size="small"
+          color="primary"
+          href={"https://discord.gg/eHyRQADgQ4"}
+          target="_blank"
+        >
+          <img src="/discord_logo.webp" alt="discord" width={20} />
+        </Fab>
+        <Fab
+          sx={{ bgcolor: "rgba(48, 48, 48, 1)", width: 40, height: 40 }}
+          size="small"
+          color="primary"
+          href={"https://twitter.com/nusicOfficial"}
+          target="_blank"
+        >
+          <img src="/x_logo_white.png" alt="x" width={14} />
+        </Fab>
+      </Box>
     </Stack>
   );
 };
