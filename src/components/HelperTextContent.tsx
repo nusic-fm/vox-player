@@ -130,7 +130,8 @@ const HelperTextContent = (props: Props) => {
               Email:
             </Typography>
             <TextField
-              sx={{ width: { xs: "100%", md: "280px" } }}
+              fullWidth
+              // sx={{ width: { xs: "100%", md: "280px" } }}
               size="small"
               type="email"
               value={email}
@@ -153,7 +154,7 @@ const HelperTextContent = (props: Props) => {
               flexWrap={{ xs: "wrap", md: "unset" }}
             >
               <Autocomplete
-                sx={{ width: { xs: 220, md: 280 } }}
+                sx={{ width: { xs: 220, md: 340 } }}
                 color="info"
                 options={CountryCodes}
                 renderInput={(params) => (
@@ -180,6 +181,7 @@ const HelperTextContent = (props: Props) => {
                 label="Mobile"
                 color="info"
                 size="small"
+                fullWidth
                 value={mobile}
                 onChange={(e) => {
                   if (
@@ -191,7 +193,10 @@ const HelperTextContent = (props: Props) => {
                 }}
                 InputProps={{
                   startAdornment: (
-                    <Typography mr={2} sx={{ color: "#878787" }}>
+                    <Typography
+                      mr={2}
+                      sx={{ color: "#878787", whiteSpace: "nowrap" }}
+                    >
                       {countryCode?.code || ""}
                     </Typography>
                   ),
@@ -200,7 +205,7 @@ const HelperTextContent = (props: Props) => {
                 variant="outlined"
                 sx={{
                   ".MuiFormLabel-root": { color: "#878787" },
-                  width: { xs: "100%", md: 250 },
+                  // width: { xs: "100%", md: 250 },
                 }}
               />
             </Box>

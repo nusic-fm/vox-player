@@ -164,17 +164,19 @@ const VoiceChips = ({
               </Box>
             </Box>
           )}
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => {
-              if (!user?.uid) alert("Sign in to continue with Revox");
-              else setRevoxSongInfo(coverDoc);
-            }}
-            disabled={!coverDoc.stemsReady}
-          >
-            Revox
-          </Button>
+          {songId === id && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                if (!user?.uid) alert("Sign in to continue with Revox");
+                else setRevoxSongInfo(coverDoc);
+              }}
+              disabled={!coverDoc.stemsReady}
+            >
+              Revox
+            </Button>
+          )}
         </Box>
         {songId === id && (
           <Box display={"flex"} gap={1} justifyContent="center">

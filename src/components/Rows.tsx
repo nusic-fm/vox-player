@@ -19,6 +19,7 @@ import {
   CardContent,
   Card,
   Select,
+  Fab,
 } from "@mui/material";
 import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
@@ -132,7 +133,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [coversCollectionSnapshot, coversLoading, error] = useCollection(
     getRowsQuery(recordsLimit, isLatest)
   );
-  console.info(error);
+
   const [coversSnapshot, setCoversSnapshot] = useState<
     QuerySnapshot<DocumentData, DocumentData> | undefined
   >();
@@ -518,7 +519,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
           refreshHeader={refreshHeader}
         />
         <img src="/cover_banner.png" alt="" />
-        <Box display={"flex"} justifyContent="center" pt={2}>
+        <Box display={"flex"} pt={2} justifyContent="space-between">
           <Select
             size="small"
             sx={{ width: "135px" }}
@@ -537,6 +538,32 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             <MenuItem value="top">Top</MenuItem>
             <MenuItem value="latest">Latest</MenuItem>
           </Select>
+          <Fab
+            size="medium"
+            color="primary"
+            onClick={() => {
+              if (coversSnapshot)
+                onPlay(
+                  songId || coversSnapshot.docs[0].id,
+                  songId
+                    ? (coversSnapshot?.docs
+                        .find((d) => d.id === songId)
+                        ?.data() as CoverV1)
+                    : (coversSnapshot?.docs[0].data() as CoverV1)
+                );
+            }}
+          >
+            {loading ? (
+              <CircularProgress
+                size={"24px"}
+                sx={{ color: "rgba(255,255,255,0.5)" }}
+              />
+            ) : isTonePlaying ? (
+              <PauseRoundedIcon fontSize="large" />
+            ) : (
+              <PlayArrowRoundedIcon fontSize="large" />
+            )}
+          </Fab>
         </Box>
         <Stack gap={1} py={2}>
           {(!coversSnapshot || coversSnapshot?.docs.length === 0) &&
