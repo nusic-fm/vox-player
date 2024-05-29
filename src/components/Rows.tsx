@@ -49,8 +49,8 @@ import { useGlobalState } from "../main";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
 import {
-  // timestampToDateString,
   getUserAvatar,
+  // timestampToDateString,
   getYouTubeVideoId,
   nameToSlug,
 } from "../helpers";
@@ -263,9 +263,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       coversCollectionSnapshot?.docs.map((d) => {
         newPlaylistObj[d.id] = d.data() as CoverV1;
       });
+      const voiceInfo = coverDoc.voices.find((v) => v.id === voice_id);
       // `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`;
       await updateGlobalState({
-        songImg: coverDoc.voices.find((v) => v.id === voice_id)?.imageUrl,
+        songImg: getUserAvatar(
+          voiceInfo?.shareInfo.id || "",
+          voiceInfo?.shareInfo.avatar || ""
+        ),
         songName: coverDoc.title,
         songInstrUrl: _instrUrl,
         coverVocalsUrl: _audioUrl,
@@ -374,7 +378,10 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         newPlaylistObj[d.id] = d.data() as CoverV1;
       });
       await updateGlobalState({
-        songImg: voiceObj.imageUrl,
+        songImg: getUserAvatar(
+          voiceObj.shareInfo.id,
+          voiceObj.shareInfo.avatar
+        ),
         songName: coverDoc.title,
         songInstrUrl: _instrUrl,
         coverVocalsUrl: _audioUrl,
@@ -1082,7 +1089,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       ".MuiAvatar-root": { width: 24, height: 24 },
                     }}
                   >
-                    <Avatar src={v.imageUrl} />
+                    <Avatar
+                      src={getUserAvatar(v.shareInfo.id, v.shareInfo.avatar)}
+                    />
                   </ListItemAvatar>
                   <Typography variant="caption">{v.name}</Typography>
                 </MenuItem>
@@ -1795,7 +1804,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                   }}
                 >
                   <ListItemAvatar>
-                    <Avatar src={v.imageUrl} />
+                    <Avatar
+                      src={getUserAvatar(v.shareInfo.id, v.shareInfo.avatar)}
+                    />
                   </ListItemAvatar>
                   <Typography variant="inherit">{v.name}</Typography>
                 </MenuItem>
