@@ -43,6 +43,8 @@ remoteConfig.defaultConfig = {
   a2: "Simply paste the Youtube url of your AI Cover into the input field at           the bottom of the charts._Only Youtube urls are currently supported. More options will be coming           soon...",
   q3: "What is REVOX?",
   a3: "REVOX enables loading of RVC models to an AI Cover of your choice, so           you can hear it in an alternative voice._Alternatively you can select a voice another user has already loaded           into the chart...",
+  footer_head: "Hear Your Music Or Voice In The AI Cover Charts?",
+  footer_content: "Contact us now to Opt-in or out of future chart placement",
 };
 (async () => await fetchAndActivate(remoteConfig))();
 // const payments = getStripePayments(app, {
