@@ -134,6 +134,9 @@ const Header = ({
                     "rTU6Pbn3eEGhYjV4zgev SilencioGPT",
                     "fVbXnhQHPfK5Zy7n4a3b OrchidQueen",
                     "DkcrmVEysfjfKAKeB6Fq mystic_muse",
+                    "SY2TaHyAsP9idwz2DT0P Pixelpirate",
+                    "ByLVcEfXyjxEEpDAbV2e QuantumQuokka3745",
+                    "EKhmphjMGrfnICB3w99A NovaKnight",
                     "362272367063597056 alesalis",
                   ]
             }

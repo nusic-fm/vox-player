@@ -29,11 +29,11 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const remoteConfig = getRemoteConfig(app);
 
-const convertHoursToMilliseconds = (hours: number) => {
-  return hours * 60 * 60 * 1000;
-};
+// const convertHoursToMilliseconds = (hours: number) => {
+//   return hours * 60 * 60 * 1000;
+// };
 
-remoteConfig.settings.minimumFetchIntervalMillis = 600000;
+// remoteConfig.settings.minimumFetchIntervalMillis = 600000;
 
 remoteConfig.defaultConfig = {
   reverb_default_value: "1",

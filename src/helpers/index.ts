@@ -21,7 +21,7 @@ export const getYouTubeVideoId = (url: string) => {
 export const getUserAvatar = (uid: string, avatarId: string) => {
   if (avatarId.length <= 2) {
     return `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/avatars%2F${avatarId}.${
-      Number(avatarId) > 8 ? "png" : "webp"
+      Number(avatarId) >= 10 || Number(avatarId) <= 18 ? "png" : "webp"
     }?alt=media`;
   }
   return `https://cdn.discordapp.com/avatars/${uid}/${avatarId}`;
