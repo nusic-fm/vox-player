@@ -1150,43 +1150,36 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             <MenuItem value="top">Top</MenuItem>
             <MenuItem value="latest">Latest</MenuItem>
           </Select>
-          <Box
+          <Fab
             sx={{
               position: "absolute",
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              justifyContent: "end",
-              alignItems: "center",
+              right: 0,
+            }}
+            size="small"
+            color="primary"
+            onClick={() => {
+              if (coversSnapshot)
+                onPlay(
+                  songId || coversSnapshot.docs[0].id,
+                  songId
+                    ? (coversSnapshot?.docs
+                        .find((d) => d.id === songId)
+                        ?.data() as CoverV1)
+                    : (coversSnapshot?.docs[0].data() as CoverV1)
+                );
             }}
           >
-            <Fab
-              size="small"
-              color="primary"
-              onClick={() => {
-                if (coversSnapshot)
-                  onPlay(
-                    songId || coversSnapshot.docs[0].id,
-                    songId
-                      ? (coversSnapshot?.docs
-                          .find((d) => d.id === songId)
-                          ?.data() as CoverV1)
-                      : (coversSnapshot?.docs[0].data() as CoverV1)
-                  );
-              }}
-            >
-              {loading ? (
-                <CircularProgress
-                  size={"24px"}
-                  sx={{ color: "rgba(255,255,255,0.5)" }}
-                />
-              ) : isTonePlaying ? (
-                <PauseRoundedIcon fontSize="large" />
-              ) : (
-                <PlayArrowRoundedIcon fontSize="large" />
-              )}
-            </Fab>
-          </Box>
+            {loading ? (
+              <CircularProgress
+                size={"24px"}
+                sx={{ color: "rgba(255,255,255,0.5)" }}
+              />
+            ) : isTonePlaying ? (
+              <PauseRoundedIcon fontSize="large" />
+            ) : (
+              <PlayArrowRoundedIcon fontSize="large" />
+            )}
+          </Fab>
         </Box>
         <Stack py={2} width="100%">
           {(!coversSnapshot || coversSnapshot?.docs.length === 0) &&
