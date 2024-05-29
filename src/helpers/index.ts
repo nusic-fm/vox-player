@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase/firestore";
+import { VoiceV1Cover } from "../services/db/coversV1.service";
 
 export const getClosesNoInArr = (arr: number[], goal: number) =>
   arr.reduce((prev, curr) =>
@@ -67,6 +68,18 @@ export const timestampToDateString = (timestamp?: Timestamp) => {
       day: "numeric",
     });
   }
+};
+
+export const sortArrBasedOnLikesObj = (
+  voices: VoiceV1Cover[],
+  likesObj?: { [key: string]: number; total: number }
+) => {
+  if (likesObj === undefined) return voices;
+
+  return voices.sort((a, b) => {
+    // compare the likes of the two voices and then return the voice with the most likes
+    return (likesObj[b.id] || 0) - (likesObj[a.id] || 0);
+  });
 };
 
 // export const timestampToDateString = (timestamp: Timestamp) => {
