@@ -82,6 +82,7 @@ const Admin = (props: Props) => {
         </IconButton>
         <Typography variant="h5">Admin Portal</Typography>
       </Box>
+      <Typography>-----noRVC (Stems) or allin1 processes-----</Typography>
       {!noRVCSnapshot?.size && <Typography>No pending processes</Typography>}
       {noRVCSnapshot?.docs.map((d) => (
         <Box display={"flex"} key={d.id} gap={4} alignItems="center">

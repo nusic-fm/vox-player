@@ -20,6 +20,9 @@ import {
   Card,
   Select,
   Fab,
+  Dialog,
+  DialogContent,
+  Chip,
 } from "@mui/material";
 import { Box, useMediaQuery } from "@mui/system";
 import axios from "axios";
@@ -59,7 +62,7 @@ import VoiceModelDialog from "./VoiceModelDialog";
 import { LoadingButton } from "@mui/lab";
 import CoverInfoDialog from "./CoverInfoDialog";
 // import { PreCover } from "../services/db/preCovers.service";
-import { User } from "../services/db/users.service";
+import { getUserById, User } from "../services/db/users.service";
 import {
   addCommentToCover,
   checkIfYoutubeVideoIdExists,
@@ -86,7 +89,7 @@ import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
-import { getValue } from "firebase/remote-config";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 export type YTP_CONTENT = {
   title: string;
@@ -190,6 +193,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const [showCommentsByCoverId, setShowCommentsByCoverId] = useState("");
   const location = useLocation();
   const [refreshHeader, setRefreshHeader] = useState(false);
+  const [playSongDialog, setPlaySongDialog] = useState<{
+    coverDoc: CoverV1;
+    coverId: string;
+    voiceId: string;
+    userName: string;
+  } | null>(null);
 
   useEffect(() => {
     if (coversCollectionSnapshot && location.search) {
@@ -200,16 +209,24 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       if (_coverId && _voiceId) {
         console.log("Cover:", _coverId);
         console.log("Voice:", _voiceId);
-        const doc = coversCollectionSnapshot?.docs
-          .find((d) => d.id === _coverId)
-          ?.data() as CoverV1;
-        if (doc) onSongClick(_coverId, doc, _voiceId);
-        else {
-          getCoverDocById(_coverId).then((_doc) => {
-            setQueriedCover(_doc);
-            onSongClick(_coverId, _doc, _voiceId);
+        (async () => {
+          let doc = coversCollectionSnapshot?.docs
+            .find((d) => d.id === _coverId)
+            ?.data() as CoverV1;
+          if (!doc) doc = await getCoverDocById(_coverId);
+          let userName = "NUSIC User";
+          if (_uid) {
+            const user = await getUserById(_uid);
+            userName = user.name;
+          }
+          setPlaySongDialog({
+            coverDoc: doc,
+            voiceId: _voiceId,
+            userName,
+            coverId: _coverId,
           });
-        }
+        })();
+
         axios.post(
           "https://api.nusic.kamu.dev/nusic/cover-share-events/ingest",
           {
@@ -582,6 +599,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             const coverDoc = doc.data() as CoverV1;
             return (
               <Box
+                id={id}
                 key={id}
                 display="flex"
                 alignItems={"center"}
@@ -1112,6 +1130,62 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               {successSnackbarMsg}
             </Alert>
           </Snackbar>
+          {playSongDialog && (
+            <Dialog open fullWidth>
+              <DialogContent>
+                <Box
+                  display={"flex"}
+                  justifyContent="space-between"
+                  alignItems={"center"}
+                >
+                  {/* <Typography variant="h6">{playSongDialog.userName}</Typography> */}
+                  <Typography variant="caption">
+                    <Typography component={"span"} color="#8973F8">
+                      {playSongDialog.userName}
+                    </Typography>{" "}
+                    has shared a cover with you
+                  </Typography>
+                  <IconButton size="small">
+                    <CloseRoundedIcon
+                      fontSize="small"
+                      onClick={() => setPlaySongDialog(null)}
+                    />
+                  </IconButton>
+                </Box>
+                <Stack gap={1} my={1}>
+                  <Typography variant="h6" align="center">
+                    {playSongDialog.coverDoc.title}
+                  </Typography>
+                  <Box display={"flex"} justifyContent="center">
+                    <Chip
+                      variant="outlined"
+                      avatar={<PlayArrowRoundedIcon fontSize="small" />}
+                      clickable
+                      onClick={() => {
+                        onSongClick(
+                          playSongDialog.coverId,
+                          playSongDialog.coverDoc,
+                          playSongDialog.voiceId
+                        );
+                        document
+                          .getElementById(playSongDialog.coverId)
+                          ?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                          });
+                        setPlaySongDialog(null);
+                      }}
+                      label={
+                        playSongDialog.coverDoc.voices.find(
+                          (v) => v.id === playSongDialog.voiceId
+                        )?.name
+                      }
+                    />
+                  </Box>
+                </Stack>
+              </DialogContent>
+            </Dialog>
+          )}
         </Stack>
       </Stack>
     );
@@ -1191,6 +1265,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             const coverDoc = doc.data() as CoverV1;
             return (
               <Box
+                id={id}
                 key={id}
                 display="flex"
                 alignItems={"center"}
@@ -1835,6 +1910,59 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               {errorSnackbarMsg}
             </Alert>
           </Snackbar>
+          {playSongDialog && (
+            <Dialog open>
+              <DialogContent>
+                <Box
+                  display={"flex"}
+                  justifyContent="space-between"
+                  alignItems={"center"}
+                >
+                  {/* <Typography variant="h6">{playSongDialog.userName}</Typography> */}
+                  <Typography variant="caption">
+                    <Typography component={"span"} color="#8973F8">
+                      {playSongDialog.userName}
+                    </Typography>{" "}
+                    has shared a cover with you
+                  </Typography>
+                  <IconButton size="small">
+                    <CloseRoundedIcon onClick={() => setPlaySongDialog(null)} />
+                  </IconButton>
+                </Box>
+                <Stack gap={1}>
+                  <Typography variant="h6">
+                    {playSongDialog.coverDoc.title}
+                  </Typography>
+                  <Box display={"flex"} justifyContent="center">
+                    <Chip
+                      variant="outlined"
+                      avatar={<PlayArrowRoundedIcon fontSize="small" />}
+                      clickable
+                      onClick={() => {
+                        onSongClick(
+                          playSongDialog.coverId,
+                          playSongDialog.coverDoc,
+                          playSongDialog.voiceId
+                        );
+                        document
+                          .getElementById(playSongDialog.coverId)
+                          ?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                          });
+                        setPlaySongDialog(null);
+                      }}
+                      label={
+                        playSongDialog.coverDoc.voices.find(
+                          (v) => v.id === playSongDialog.voiceId
+                        )?.name
+                      }
+                    />
+                  </Box>
+                </Stack>
+              </DialogContent>
+            </Dialog>
+          )}
         </Stack>
       </Stack>
     );

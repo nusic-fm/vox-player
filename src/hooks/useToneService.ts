@@ -131,8 +131,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     let vocalsInput: string | Tone.ToneAudioBuffer = vocalsUrl;
     const vocalsDataArray = await getByID(vocalsUrl);
     if (vocalsDataArray) {
-      vocalsInput = Tone.Buffer.fromArray(vocalsDataArray as Float32Array);
       console.log("Vocals from IndexedDB");
+      vocalsInput = Tone.Buffer.fromArray(vocalsDataArray as Float32Array);
     }
     // Load and play the new audio
     const player = new Tone.Player(vocalsInput).sync().toDestination();
@@ -143,8 +143,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       let instrInput: string | Tone.ToneAudioBuffer = instrUrl;
       instrDataArray = (await getByID(instrUrl)) as Float32Array;
       if (instrDataArray) {
-        instrInput = Tone.Buffer.fromArray(instrDataArray);
         console.log("Instr from IndexedDB");
+        instrInput = Tone.Buffer.fromArray(instrDataArray);
       }
       const instrPlayer = new Tone.Player(instrInput).sync().toDestination();
       instrPlayerRef.current = instrPlayer;
