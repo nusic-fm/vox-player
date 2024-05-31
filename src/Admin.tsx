@@ -5,6 +5,7 @@ import {
   Divider,
   IconButton,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
@@ -73,6 +74,9 @@ const Admin = (props: Props) => {
   const [progressIds, setProgressIds] = useState<string[]>([]);
   const [revoxLoadingIds, setRevoxLoadingIds] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  const [coverId, setCoverId] = useState("");
+  const [voiceId, setVoiceId] = useState("");
 
   return (
     <Stack p={4} gap={2}>
@@ -209,6 +213,47 @@ const Admin = (props: Props) => {
           {s.name}-{s.email}-{s.countryCode.code}-{s.mobile}
         </Box>
       ))}
+      <Typography>-----Download-----</Typography>
+      <Box display={"flex"} gap={2}>
+        <TextField
+          color="secondary"
+          label="cover id"
+          onChange={(e) => setCoverId(e.target.value)}
+        />
+        <TextField
+          color="secondary"
+          label="voice id"
+          onChange={(e) => setVoiceId(e.target.value)}
+        />
+        <Button
+          color="secondary"
+          variant="outlined"
+          onClick={async () => {
+            // download the merge-stems endpoint which sends as res.sendFile here
+
+            const res = await axios.post(
+              `${import.meta.env.VITE_VOX_COVER_SERVER}/merge-stems`,
+              {
+                cover_id: coverId,
+                voice_id: voiceId,
+              },
+              {
+                responseType: "blob",
+              }
+            );
+            // download res data
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `${coverId}_${voiceId}.mp3`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          }}
+        >
+          Download
+        </Button>
+      </Box>
     </Stack>
   );
 };

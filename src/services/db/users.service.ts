@@ -58,7 +58,7 @@ const createUserDoc = async (
           id: userDoc.uid,
           name: userDoc.name,
           email: userDoc.email,
-          is_new_user: false,
+          is_new_user: true,
         },
         {
           headers: {

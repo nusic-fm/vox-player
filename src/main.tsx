@@ -29,13 +29,16 @@ const router = createBrowserRouter([
     element: <Admin />,
   },
 ]);
+const AppWithRouter = () => (
+  <GlobalStateProvider>
+    <RouterProvider router={router} />
+  </GlobalStateProvider>
+);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <GlobalStateProvider>
-        <RouterProvider router={router} />
-      </GlobalStateProvider>
+      <AppWithRouter />
     </ThemeProvider>
   </React.StrictMode>
 );
