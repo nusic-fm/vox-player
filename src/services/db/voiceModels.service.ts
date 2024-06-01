@@ -15,6 +15,7 @@ export type VoiceModelType = {
   creditsRequired: boolean;
   uid: string;
   slug: string;
+  avatarPath: string;
 };
 
 export const createFirestoreId = (userString: string) => {

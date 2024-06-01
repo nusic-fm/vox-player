@@ -1152,35 +1152,56 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     />
                   </IconButton>
                 </Box>
-                <Stack gap={1} my={1}>
+                <Divider sx={{ mt: 1, mb: 1.6 }} />
+                <Stack gap={1} my={1} alignItems="center">
+                  <img
+                    width={220}
+                    height={180}
+                    src={playSongDialog.coverDoc.metadata.videoThumbnail}
+                    alt={""}
+                    style={{ objectFit: "cover", borderRadius: 8 }}
+                  ></img>
                   <Typography variant="h6" align="center">
                     {playSongDialog.coverDoc.title}
                   </Typography>
-                  <Box display={"flex"} justifyContent="center">
-                    <Chip
-                      variant="outlined"
-                      avatar={<PlayArrowRoundedIcon fontSize="small" />}
-                      clickable
-                      onClick={() => {
-                        onSongClick(
-                          playSongDialog.coverId,
-                          playSongDialog.coverDoc,
-                          playSongDialog.voiceId
-                        );
-                        document
-                          .getElementById(playSongDialog.coverId)
-                          ?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center",
-                          });
-                        setPlaySongDialog(null);
-                      }}
-                      label={
-                        playSongDialog.coverDoc.voices.find(
-                          (v) => v.id === playSongDialog.voiceId
-                        )?.name
-                      }
-                    />
+                  <Box
+                    display={"flex"}
+                    justifyContent="center"
+                    gap={1}
+                    flexWrap="wrap"
+                  >
+                    {playSongDialog.coverDoc.voices.map((voice) => (
+                      <Chip
+                        key={voice.id}
+                        variant={
+                          voice.id === playSongDialog.voiceId
+                            ? "outlined"
+                            : "filled"
+                        }
+                        color={
+                          voice.id === playSongDialog.voiceId
+                            ? "info"
+                            : "default"
+                        }
+                        avatar={<PlayArrowRoundedIcon fontSize="small" />}
+                        clickable
+                        onClick={() => {
+                          onSongClick(
+                            playSongDialog.coverId,
+                            playSongDialog.coverDoc,
+                            voice.id
+                          );
+                          document
+                            .getElementById(playSongDialog.coverId)
+                            ?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "center",
+                            });
+                          setPlaySongDialog(null);
+                        }}
+                        label={voice.name}
+                      />
+                    ))}
                   </Box>
                 </Stack>
               </DialogContent>
@@ -1911,55 +1932,95 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             </Alert>
           </Snackbar>
           {playSongDialog && (
-            <Dialog open>
+            <Dialog open sx={{ ".MuiPaper-root": { maxWidth: 650 } }}>
               <DialogContent>
-                <Box
-                  display={"flex"}
-                  justifyContent="space-between"
-                  alignItems={"center"}
-                >
-                  {/* <Typography variant="h6">{playSongDialog.userName}</Typography> */}
-                  <Typography variant="caption">
-                    <Typography component={"span"} color="#8973F8">
-                      {playSongDialog.userName}
-                    </Typography>{" "}
-                    has shared a cover with you
-                  </Typography>
-                  <IconButton size="small">
-                    <CloseRoundedIcon onClick={() => setPlaySongDialog(null)} />
-                  </IconButton>
-                </Box>
-                <Stack gap={1}>
-                  <Typography variant="h6">
-                    {playSongDialog.coverDoc.title}
-                  </Typography>
-                  <Box display={"flex"} justifyContent="center">
-                    <Chip
-                      variant="outlined"
-                      avatar={<PlayArrowRoundedIcon fontSize="small" />}
-                      clickable
-                      onClick={() => {
-                        onSongClick(
-                          playSongDialog.coverId,
-                          playSongDialog.coverDoc,
-                          playSongDialog.voiceId
-                        );
-                        document
-                          .getElementById(playSongDialog.coverId)
-                          ?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center",
-                          });
-                        setPlaySongDialog(null);
-                      }}
-                      label={
-                        playSongDialog.coverDoc.voices.find(
-                          (v) => v.id === playSongDialog.voiceId
-                        )?.name
-                      }
-                    />
+                <Box display={"flex"} gap={2}>
+                  <img
+                    width={220}
+                    height={180}
+                    src={playSongDialog.coverDoc.metadata.videoThumbnail}
+                    alt={""}
+                    style={{ objectFit: "cover", borderRadius: 8 }}
+                  ></img>
+                  <Box>
+                    <Box
+                      display={"flex"}
+                      justifyContent="space-between"
+                      alignItems={"center"}
+                    >
+                      {/* <Typography variant="h6">{playSongDialog.userName}</Typography> */}
+                      <Box display={"flex"} gap={1}>
+                        <Typography variant="caption">
+                          <Typography component={"span"} color="#8973F8">
+                            {playSongDialog.userName}
+                          </Typography>{" "}
+                          has shared a cover with you
+                        </Typography>
+                      </Box>
+                      <IconButton size="small">
+                        <CloseRoundedIcon
+                          onClick={() => setPlaySongDialog(null)}
+                        />
+                      </IconButton>
+                    </Box>
+                    <Divider sx={{ my: 1 }} />
+                    <Stack gap={2}>
+                      <Typography variant="h6" align="center">
+                        {playSongDialog.coverDoc.title}
+                      </Typography>
+                      <Stack gap={1}>
+                        <Box>
+                          <Typography
+                            variant="subtitle1"
+                            fontStyle={"italic"}
+                            align="center"
+                          >
+                            Available Voices
+                          </Typography>
+                        </Box>
+                        <Box
+                          display={"flex"}
+                          justifyContent="center"
+                          gap={1}
+                          flexWrap="wrap"
+                        >
+                          {playSongDialog.coverDoc.voices.map((voice) => (
+                            <Chip
+                              key={voice.id}
+                              variant={
+                                voice.id === playSongDialog.voiceId
+                                  ? "outlined"
+                                  : "filled"
+                              }
+                              color={
+                                voice.id === playSongDialog.voiceId
+                                  ? "info"
+                                  : "default"
+                              }
+                              avatar={<PlayArrowRoundedIcon fontSize="small" />}
+                              clickable
+                              onClick={() => {
+                                onSongClick(
+                                  playSongDialog.coverId,
+                                  playSongDialog.coverDoc,
+                                  voice.id
+                                );
+                                document
+                                  .getElementById(voice.id)
+                                  ?.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "center",
+                                  });
+                                setPlaySongDialog(null);
+                              }}
+                              label={voice.name}
+                            />
+                          ))}
+                        </Box>
+                      </Stack>
+                    </Stack>
                   </Box>
-                </Stack>
+                </Box>
               </DialogContent>
             </Dialog>
           )}

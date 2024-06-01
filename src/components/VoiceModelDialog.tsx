@@ -2,7 +2,6 @@ import { LoadingButton } from "@mui/lab";
 import {
   Autocomplete,
   Box,
-  Button,
   Checkbox,
   Dialog,
   DialogActions,
@@ -19,7 +18,10 @@ import { useEffect, useState } from "react";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import { useDropzone } from "react-dropzone";
 import { fileToArraybuffer } from "../helpers/audio";
-import { uploadVoiceModel } from "../services/storage/voice_models";
+import {
+  uploadVoiceModel,
+  uploadVoiceModelAvatar,
+} from "../services/storage/voice_models";
 import {
   createFirestoreId,
   createVoiceModelDoc,
@@ -38,6 +40,8 @@ type Props = {
 
 const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
   const [uploadedZip, setUploadedZip] = useState<File>();
+  const [avatarFile, setAvatarFile] = useState<File>();
+  const [avatarUrl, setAvatarUrl] = useState<string>();
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: async (acceptedFiles: File[]) => {
       if (acceptedFiles.length) {
@@ -46,6 +50,25 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
     },
     maxFiles: 1,
     accept: { "application/zip": [".zip"] },
+  });
+  const {
+    getRootProps: getAvatarRootProps,
+    getInputProps: getAvatarInputProps,
+  } = useDropzone({
+    onDrop: async (acceptedFiles, rejections) => {
+      if (rejections.length) {
+        if (rejections[0].errors[0].code === "file-too-large")
+          alert("File size is too large. Max size is 10MB");
+        return;
+      }
+      if (acceptedFiles.length) {
+        setAvatarFile(acceptedFiles[0]);
+      }
+    },
+    maxFiles: 1,
+    maxSize: 10000000, // 10MB
+    // Accept only image files
+    accept: { "image/*": [".jpg", ".jpeg", ".png"] },
   });
   const [revoxLoading, setRevoxLoading] = useState(false);
   const [creditsRequired, setCreditsRequired] = useState(false);
@@ -68,6 +91,12 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
     );
     setVoicesLoading(false);
   };
+
+  useEffect(() => {
+    if (avatarFile) {
+      setAvatarUrl(URL.createObjectURL(avatarFile));
+    }
+  }, [avatarFile]);
 
   useEffect(() => {
     if (isAutoCompleteOpen && !voiceModels.length) {
@@ -112,29 +141,63 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
         </Box>
         <Typography align="center">OR</Typography>
         <Stack gap={2} mt={1}>
-          <TextField
-            label="Model Url"
-            placeholder="Enter a Url or Upload a Zip file"
-            color="secondary"
-            size="small"
-            fullWidth
-            value={
-              selectedVoiceModel?.url ||
-              (uploadedZip ? uploadedZip.name : voiceModelUrl)
-            }
-            onChange={(e) => setVoiceModelUrl(e.target.value)}
-            disabled={!!uploadedZip || !!selectedVoiceModel}
-            InputProps={{
-              endAdornment: (
-                <IconButton {...getRootProps({ className: "dropzone" })}>
-                  <FileUploadRoundedIcon />
-                </IconButton>
-              ),
-            }}
-          />
-          <input {...getInputProps()} />
-          <Box display={"flex"} gap={2}>
+          <Box
+            display="flex"
+            alignItems={"center"}
+            justifyContent="center"
+            gap={2}
+            flexWrap="wrap"
+          >
+            <Box
+              {...getAvatarRootProps({ className: "dropzone" })}
+              display="flex"
+              justifyContent={"center"}
+              alignItems={"center"}
+              borderRadius="50%"
+              height={100}
+              width={100}
+              border={"1px solid rgba(255, 255, 255, 0.23)"}
+              sx={{
+                cursor: "pointer",
+                backgroundImage: `url(${avatarUrl})`,
+                backgroundSize: "cover",
+              }}
+              position="relative"
+            >
+              <input {...getAvatarInputProps()} />
+              {!avatarUrl && (
+                <Typography align="center" variant="caption">
+                  Upload <br /> Voice Avatar
+                </Typography>
+              )}
+            </Box>
+            <Box flexBasis={{ xs: "100%", md: "calc(100% - 116px)" }}>
+              <TextField
+                label="Model Url"
+                placeholder="Enter a Url or Upload a Zip file"
+                color="secondary"
+                size="small"
+                fullWidth
+                value={
+                  selectedVoiceModel?.url ||
+                  (uploadedZip ? uploadedZip.name : voiceModelUrl)
+                }
+                onChange={(e) => setVoiceModelUrl(e.target.value)}
+                disabled={!!uploadedZip || !!selectedVoiceModel}
+                InputProps={{
+                  endAdornment: (
+                    <IconButton {...getRootProps({ className: "dropzone" })}>
+                      <FileUploadRoundedIcon />
+                    </IconButton>
+                  ),
+                }}
+              />
+              <input {...getInputProps()} />
+            </Box>
+          </Box>
+          <Box display={"flex"} gap={2} flexWrap="wrap">
             <TextField
+              sx={{ width: { xs: "100%", md: "180px" } }}
               label="Model Name"
               color="secondary"
               size="small"
@@ -144,6 +207,7 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
             />
             {!selectedVoiceModel && (
               <TextField
+                sx={{ width: { xs: "100%", md: "180px" } }}
                 size="small"
                 fullWidth
                 label="Creator"
@@ -153,6 +217,7 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
             )}
             {!selectedVoiceModel && (
               <FormControlLabel
+                sx={{ width: { xs: "100%", md: "100px" } }}
                 color="info"
                 control={<Checkbox defaultChecked />}
                 label="Credits Required"
@@ -170,9 +235,13 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
           sx={{ mx: "auto" }}
           onClick={async () => {
             if (!uid) return;
-            if ((!voiceModelUrl && !uploadedZip) || !voiceModelName) {
+            if (
+              (!voiceModelUrl && !uploadedZip) ||
+              !voiceModelName ||
+              !avatarFile
+            ) {
               setRevoxLoading(false);
-              return alert("Url or Model name is missing");
+              return alert("Url, Model, Name or Avatar is missing");
             }
             setRevoxLoading(true);
             let _voiceModelUrl = voiceModelUrl;
@@ -183,6 +252,10 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
                 await uploadVoiceModel(id, buffer);
                 _voiceModelUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2F${id}.zip?alt=media`;
               }
+
+              const avatarBuffer = await fileToArraybuffer(avatarFile);
+              const avatarPath = await uploadVoiceModelAvatar(id, avatarBuffer);
+
               await createVoiceModelDoc({
                 url: _voiceModelUrl,
                 creator,
@@ -190,6 +263,7 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
                 name: voiceModelName,
                 slug: id,
                 uid,
+                avatarPath,
               });
             }
             await onSubmit(_voiceModelUrl, voiceModelName);

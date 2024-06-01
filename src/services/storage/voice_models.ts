@@ -9,4 +9,13 @@ const uploadVoiceModel = async (id: string, audioStrValue: ArrayBuffer) => {
   return snapshot.ref.fullPath;
 };
 
-export { uploadVoiceModel };
+const uploadVoiceModelAvatar = async (
+  id: string,
+  imageStrValue: ArrayBuffer
+) => {
+  const storageRef = ref(storage, `${FOLDER_NAME}/avatars/${id}.png`);
+  const snapshot = await uploadBytes(storageRef, imageStrValue);
+  return snapshot.ref.fullPath;
+};
+
+export { uploadVoiceModel, uploadVoiceModelAvatar };
