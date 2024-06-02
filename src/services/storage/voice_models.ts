@@ -11,10 +11,13 @@ const uploadVoiceModel = async (id: string, audioStrValue: ArrayBuffer) => {
 
 const uploadVoiceModelAvatar = async (
   id: string,
-  imageStrValue: ArrayBuffer
+  imageStrValue: ArrayBuffer,
+  blobType: string
 ) => {
-  const storageRef = ref(storage, `${FOLDER_NAME}/avatars/${id}.png`);
-  const snapshot = await uploadBytes(storageRef, imageStrValue);
+  const storageRef = ref(storage, `${FOLDER_NAME}/avatars/${id}`);
+  const snapshot = await uploadBytes(storageRef, imageStrValue, {
+    contentType: blobType,
+  });
   return snapshot.ref.fullPath;
 };
 

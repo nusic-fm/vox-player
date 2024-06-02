@@ -91,16 +91,29 @@ const VoiceChips = ({
                   key={v.name}
                   avatar={
                     <Avatar
-                      src={
-                        v.id === coverDoc.voices[0].id
-                          ? coverDoc.metadata.channelThumbnail
-                          : v.avatarPath
-                          ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
-                              v.avatarPath
-                            )}?alt=media`
-                          : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar) // TODO: Remove this
-                      }
-                    />
+                      src={`https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                        "voice_models/avatars/thumbs/"
+                      )}${v.id}_200x200?alt=media`}
+                    >
+                      <img
+                        src={coverDoc.metadata.videoThumbnail}
+                        alt=""
+                        width={40}
+                        height={45}
+                        style={{ borderRadius: "8px", objectFit: "cover" }}
+                      />
+                    </Avatar>
+                    // <Avatar
+                    //   src={
+                    //     v.id === coverDoc.voices[0].id
+                    //       ? coverDoc.metadata.channelThumbnail
+                    //       : v.avatarPath
+                    //       ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                    //           v.avatarPath
+                    //         )}?alt=media`
+                    //       : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar) // TODO: Remove this
+                    //   }
+                    // />
                   }
                   variant={
                     songId === id && voiceId === v.id ? "outlined" : "filled"
@@ -164,16 +177,29 @@ const VoiceChips = ({
               key={v.name}
               avatar={
                 <Avatar
-                  src={
-                    v.id === coverDoc.voices[0].id
-                      ? coverDoc.metadata.channelThumbnail
-                      : v.avatarPath
-                      ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
-                          v.avatarPath
-                        )}?alt=media`
-                      : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar) // TODO: Remove this
-                  }
-                />
+                  src={`https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                    "voice_models/avatars/thumbs/"
+                  )}${v.id}_200x200?alt=media`}
+                >
+                  <img
+                    src={coverDoc.metadata.videoThumbnail}
+                    alt=""
+                    width={40}
+                    height={45}
+                    style={{ borderRadius: "8px", objectFit: "cover" }}
+                  />
+                </Avatar>
+                // <Avatar
+                //   src={
+                //     v.id === coverDoc.voices[0].id
+                //       ? coverDoc.metadata.channelThumbnail
+                //       : v.avatarPath
+                //       ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                //           v.avatarPath
+                //         )}?alt=media`
+                //       : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar) // TODO: Remove this
+                //   }
+                // />
               }
               variant={
                 songId === id && voiceId === v.id ? "outlined" : "filled"

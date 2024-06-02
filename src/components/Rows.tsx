@@ -283,10 +283,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       const voiceInfo = coverDoc.voices.find((v) => v.id === voice_id);
       // `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songInfo.songImg}?alt=media`;
       await updateGlobalState({
-        songImg: getUserAvatar(
-          voiceInfo?.shareInfo.id || "",
-          voiceInfo?.shareInfo.avatar || ""
-        ),
+        songImg: coverDoc.metadata.videoThumbnail,
         songName: coverDoc.title,
         songInstrUrl: _instrUrl,
         coverVocalsUrl: _audioUrl,
@@ -346,7 +343,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
       newPlaylistObj[d.id] = d.data() as CoverV1;
     });
     await updateGlobalState({
-      songImg: preCoverDoc.voices[0].imageUrl,
+      songImg: preCoverDoc.metadata.videoThumbnail,
       songName: preCoverDoc.title,
       songInstrUrl: "",
       coverVocalsUrl: preCoverDoc.audioUrl,
@@ -395,10 +392,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         newPlaylistObj[d.id] = d.data() as CoverV1;
       });
       await updateGlobalState({
-        songImg: getUserAvatar(
-          voiceObj.shareInfo.id,
-          voiceObj.shareInfo.avatar
-        ),
+        songImg: coverDoc.metadata.videoThumbnail,
         songName: coverDoc.title,
         songInstrUrl: _instrUrl,
         coverVocalsUrl: _audioUrl,
@@ -448,8 +442,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
 
   const onRevoxSubmit = async (
     voiceModelUrl: string,
-    voiceModelName: string,
-    avatarPath: string
+    voiceModelName: string
   ) => {
     if (user?.uid && coversCollectionSnapshot) {
       const docInfo = coversCollectionSnapshot.docs.find(
@@ -472,7 +465,6 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 id: user.uid,
                 name: user.name,
               },
-              avatarPath,
             },
             coverDocId: docInfo.id,
             voiceModelName,

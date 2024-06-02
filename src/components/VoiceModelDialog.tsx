@@ -24,19 +24,20 @@ import {
   uploadVoiceModelAvatar,
 } from "../services/storage/voice_models";
 import {
-  createFirestoreId,
+  // createFirestoreId,
   createVoiceModelDoc,
   getVoiceModels,
   updateVoiceModelAvatar,
   VoiceModelTypeDoc,
 } from "../services/db/voiceModels.service";
 import { CoverV1 } from "../services/db/coversV1.service";
+import { nameToSlug } from "../helpers";
 
 type Props = {
   open?: boolean;
   onClose: () => void;
   songInfo: CoverV1;
-  onSubmit: (url: string, name: string, avatarPath: string) => void;
+  onSubmit: (url: string, name: string) => void;
   uid?: string;
 };
 
@@ -148,7 +149,7 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
               <Box
                 component="li"
                 {...props}
-                key={option.id}
+                key={option.docId}
                 display="flex"
                 alignItems={"center"}
                 gap={2}
@@ -157,6 +158,7 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
                 <Avatar
                   sx={{ width: 24, height: 24 }}
                   src={
+                    //TODO: Fix this with thumbs path
                     option.avatarPath
                       ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
                           option.avatarPath
@@ -181,29 +183,38 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
             gap={2}
             flexWrap="wrap"
           >
-            <Box
-              {...getAvatarRootProps({ className: "dropzone" })}
-              display="flex"
-              justifyContent={"center"}
-              alignItems={"center"}
-              borderRadius="50%"
-              height={100}
-              width={100}
-              border={"1px solid rgba(255, 255, 255, 0.23)"}
-              sx={{
-                cursor: "pointer",
-                backgroundImage: `url(${avatarUrl})`,
-                backgroundSize: "cover",
-              }}
-              position="relative"
-            >
-              <input {...getAvatarInputProps()} />
-              {!avatarUrl && (
-                <Typography align="center" variant="caption">
-                  Upload <br /> Voice Avatar
-                </Typography>
-              )}
-            </Box>
+            {selectedVoiceModel &&
+            [
+              "826040837275910154",
+              "362272367063597056",
+              "879400465861869638",
+            ].includes(uid || "") === false ? (
+              <Avatar sx={{ height: 100, width: 100 }} src={avatarUrl} />
+            ) : (
+              <Box
+                {...getAvatarRootProps({ className: "dropzone" })}
+                display="flex"
+                justifyContent={"center"}
+                alignItems={"center"}
+                borderRadius="50%"
+                height={100}
+                width={100}
+                border={"1px solid rgba(255, 255, 255, 0.23)"}
+                sx={{
+                  cursor: "pointer",
+                  backgroundImage: `url(${avatarUrl})`,
+                  backgroundSize: "cover",
+                }}
+                position="relative"
+              >
+                <input {...getAvatarInputProps()} />
+                {!avatarUrl && (
+                  <Typography align="center" variant="caption">
+                    Upload <br /> Voice Avatar
+                  </Typography>
+                )}
+              </Box>
+            )}
             <Box flexBasis={{ xs: "100%", md: "calc(100% - 116px)" }}>
               <TextField
                 label="Model Url"
@@ -285,19 +296,22 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
             if (
               (!voiceModelUrl && !uploadedZip) ||
               !voiceModelName ||
-              !avatarFile
+              (!avatarFile && !selectedVoiceModel)
             ) {
               return alert("Url, Model, Name or Avatar is missing");
             }
             setRevoxLoading(true);
             let _voiceModelUrl = voiceModelUrl;
-            const avatarBuffer = await fileToArraybuffer(avatarFile);
-            const voiceId =
-              selectedVoiceModel?.slug || createFirestoreId(voiceModelName);
-            const avatarPath = await uploadVoiceModelAvatar(
-              voiceId,
-              avatarBuffer
-            );
+            const voiceId = nameToSlug(voiceModelName);
+            let avatarPath = "";
+            if (avatarFile) {
+              const avatarBuffer = await fileToArraybuffer(avatarFile);
+              avatarPath = await uploadVoiceModelAvatar(
+                voiceId,
+                avatarBuffer,
+                avatarFile.type
+              );
+            }
             if (!selectedVoiceModel) {
               if (uploadedZip) {
                 const buffer = await fileToArraybuffer(uploadedZip);
@@ -310,15 +324,18 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
                 creator,
                 creditsRequired,
                 name: voiceModelName,
-                slug: voiceId,
+                id: voiceId,
                 uid,
                 avatarPath,
               });
             } else if (onlyAvatar) {
-              await updateVoiceModelAvatar(selectedVoiceModel?.id, avatarPath);
+              await updateVoiceModelAvatar(selectedVoiceModel.docId, {
+                avatarPath,
+                id: voiceId,
+              });
             }
             if (onlyAvatar === false)
-              await onSubmit(_voiceModelUrl, voiceModelName, avatarPath);
+              await onSubmit(_voiceModelUrl, voiceModelName);
             setRevoxLoading(false);
           }}
         >

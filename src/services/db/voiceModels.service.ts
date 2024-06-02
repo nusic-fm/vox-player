@@ -16,21 +16,21 @@ export type VoiceModelType = {
   creator: string;
   creditsRequired: boolean;
   uid: string;
-  slug: string;
   avatarPath: string;
+  id: string;
 };
 
-export type VoiceModelTypeDoc = VoiceModelType & { id: string };
+export type VoiceModelTypeDoc = VoiceModelType & { docId: string };
 
-export const createFirestoreId = (userString: string) => {
-  // Convert to lowercase
-  let firestoreId = userString.toLowerCase();
-  // Remove spaces
-  firestoreId = firestoreId.replace(/\s+/g, "");
-  // Remove any non-alphanumeric characters except underscores
-  firestoreId = firestoreId.replace(/\W+/g, "");
-  return firestoreId;
-};
+// export const createFirestoreId = (userString: string) => {
+//   // Convert to lowercase
+//   let firestoreId = userString.toLowerCase();
+//   // Remove spaces
+//   firestoreId = firestoreId.replace(/\s+/g, "");
+//   // Remove any non-alphanumeric characters except underscores
+//   firestoreId = firestoreId.replace(/\W+/g, "");
+//   return firestoreId;
+// };
 
 const createVoiceModelDoc = async (
   voiceModelObj: VoiceModelType
@@ -44,12 +44,15 @@ const getVoiceModels = async (): Promise<VoiceModelTypeDoc[]> => {
   const docsRef = await getDocs(col);
   return docsRef.docs.map((d) => ({
     ...(d.data() as VoiceModelType),
-    id: d.id,
+    docId: d.id,
   }));
 };
 
-const updateVoiceModelAvatar = async (voiceId: string, avatarPath: string) => {
+const updateVoiceModelAvatar = async (
+  voiceId: string,
+  { avatarPath, id }: { avatarPath: string; id: string }
+) => {
   const d = doc(db, DB_NAME, voiceId);
-  await updateDoc(d, { avatarPath });
+  await updateDoc(d, { avatarPath, id });
 };
 export { createVoiceModelDoc, getVoiceModels, updateVoiceModelAvatar };

@@ -6,7 +6,7 @@ import {
   Slider,
   useMediaQuery,
   useTheme,
-  Popover,
+  Avatar,
 } from "@mui/material";
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import PauseRounded from "@mui/icons-material/PauseRounded";
@@ -68,13 +68,32 @@ const FooterPlayer = ({
       >
         <Stack width={"100%"}>
           <Box display={"flex"} gap={1} alignItems="center">
-            <img
-              src={songInfo.songImg}
+            <Avatar
+              src={`https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                "voice_models/avatars/thumbs/"
+              )}${voiceId}_200x200?alt=media`}
+              sx={{ width: 40, height: 45, borderRadius: "8px" }}
+            >
+              <img
+                src={songInfo.songImg}
+                alt=""
+                width={40}
+                height={45}
+                style={{ borderRadius: "8px", objectFit: "cover" }}
+              />
+            </Avatar>
+            {/* <img
+              src={`https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                "voice_models/avatars/thumbs/"
+              )}${voiceId}_200x200.webp?alt=media`}
               alt=""
               width={40}
               height={45}
-              style={{ borderRadius: "8px", objectFit: "cover" }}
-            />
+              style={{
+                borderRadius: "8px",
+                objectFit: "cover",
+              }}
+            /> */}
             <Stack
               sx={{
                 overflow: "hidden",
@@ -219,13 +238,27 @@ const FooterPlayer = ({
         zIndex={9999}
         borderRadius={"4px"}
       >
-        <img
+        <Avatar
+          src={`https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+            "voice_models/avatars/thumbs/"
+          )}${voiceId}_200x200?alt=media`}
+          sx={{ width: 40, height: 45, borderRadius: "8px" }}
+        >
+          <img
+            src={songInfo.songImg}
+            alt=""
+            width={40}
+            height={45}
+            style={{ borderRadius: "8px", objectFit: "cover" }}
+          />
+        </Avatar>
+        {/* <img
           src={songInfo.songImg}
           alt=""
           width={40}
           height={40}
           style={{ borderRadius: "50%", objectFit: "cover" }}
-        />
+        /> */}
         <Stack width={"100%"}>
           <Box
             display={"flex"}
