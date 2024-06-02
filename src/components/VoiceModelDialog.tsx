@@ -1,6 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import {
   Autocomplete,
+  Avatar,
   Box,
   Checkbox,
   Dialog,
@@ -26,7 +27,8 @@ import {
   createFirestoreId,
   createVoiceModelDoc,
   getVoiceModels,
-  VoiceModelType,
+  updateVoiceModelAvatar,
+  VoiceModelTypeDoc,
 } from "../services/db/voiceModels.service";
 import { CoverV1 } from "../services/db/coversV1.service";
 
@@ -34,7 +36,7 @@ type Props = {
   open?: boolean;
   onClose: () => void;
   songInfo: CoverV1;
-  onSubmit: (url: string, name: string) => void;
+  onSubmit: (url: string, name: string, avatarPath: string) => void;
   uid?: string;
 };
 
@@ -72,23 +74,20 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
   });
   const [revoxLoading, setRevoxLoading] = useState(false);
   const [creditsRequired, setCreditsRequired] = useState(false);
+  const [onlyAvatar, setOnlyAvatar] = useState(false);
   const [voiceModelUrl, setVoiceModelUrl] = useState("");
   const [voiceModelName, setVoiceModelName] = useState("");
   const [creator, setCreator] = useState("");
-  const [voiceModels, setVoiceModels] = useState<VoiceModelType[]>([]);
+  const [voiceModels, setVoiceModels] = useState<VoiceModelTypeDoc[]>([]);
   const [voicesLoading, setVoicesLoading] = useState(false);
   const [isAutoCompleteOpen, setIsAutoCompleteOpen] = useState(false);
   const [selectedVoiceModel, setSelectedVoiceModel] =
-    useState<VoiceModelType | null>(null);
+    useState<VoiceModelTypeDoc | null>(null);
 
   const fetchVoiceModels = async () => {
     setVoicesLoading(true);
     const models = await getVoiceModels();
-    setVoiceModels(
-      models
-        .filter((m, i) => !!m.name && !!m.url)
-        .map((m) => ({ ...m, label: `${m.name} (${m.creator})` }))
-    );
+    setVoiceModels(models.filter((m, i) => !!m.name && !!m.url));
     setVoicesLoading(false);
   };
 
@@ -120,11 +119,19 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
             onOpen={() => setIsAutoCompleteOpen(true)}
             onClose={() => setIsAutoCompleteOpen(false)}
             loading={voicesLoading}
+            value={selectedVoiceModel}
+            getOptionLabel={(option) => option.name}
             onChange={(e, val) => {
               setSelectedVoiceModel(val);
               if (val) {
                 setVoiceModelUrl(val.url);
                 setVoiceModelName(val.name);
+                if (val.avatarPath)
+                  setAvatarUrl(
+                    `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                      val.avatarPath
+                    )}?alt=media`
+                  );
               } else {
                 setVoiceModelUrl("");
                 setVoiceModelName("");
@@ -136,6 +143,32 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
                 color="secondary"
                 label="User Submitted Voices"
               />
+            )}
+            renderOption={(props, option) => (
+              <Box
+                component="li"
+                {...props}
+                key={option.id}
+                display="flex"
+                alignItems={"center"}
+                gap={2}
+                // sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
+              >
+                <Avatar
+                  sx={{ width: 24, height: 24 }}
+                  src={
+                    option.avatarPath
+                      ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                          option.avatarPath
+                        )}?alt=media`
+                      : ""
+                  }
+                />
+                <Typography>{option.name}</Typography>
+                <Typography variant="caption" color="#c3c3c3" ml={"auto"}>
+                  by {option.creator}
+                </Typography>
+              </Box>
             )}
           />
         </Box>
@@ -205,6 +238,20 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
               disabled={!!selectedVoiceModel}
               onChange={(e) => setVoiceModelName(e.target.value)}
             />
+            {selectedVoiceModel &&
+              uid &&
+              [
+                "826040837275910154",
+                "362272367063597056",
+                "879400465861869638",
+              ].includes(uid) && (
+                <FormControlLabel
+                  color="info"
+                  control={<Checkbox checked={onlyAvatar} color="info" />}
+                  label="Update only the Avatar"
+                  onChange={(e, checked) => setOnlyAvatar(checked)}
+                />
+              )}
             {!selectedVoiceModel && (
               <TextField
                 sx={{ width: { xs: "100%", md: "180px" } }}
@@ -240,33 +287,38 @@ const VoiceModelDialog = ({ onClose, songInfo, onSubmit, uid }: Props) => {
               !voiceModelName ||
               !avatarFile
             ) {
-              setRevoxLoading(false);
               return alert("Url, Model, Name or Avatar is missing");
             }
             setRevoxLoading(true);
             let _voiceModelUrl = voiceModelUrl;
+            const avatarBuffer = await fileToArraybuffer(avatarFile);
+            const voiceId =
+              selectedVoiceModel?.slug || createFirestoreId(voiceModelName);
+            const avatarPath = await uploadVoiceModelAvatar(
+              voiceId,
+              avatarBuffer
+            );
             if (!selectedVoiceModel) {
-              const id = createFirestoreId(voiceModelName);
               if (uploadedZip) {
                 const buffer = await fileToArraybuffer(uploadedZip);
-                await uploadVoiceModel(id, buffer);
-                _voiceModelUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2F${id}.zip?alt=media`;
+                await uploadVoiceModel(voiceId, buffer);
+                _voiceModelUrl = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2F${voiceId}.zip?alt=media`;
               }
-
-              const avatarBuffer = await fileToArraybuffer(avatarFile);
-              const avatarPath = await uploadVoiceModelAvatar(id, avatarBuffer);
 
               await createVoiceModelDoc({
                 url: _voiceModelUrl,
                 creator,
                 creditsRequired,
                 name: voiceModelName,
-                slug: id,
+                slug: voiceId,
                 uid,
                 avatarPath,
               });
+            } else if (onlyAvatar) {
+              await updateVoiceModelAvatar(selectedVoiceModel?.id, avatarPath);
             }
-            await onSubmit(_voiceModelUrl, voiceModelName);
+            if (onlyAvatar === false)
+              await onSubmit(_voiceModelUrl, voiceModelName, avatarPath);
             setRevoxLoading(false);
           }}
         >

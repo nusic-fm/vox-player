@@ -69,7 +69,16 @@ const VoiceChips = ({
         // flexWrap="wrap"
       >
         {chipVoice && (
-          <Box display={"flex"} gap={1} my={1} sx={{ overflowX: "auto" }}>
+          <Box
+            display={"flex"}
+            gap={1}
+            my={1}
+            sx={{
+              overflowX: "auto",
+              "&::-webkit-scrollbar": { display: "none" },
+              scrollbarWidth: "none",
+            }}
+          >
             {sortArrBasedOnLikesObj(coverDoc.voices, coverDoc.likes)
               // .filter(
               //   (v) =>
@@ -85,7 +94,11 @@ const VoiceChips = ({
                       src={
                         v.id === coverDoc.voices[0].id
                           ? coverDoc.metadata.channelThumbnail
-                          : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar)
+                          : v.avatarPath
+                          ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                              v.avatarPath
+                            )}?alt=media`
+                          : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar) // TODO: Remove this
                       }
                     />
                   }
@@ -154,7 +167,11 @@ const VoiceChips = ({
                   src={
                     v.id === coverDoc.voices[0].id
                       ? coverDoc.metadata.channelThumbnail
-                      : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar)
+                      : v.avatarPath
+                      ? `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/${encodeURIComponent(
+                          v.avatarPath
+                        )}?alt=media`
+                      : getUserAvatar(v.shareInfo.id, v.shareInfo.avatar) // TODO: Remove this
                   }
                 />
               }

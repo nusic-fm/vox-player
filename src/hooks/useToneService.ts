@@ -25,13 +25,20 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   // const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
   const playerRef = useRef<Tone.Player | null>(null);
   const instrPlayerRef = useRef<Tone.Player | null>(null);
-  const reverbRef = useRef<Reverb>(
-    new Reverb(
-      parseFloat(
-        localStorage.getItem("nuvox_reverb") ||
-          getValue(remoteConfig, "reverb_default_value").asString()
-      )
-    ).toDestination()
+  const reverbRef = useRef(
+    (() => {
+      const userSelectedReverb = localStorage.getItem("nuvox_reverb");
+      if (userSelectedReverb && parseFloat(userSelectedReverb)) {
+        return new Reverb(parseFloat(userSelectedReverb)).toDestination();
+      } else if (userSelectedReverb === "0") {
+        return new Reverb(0.001).toDestination();
+      } else
+        return new Reverb(
+          parseFloat(
+            getValue(remoteConfig, "reverb_default_value").asString() || "0.001"
+          )
+        ).toDestination();
+    })()
   );
   // const startTimeRef = useRef(0);
   const scheduledNextTrackBf = useRef<Tone.ToneAudioBuffer | null>(null);
@@ -258,7 +265,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   };
   const addReverb = (decay: number) => {
     if (playerRef.current) {
-      reverbRef.current.decay = decay;
+      reverbRef.current.decay = decay === 0 ? 0.001 : decay;
       // playerRef.current.volume.value = db;
     }
   };

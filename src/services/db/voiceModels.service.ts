@@ -2,8 +2,10 @@ import { db } from "../firebase.service";
 import {
   addDoc,
   collection,
+  doc,
   getDocs,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 
 const DB_NAME = "voice_models";
@@ -17,6 +19,8 @@ export type VoiceModelType = {
   slug: string;
   avatarPath: string;
 };
+
+export type VoiceModelTypeDoc = VoiceModelType & { id: string };
 
 export const createFirestoreId = (userString: string) => {
   // Convert to lowercase
@@ -35,9 +39,17 @@ const createVoiceModelDoc = async (
   await addDoc(col, { ...voiceModelObj, createdAt: serverTimestamp() });
 };
 
-const getVoiceModels = async () => {
+const getVoiceModels = async (): Promise<VoiceModelTypeDoc[]> => {
   const col = collection(db, DB_NAME);
   const docsRef = await getDocs(col);
-  return docsRef.docs.map((d) => d.data() as VoiceModelType);
+  return docsRef.docs.map((d) => ({
+    ...(d.data() as VoiceModelType),
+    id: d.id,
+  }));
 };
-export { createVoiceModelDoc, getVoiceModels };
+
+const updateVoiceModelAvatar = async (voiceId: string, avatarPath: string) => {
+  const d = doc(db, DB_NAME, voiceId);
+  await updateDoc(d, { avatarPath });
+};
+export { createVoiceModelDoc, getVoiceModels, updateVoiceModelAvatar };

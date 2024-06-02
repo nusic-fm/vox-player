@@ -21,6 +21,9 @@ import { getValue } from "firebase/remote-config";
 import { remoteConfig } from "../services/firebase.service";
 // import ShareIcon from "@mui/icons-material/Share";
 // import { useState } from "react";
+import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
+import RemoveCircleOutlineRoundedIcon from "@mui/icons-material/RemoveCircleOutlineRounded";
+import { useState } from "react";
 
 type Props = {
   songInfo: MusicState;
@@ -47,6 +50,7 @@ const FooterPlayer = ({
 }: Props) => {
   const theme = useTheme();
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
+  const [reverbValue, setReverbValue] = useState<number | null>(null);
   // const [copyPopEl, setCopyPopEl] = useState<null | HTMLButtonElement>(null);
 
   if (isMobileView)
@@ -63,22 +67,70 @@ const FooterPlayer = ({
         zIndex={9999}
       >
         <Stack width={"100%"}>
-          <Box display={"flex"} gap={1}>
+          <Box display={"flex"} gap={1} alignItems="center">
             <img
               src={songInfo.songImg}
               alt=""
               width={40}
-              height={40}
-              style={{ borderRadius: "50%", objectFit: "cover" }}
+              height={45}
+              style={{ borderRadius: "8px", objectFit: "cover" }}
             />
             <Stack
               sx={{
                 overflow: "hidden",
               }}
             >
-              <Typography variant="caption">
-                {songInfo.voices.filter((v) => v.id === voiceId).at(0)?.name}
-              </Typography>
+              <Box
+                display={"flex"}
+                justifyContent="space-between"
+                alignItems={"center"}
+              >
+                <Typography variant="caption" color="#c3c3c3">
+                  {songInfo.voices.filter((v) => v.id === voiceId).at(0)?.name}
+                </Typography>
+                <Box display={"flex"} alignItems={"center"}>
+                  <IconButton
+                    sx={{ padding: 1 }}
+                    onClick={() => {
+                      if (reverbValue === 0) return;
+                      let newReverbValue = (reverbValue || 1) - 1;
+                      addReverb(newReverbValue);
+                      setReverbValue(newReverbValue);
+                    }}
+                  >
+                    <RemoveCircleOutlineRoundedIcon
+                      sx={{ width: 12, height: 12 }}
+                    />
+                  </IconButton>
+                  <Box display="flex" alignItems="center" gap={0.2}>
+                    <img
+                      src="/reverb.png"
+                      width={18}
+                      height={18}
+                      style={{ opacity: reverbValue === 0 ? 0.5 : 1 }}
+                    />
+                    {reverbValue !== 0 && (
+                      <Typography variant="caption" color="#c3c3c3">
+                        {reverbValue === null ? 1 : reverbValue}
+                      </Typography>
+                    )}
+                  </Box>
+                  <IconButton
+                    sx={{ padding: 1 }}
+                    onClick={() => {
+                      if (reverbValue === 8) return;
+                      let newReverbValue =
+                        (reverbValue === null ? 1 : reverbValue) + 1;
+                      addReverb(newReverbValue);
+                      setReverbValue(newReverbValue);
+                    }}
+                  >
+                    <AddCircleOutlineRoundedIcon
+                      sx={{ width: 12, height: 12 }}
+                    />
+                  </IconButton>
+                </Box>
+              </Box>
               <Typography
                 textOverflow={"ellipsis"}
                 overflow="hidden"
@@ -181,7 +233,7 @@ const FooterPlayer = ({
             justifyContent="space-between"
             gap={2}
           >
-            <Typography variant="caption">
+            <Typography variant="caption" color="#c3c3c3">
               {songInfo.voices.filter((v) => v.id === voiceId).at(0)?.name}
             </Typography>
             <AudioProgress

@@ -448,7 +448,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
 
   const onRevoxSubmit = async (
     voiceModelUrl: string,
-    voiceModelName: string
+    voiceModelName: string,
+    avatarPath: string
   ) => {
     if (user?.uid && coversCollectionSnapshot) {
       const docInfo = coversCollectionSnapshot.docs.find(
@@ -471,6 +472,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 id: user.uid,
                 name: user.name,
               },
+              avatarPath,
             },
             coverDocId: docInfo.id,
             voiceModelName,
@@ -695,9 +697,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                             <Box display="flex" alignItems="center" gap={1}>
                               <Typography
                                 variant="caption"
-                                component="a"
                                 sx={{
-                                  maxWidth: "130px",
+                                  maxWidth: "200px",
                                   overflow: "hidden",
                                   whiteSpace: "nowrap",
                                 }}
@@ -1290,7 +1291,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 key={id}
                 display="flex"
                 alignItems={"center"}
-                gap={2}
+                gap={1}
                 borderBottom="1px solid rgb(130, 137, 161)"
                 flexGrow={1}
                 sx={{
@@ -1302,22 +1303,6 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 }}
                 // py={2}
               >
-                {/* <Box display={"flex"} alignItems="center" alignSelf={"start"}>
-                  <IconButton
-                    disabled={loading || voiceLoading}
-                    onClick={() => {
-                      onPlay(id, coverDoc);
-                    }}
-                  >
-                    {loading && id === songId ? (
-                      <CircularProgress size={"24px"} color="secondary" />
-                    ) : isTonePlaying && id === songId ? (
-                      <PauseRounded />
-                    ) : (
-                      <PlayArrow />
-                    )}
-                  </IconButton>
-                </Box> */}
                 <Box
                   minWidth={"85px"}
                   display="flex"
@@ -1432,7 +1417,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                   >
                     <Stack flexBasis="70%">
                       <Box display="flex" alignItems="center" gap={1}>
-                        <Typography variant="caption" component="a">
+                        <Typography variant="caption" color={"#c3c3c3"}>
                           {songId === id
                             ? coverDoc.voices.find(
                                 (v) =>

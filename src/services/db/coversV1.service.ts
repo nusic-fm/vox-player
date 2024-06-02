@@ -42,6 +42,7 @@ export type VoiceV1Cover = {
   id: string;
   imageUrl: string;
   shareInfo: ShareInfo;
+  avatarPath?: string;
 };
 export type CoverV1 = {
   audioUrl: string;
