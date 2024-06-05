@@ -8,7 +8,6 @@ import {
 import { Box } from "@mui/system";
 import { motion, PanInfo } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router-dom";
 import { createRandomNumber, nameToSlug } from "./helpers";
 import { useTonejs } from "./hooks/useToneService";
 import theme from "./theme";
@@ -26,15 +25,37 @@ const SectionBox = ({
   section,
   children,
   height,
-  y,
   overId,
+  fall,
 }: {
   height: number;
-  y: any;
+  // y: any;
   overId: string | null;
   children: any;
   section: { name: string; start: number; duration: number; id: number };
+  fall: boolean;
 }) => {
+  // y={-(section.duration * movingSpeed) + 400}
+  const [y, setY] = useState(-(section.duration * movingSpeed));
+  const [finalId, setFinalId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (fall) {
+      // Go 400px in 4 seconds
+      // const pxPerMs = 400 / 4000;
+      // setInterval(() => {
+      //   setY((prev) => prev + pxPerMs);
+      // }, 4000);
+      setY(-(section.duration * movingSpeed) + 600);
+    }
+  }, [fall]);
+
+  useEffect(() => {
+    if (overId) {
+      setFinalId(overId);
+    }
+  }, [overId]);
+
   return (
     <motion.div
       className="box"
@@ -43,19 +64,24 @@ const SectionBox = ({
         width: 100,
         background: "white",
         borderRadius: 10,
-        backgroundImage: overId ? `url('/${nameToSlug(overId)}.png')` : "unset",
+        backgroundImage: finalId
+          ? `url('/${nameToSlug(finalId)}.png')`
+          : "unset",
         backgroundSize: "cover",
         display: "flex",
         alignItems: "end",
         justifyContent: "center",
         zIndex: 1,
       }}
-      // animate={{
-      //   y,
-      // }}
+      initial={{
+        y,
+      }}
+      animate={{
+        y,
+      }}
       // transition={{ ease: "linear", duration: 0.1, y: { duration: 0.1 } }}
       // Transition Y linearly
-      // transition={{ ease: "linear", duration: 0.1 }}
+      transition={{ ease: "linear", duration: 6 }}
     >
       {children}
     </motion.div>
@@ -120,7 +146,7 @@ const Sections = ({
       const section = sections.filter(
         (s, i) =>
           s.start - 1 < Tone.Transport.seconds &&
-          s.start + 1.5 > Tone.Transport.seconds
+          s.start + 2.5 > Tone.Transport.seconds
       )[0];
       if (section) {
         // setShowPlayArea(!!section);
@@ -163,28 +189,44 @@ const Sections = ({
     >
       <Box
         position={"absolute"}
-        top={"50%"}
+        top={"70%"}
         left={"50%"}
         sx={{ transform: "translate(-50%, -50%)" }}
       >
         <Typography>{playTime.toFixed(2)}</Typography>
       </Box>
+      <Box
+        position={"absolute"}
+        top={600}
+        left={"50%"}
+        sx={{ transform: "translateX(-50%)", background: "green" }}
+        padding={"2px"}
+        width={"100%"}
+      ></Box>
+      <Box
+        position={"absolute"}
+        top={250}
+        left={"50%"}
+        sx={{ transform: "translateX(-50%)", background: "red" }}
+        padding={"2px"}
+        width={"100%"}
+      ></Box>
       {sortedSections.map((section, index) => (
         <SectionBox
           key={index}
           height={section.duration * movingSpeed}
-          y={y}
+          fall={playTime > section.start && playTime < section.start + 4}
           overId={section.id === showPlayAreaName ? overId : null}
           section={section}
         >
           <Stack gap={0.5}>
-            <Typography color={"green"} variant="h5" align="center">
+            {/* <Typography color={"green"} variant="h5" align="center">
               {section.id}
-            </Typography>
+            </Typography> */}
             {/* <Typography color={"red"}>{section.start}s</Typography> */}
-            <Typography color={"blue"}>
+            {/* <Typography color={"blue"}>
               D: {section.duration.toFixed(2)}s
-            </Typography>
+            </Typography> */}
             {start && showPlayAreaName === section.id && (
               <Box display={"flex"} justifyContent={"center"}>
                 <Box
@@ -212,7 +254,9 @@ const Sections = ({
                     borderTopRightRadius: "12px",
                   }}
                 >
-                  <Typography color={"red"}>Play Area</Typography>
+                  <Typography color={"#000"} variant="h6" align="center">
+                    Throw at ME!
+                  </Typography>
                 </Box>
               </Box>
             )}
