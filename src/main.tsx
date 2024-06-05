@@ -11,7 +11,7 @@ import {
   // Route,
   // Link,
 } from "react-router-dom";
-import App from "./App";
+import GameUi from "./GameUi";
 import GlobalStateProvider from "./components/providers/GlobalStateProvider";
 import Admin from "./Admin";
 
@@ -22,7 +22,7 @@ export const useGlobalState = () => useContext(GlobalStateContext);
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <GameUi />,
   },
   {
     path: "/admin",
@@ -38,7 +38,7 @@ const AppWithRouter = () => (
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <AppWithRouter />
+      <RouterProvider router={router} />
     </ThemeProvider>
   </React.StrictMode>
 );

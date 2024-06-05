@@ -121,6 +121,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       onEndedCalledRef.current = false;
     }
     if (playerRef.current && !changeInstr) {
+      playerRef.current.mute = false;
       await switchAudio(vocalsUrl);
       return;
     }
@@ -143,6 +144,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     }
     // Load and play the new audio
     const player = new Tone.Player(vocalsInput).sync().toDestination();
+    player.mute = true;
     playerRef.current = player;
     playerRef.current.connect(reverbRef.current);
     let instrDataArray: null | Float32Array = null;
@@ -165,8 +167,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     // player.fadeIn = 0.3;
     // player.fadeOut = 0.3;
     console.log("Loop set for: ", duration);
-    Tone.Transport.setLoopPoints(0, duration);
-    Tone.Transport.loop = true;
+    // Tone.Transport.setLoopPoints(0, duration);
+    // Tone.Transport.loop = true;
 
     playerRef.current?.start(0);
     instrPlayerRef.current?.start(0);
@@ -269,6 +271,48 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       // playerRef.current.volume.value = db;
     }
   };
+
+  const onlyInstrument = async (url: string, bpm: number) => {
+    await initializeTone();
+    Tone.Transport.bpm.value = bpm;
+    const instrDataArray = (await getByID(url)) as Float32Array;
+    let instrInput: string | Tone.ToneAudioBuffer = url;
+    if (instrDataArray?.length) {
+      instrInput = Tone.Buffer.fromArray(instrDataArray);
+    }
+    const instrPlayer = new Tone.Player(instrInput).sync().toDestination();
+    await Tone.loaded();
+    instrPlayerRef.current = instrPlayer;
+    // instrPlayerRef.current.connect(reverbRef.current);
+    instrPlayerRef.current.loop = true;
+    instrPlayerRef.current.start(0);
+
+    Tone.Transport.start();
+    if (!instrDataArray) add(instrPlayer.buffer.toArray(), url);
+  };
+  const connectVocals = async (url: string) => {
+    if (playerRef.current) {
+      await switchAudio(url);
+    } else {
+      const vocalsDataArray = (await getByID(url)) as Float32Array;
+      let vocalsInput: string | Tone.ToneAudioBuffer = url;
+      if (vocalsDataArray) {
+        vocalsInput = Tone.Buffer.fromArray(vocalsDataArray);
+      }
+      const player = new Tone.Player().sync().toDestination();
+      await player.load(url);
+      playerRef.current = player;
+      // playerRef.current.connect(reverbRef.current);
+      playerRef.current.loop = true;
+      console.log(Tone.Transport.seconds, url);
+      playerRef.current.start(0, Tone.Transport.seconds);
+      if (instrPlayerRef.current)
+        instrPlayerRef.current.seek(Tone.Transport.seconds);
+      // Tone.Transport.start();
+      if (!vocalsDataArray) add(player.buffer.toArray(), url);
+    }
+  };
+
   return {
     playAudio,
     mutePlayer,
@@ -284,6 +328,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     initializeTone,
     switchMute,
     addReverb,
+    onlyInstrument,
+    connectVocals,
     // changeInstrAudio,
   };
 };

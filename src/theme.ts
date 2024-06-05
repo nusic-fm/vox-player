@@ -17,21 +17,21 @@ declare module "@mui/material/styles/createPalette" {
 }
 const themeSettings = createTheme({
   palette: {
-    mode: "dark",
-    primary: {
-      main: "#563FC8",
-      light: "#000000",
-    },
-    secondary: {
-      main: "#ffffff",
-    },
-    info: {
-      main: "#8973F8",
-    },
-    customPaper: {
-      main: "#141414",
-      border: "#272727",
-    },
+    mode: "light",
+    // primary: {
+    //   main: "#563FC8",
+    //   light: "#000000",
+    // },
+    // secondary: {
+    //   main: "#ffffff",
+    // },
+    // info: {
+    //   main: "#8973F8",
+    // },
+    // customPaper: {
+    //   main: "#141414",
+    //   border: "#272727",
+    // },
     // background: { paper: "#000" },
   },
   typography: {
