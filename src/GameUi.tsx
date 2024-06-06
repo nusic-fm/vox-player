@@ -6,7 +6,13 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { motion, PanInfo } from "framer-motion";
+import {
+  motion,
+  PanInfo,
+  useAnimation,
+  useDragControls,
+  useMotionValue,
+} from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { createRandomNumber, nameToSlug } from "./helpers";
 import { useTonejs } from "./hooks/useToneService";
@@ -85,6 +91,22 @@ const SectionBox = ({
     >
       {children}
     </motion.div>
+  );
+};
+
+const AngleDots = ({ x, y }: { x: number; y: number }) => {
+  return (
+    <motion.div
+      style={{
+        position: "absolute",
+        padding: 4,
+        borderRadius: "50%",
+        background: "#fff",
+        left: x,
+        top: y,
+        zIndex: 9999999,
+      }}
+    />
   );
 };
 
@@ -476,4 +498,235 @@ const GameUi = (props: Props) => {
   );
 };
 
-export default GameUi;
+// const TestControls = () => {
+//   const controls = useDragControls();
+//   const x = useMotionValue(0);
+
+//   const startDrag = (event: any) => {
+//     // x.jump(500);
+//     x.setWithVelocity(0, 500, 0);
+//     // controls.start(event, { cursorProgress: 10 });
+//   };
+
+//   return (
+//     <Box>
+//       <Box onPointerDown={startDrag} sx={{ background: "red", p: 10 }}></Box>
+//       <motion.div
+//         style={{
+//           width: 200,
+//           height: 200,
+//           background: "blue",
+//           padding: "10px",
+//           x,
+//           // transition: "all 1s ease",
+//         }}
+//       />
+//     </Box>
+//   );
+// };
+
+// const ThrowingDiv = () => {
+//   const [isThrown, setIsThrown] = useState(false);
+
+//   // Coordinates for the target position
+//   const targetX = 300; // target x position
+//   const targetY = 200; // target y position
+
+//   // Speed in pixels per second
+//   const speed = 1000;
+
+//   // Calculate the distance to the target
+//   const distance = Math.sqrt(targetX ** 2 + targetY ** 2);
+
+//   // Calculate the duration based on speed
+//   const duration = distance / speed;
+
+//   return (
+//     <div>
+//       <motion.div
+//         drag
+//         animate={isThrown ? { x: targetX, y: targetY } : { x: 0, y: 0 }}
+//         transition={{ duration, ease: "linear" }}
+//         style={{
+//           width: 100,
+//           height: 100,
+//           backgroundColor: "red",
+//           position: "absolute",
+//           top: 100,
+//           left: 200,
+//         }}
+//       />
+//       <Button onClick={() => setIsThrown(!isThrown)}>
+//         {isThrown ? "Reset" : "Throw"}
+//       </Button>
+//     </div>
+//   );
+// };
+
+// export default ThrowingDiv;
+
+const ThrowingDiv = () => {
+  const controls = useAnimation();
+  const constraintsRef = useRef(null);
+  const [velocity, setVelocity] = useState({ x: 0, y: 0 });
+  const [angleOne, setAngleOne] = useState({ x: 0, y: 0 });
+  const [angleTwo, setAngleTwo] = useState({ x: 0, y: 0 });
+
+  const handleThrow = (angle: number) => {
+    const speed = 1500; // pixels per second
+    // const angle = Math.random() * 2 * Math.PI; // random direction
+    const velocityX = Math.cos(angle) * speed;
+    const velocityY = Math.sin(angle) * speed;
+    setVelocity({ x: velocityX, y: velocityY });
+
+    controls.start({
+      x: velocityX,
+      y: velocityY,
+      transition: { ease: "linear", duration: 1 },
+    });
+  };
+
+  return (
+    <div
+      ref={constraintsRef}
+      style={{
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <AngleDots x={angleOne.x} y={angleOne.y} />
+      <AngleDots x={angleTwo.x} y={angleTwo.y} />
+      <motion.div
+        drag={false}
+        dragConstraints={constraintsRef}
+        style={{
+          width: 100,
+          height: 100,
+          backgroundColor: "red",
+          borderRadius: "50%",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+        onMouseMove={(e: any) => {
+          // Get the x and y coordinates of the pointer
+          const x = e.clientX;
+          const y = e.clientY;
+          // Calculate the distance from the pointer to the center of the circle
+          const distanceX = x - e.target.getBoundingClientRect().x - 50;
+          const distanceY = y - e.target.getBoundingClientRect().y - 50;
+          // Calculate the angle of the throw which should point upwards
+          let angle = Math.atan2(distanceX, distanceY);
+          // Ensure the angle is within the range of 180 to 360 degrees (π to 2π in radians)
+          if (angle < -Math.PI) {
+            angle += 2 * Math.PI;
+          } else if (angle < 0) {
+            angle += Math.PI;
+          } else if (angle > 0 && angle < Math.PI) {
+            angle += Math.PI;
+          }
+          // Calculate the coordinates of the second point above the pointer using the angle
+          const x2 = Math.cos(angle) * 100 + x;
+          const y2 = Math.sin(angle) * 100 + y;
+          const x3 = Math.cos(angle) * 200 + x;
+          const y3 = Math.sin(angle) * 200 + y;
+          // handleThrow(angle);
+          setAngleOne({ x: x2, y: y2 });
+          setAngleTwo({ x: x3, y: y3 });
+
+          // Add some offset to create diagonal throw
+          // const offsetX = Math.random() * 100;
+          // const offsetY = Math.random() * 100;
+          // // Calculate the distance from the pointer to the center of the circle
+          // const distanceX =
+          //   x - (e.target as any).getBoundingClientRect().x - 50 + offsetX;
+          // const distanceY =
+          //   y - (e.target as any).getBoundingClientRect().y - 50 + offsetY;
+          // // Calculate the angle of the throw
+          // const angle = Math.atan2(distanceY, distanceX);
+          // // Calculate the speed based on the distance
+          // const speed = Math.sqrt(distanceX ** 2 + distanceY ** 2) * 10;
+          // // Calculate the velocity based on the angle and speed
+          // const velocityX = Math.cos(angle) * speed;
+          // const velocityY = Math.sin(angle) * speed;
+          // // Set the velocity
+          // setVelocity({ x: velocityX, y: velocityY });
+          // // Start the throw animation
+          // controls.start({
+          //   x: `+=${velocityX}`,
+          //   y: `+=${velocityY}`,
+          //   transition: { ease: "linear", duration: 1 },
+          // });
+        }}
+        onDrag={(event, info) => {
+          console.log(info);
+        }}
+        animate={controls}
+        // onDragEnd={(event, info) => {
+        //   // Calculate the velocity based on the drag release
+        //   const newVelocityX = info.velocity.x;
+        //   const newVelocityY = info.velocity.y;
+        //   setVelocity({ x: newVelocityX, y: newVelocityY });
+
+        //   // Continue the throw based on the drag release velocity
+        //   controls.start({
+        //     x: `+=${newVelocityX}`,
+        //     y: `+=${newVelocityY}`,
+        //     transition: { ease: "linear", duration: 1 },
+        //   });
+        // }}
+      />
+      <button
+        // onClick={handleThrow}
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          padding: "10px 20px",
+          fontSize: "16px",
+        }}
+      >
+        Throw
+      </button>
+    </div>
+  );
+};
+
+export default ThrowingDiv;
+// To throw a `div` in a direction at a given speed with the drag property enabled and have it bounce back from the edges, you can use Framer Motion's `motion.div` along with the `drag`, `dragConstraints`, and `onDragEnd` properties. Additionally, you can use a custom animation to handle the "throw" effect.
+
+// Here's an example implementation in a React component:
+
+// ```jsx
+// import { useState } from 'react';
+// import { motion, useAnimation } from 'framer-motion';
+
+// const ThrowingDiv = () => {
+//   const controls = useAnimation();
+//   const [isDragging, setIsDragging] = useState(false);
+
+//   const speed = 500; // Speed in pixels per second
+//   const direction = { x: 1, y: 1 }; // Direction vector (e.g., { x: 1, y: 1 } for bottom-right)
+
+//   const throwDiv = () => {
+//     const distance = speed; // Distance is speed for one second of movement
+//     controls.start({
+//       x: direction.x * distance,
+//       y: direction.y * distance,
+//       transition: {
+//         duration: 1, // Move for one second
+//         ease: 'linear',
+//       },
+//     });
+//   };
+
+//   return (
+//     <div
+//       style={{
+//         width: '100vw',
+//         height: '100vh',
+//         position: 'relative',
+//         overflow:
