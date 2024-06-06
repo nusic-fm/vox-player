@@ -22,7 +22,7 @@ import {
   RevoxProcessTypeDoc,
 } from "../services/db/revoxQueue.service";
 import UserSelection from "./UserSelection";
-import { getUserAvatar } from "../helpers";
+import { getDiscordLoginUrl, getUserAvatar } from "../helpers";
 // import axios from "axios";
 import { LoadingButton } from "@mui/lab";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
@@ -38,12 +38,6 @@ type Props = {
   onRevoxRetry: (p: RevoxProcessTypeDoc) => Promise<void>;
   refreshHeader: boolean;
 };
-
-const baseUrl = "https://discord.com/api/oauth2/authorize";
-const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID as string;
-const redirectUri = encodeURIComponent(window.location.origin);
-const responseType = "token";
-const scope = "identify+email";
 
 const Header = ({
   user,
@@ -101,7 +95,7 @@ const Header = ({
           size="small"
           variant="contained"
           // onClick={onSignInWithFb}
-          href={`${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`}
+          href={getDiscordLoginUrl()}
           startIcon={<img src="/discord.png" alt="" width={"22px"} />}
         >
           Sign in

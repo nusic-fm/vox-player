@@ -7,16 +7,12 @@ export const getClosesNoInArr = (arr: number[], goal: number) =>
   );
 export const getYouTubeVideoId = (url: string) => {
   // YouTube video ID regex
-  const regex = /[?&]v=([^#&]*)/;
+  // Support for short URLs: https://youtu.be/VIDEO_ID
+  // Support for long URLs: https://www.youtube.com/watch?v=VIDEO_ID
+  const regex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(regex);
-
-  if (match && match[1]) {
-    return match[1];
-  } else {
-    // Handle cases where the URL format may differ
-    console.error("Invalid YouTube URL");
-    return null;
-  }
+  return match ? match[1] : null;
 };
 
 export const getUserAvatar = (uid: string, avatarId: string) => {
@@ -80,6 +76,16 @@ export const sortArrBasedOnLikesObj = (
     // compare the likes of the two voices and then return the voice with the most likes
     return (likesObj[b.id] || 0) - (likesObj[a.id] || 0);
   });
+};
+
+export const getDiscordLoginUrl = () => {
+  const baseUrl = "https://discord.com/api/oauth2/authorize";
+  const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID as string;
+  const redirectUri = encodeURIComponent(window.location.origin);
+  const responseType = "token";
+  const scope = "identify+email";
+
+  return `${baseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
 };
 
 // export const timestampToDateString = (timestamp: Timestamp) => {

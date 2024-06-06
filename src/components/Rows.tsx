@@ -52,6 +52,7 @@ import { useGlobalState } from "../main";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
 import {
+  getDiscordLoginUrl,
   getUserAvatar,
   // timestampToDateString,
   getYouTubeVideoId,
@@ -1772,15 +1773,20 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               disabled={!newAiCoverUrl}
               loading={isNewCoverLoading}
               onClick={async () => {
-                setIsNewCoverLoading(true);
                 const vid = getYouTubeVideoId(newAiCoverUrl);
                 if (vid) {
+                  setIsNewCoverLoading(true);
                   const isExists = await checkIfYoutubeVideoIdExists(vid);
                   if (isExists) {
                     setNewAiCoverUrl("");
                     setIsNewCoverLoading(false);
                     setErrorSnackbarMsg("Cover already Exists");
                     // TODO: Play that cover
+                    return;
+                  }
+                  if (!user) {
+                    alert("Kindly Sign In...");
+                    window.open(getDiscordLoginUrl());
                     return;
                   }
                   const formData = new FormData();
@@ -1820,6 +1826,8 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     url: newAiCoverUrl,
                   });
                   setIsNewCoverLoading(false);
+                } else {
+                  setErrorSnackbarMsg("Invalid Youtube URL");
                 }
               }}
             >
