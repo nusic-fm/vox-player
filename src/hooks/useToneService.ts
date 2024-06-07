@@ -170,9 +170,9 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     // Tone.Transport.setLoopPoints(0, duration);
     // Tone.Transport.loop = true;
 
-    playerRef.current?.start(0);
-    instrPlayerRef.current?.start(0);
-    Tone.Transport.start();
+    playerRef.current?.start();
+    instrPlayerRef.current?.start();
+    Tone.Transport.start("+4.5"); // TODO
     setIsEnded(false);
     if (!vocalsDataArray) add(player.buffer.toArray(), vocalsUrl);
     if (!instrDataArray && instrPlayerRef.current)
