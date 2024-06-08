@@ -32,8 +32,8 @@ const TilesMarblesGame = () => {
   useEffect(() => {
     if (finalOverId) {
       const coverDocId = "f0pmE4twBXnJmVrJzh18";
-      const instrumental = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2F${coverDocId}%2Finstrumental.mp3?alt=media`;
-      const vocals = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2F${coverDocId}%2F${finalOverId}.mp3?alt=media`;
+      const instrumental = `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`;
+      const vocals = `https://voxaudio.nusic.fm/covers/${coverDocId}/${finalOverId}.mp3`;
 
       playAudio(instrumental, vocals, 97, 91.32, false);
     }
@@ -41,12 +41,12 @@ const TilesMarblesGame = () => {
 
   const startInstrumental = () => {
     const coverDocId = "f0pmE4twBXnJmVrJzh18";
-    const instrumental = `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2F${coverDocId}%2Finstrumental.mp3?alt=media`;
+    const instrumental = `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`;
     // onlyInstrument(instrumental, 140);
     console.log("Play Audio");
     playAudio(
       instrumental,
-      "https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/covers%2Ff0pmE4twBXnJmVrJzh18%2Ftrevor_gta-v.mp3?alt=media",
+      "https://voxaudio.nusic.fm/covers/f0pmE4twBXnJmVrJzh18/trevor_gta-v.mp3",
       97,
       91.32,
       true
