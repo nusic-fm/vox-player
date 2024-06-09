@@ -1,16 +1,15 @@
 import { useAnimation } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
+import { nameToSlug } from "./helpers";
 import { useTonejs } from "./hooks/useToneService";
 import Marbles from "./Marbles";
 import SectionsFalling from "./Tiles";
 
-const voices = [
-  "cardi-b",
-  "morgan-freeman",
-  "franklin-clinton_gta-v",
-  "trevor_gta-v",
-  "eric-cartman",
-];
+const voices = ["Spongebob", "Eric Cartman", "Plankton", "Gawr Gura"];
+
+const coverDocId = "ByE2N5MsLcSYpUR8s6a3";
+const bpm = 98;
+const duration = 210.6;
 
 const TilesMarblesGame = () => {
   const controls = useAnimation();
@@ -26,31 +25,48 @@ const TilesMarblesGame = () => {
   });
   const [mouseDownId, setMouseDownId] = useState<string>("");
   const [start, setStart] = useState(false);
+  const [tilesVoiceObj, setTilesVoiceObj] = useState<{
+    [sectionId: string]: string;
+  }>({});
   const [finalOverId, setFinalOverId] = useState<string | null>(null);
   const { playAudio, isTonePlaying } = useTonejs();
 
-  useEffect(() => {
-    if (finalOverId) {
-      const coverDocId = "f0pmE4twBXnJmVrJzh18";
-      const instrumental = `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`;
-      const vocals = `https://voxaudio.nusic.fm/covers/${coverDocId}/${finalOverId}.mp3`;
+  //   useEffect(() => {
+  //     if (finalOverId) {
+  //       debugger;
+  //       const instrumental = `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`;
+  //       const vocals = `https://voxaudio.nusic.fm/covers/${coverDocId}/${nameToSlug(
+  //         finalOverId
+  //       )}.mp3`;
 
-      playAudio(instrumental, vocals, 97, 91.32, false);
-    }
-  }, [finalOverId]);
+  //       playAudio(instrumental, vocals, bpm, duration, false);
+  //     }
+  //   }, [finalOverId]);
+  const changeVoice = (voiceName: string, delay: number) => {
+    const instrumental = `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`;
+    const vocals = `https://voxaudio.nusic.fm/covers/${coverDocId}/${nameToSlug(
+      voiceName
+    )}.mp3`;
+    playAudio(instrumental, vocals, bpm, duration, false, delay);
+  };
 
-  const startInstrumental = () => {
-    const coverDocId = "f0pmE4twBXnJmVrJzh18";
+  const startInstrumental = async (): Promise<{
+    instrPlayerRef: any;
+    playerRef: any;
+  }> => {
     const instrumental = `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`;
     // onlyInstrument(instrumental, 140);
     console.log("Play Audio");
-    playAudio(
+    const { instrPlayerRef, playerRef } = await playAudio(
       instrumental,
-      "https://voxaudio.nusic.fm/covers/f0pmE4twBXnJmVrJzh18/trevor_gta-v.mp3",
-      97,
-      91.32,
+      `https://voxaudio.nusic.fm/covers/${coverDocId}/${nameToSlug(
+        voices[0]
+      )}.mp3`,
+      bpm,
+      duration,
       true
     );
+    return { instrPlayerRef, playerRef };
   };
   //   useEffect(() => {
   //     if (start) {
@@ -82,6 +98,8 @@ const TilesMarblesGame = () => {
         startState={[start, setStart]}
         finalOverIdState={[finalOverId, setFinalOverId]}
         startInstrumental={startInstrumental}
+        tilesVoiceObjState={[tilesVoiceObj, setTilesVoiceObj]}
+        changeVoice={changeVoice}
       />
       {start && (
         <Marbles
@@ -93,6 +111,7 @@ const TilesMarblesGame = () => {
           mouseDownId={mouseDownId}
           onMouseDown={(e, id) => setMouseDownId(id)}
           voices={voices}
+          finalOverId={finalOverId}
         />
       )}
     </>

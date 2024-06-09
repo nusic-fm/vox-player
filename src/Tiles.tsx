@@ -8,18 +8,23 @@ type SectionsMeta = {
   start: number;
   duration: number;
 };
+const startOffset = 68;
 const sectionsMeta = [
-  { start: 0, duration: 6.13 },
-  { start: 6.13, duration: 12.36 - 6.13 },
-  { start: 12.36, duration: 24.73 - 12.36 },
-  { start: 24.73, duration: 37.09 - 24.73 },
-  { start: 37.09, duration: 44.52 - 37.09 },
-  { start: 44.52, duration: 51.95 - 44.52 },
-  { start: 51.95, duration: 59.37 - 51.95 },
-  { start: 59.37, duration: 66.79 - 59.37 },
-  { start: 66.79, duration: 76.67 - 66.79 },
-  { start: 76.67, duration: 86.57 - 66.79 },
-  { start: 86.57, duration: 91.21 - 86.57 },
+  { start: 0 + startOffset, duration: 3 },
+  { start: 3 + startOffset, duration: 2 },
+  { start: 5 + startOffset, duration: 4 },
+  { start: 9 + startOffset, duration: 3 },
+  { start: 12 + startOffset, duration: 2 },
+  { start: 14 + startOffset, duration: 3 },
+  { start: 17 + startOffset, duration: 2 },
+  { start: 19 + startOffset, duration: 3 },
+  { start: 22 + startOffset, duration: 2 },
+  { start: 24 + startOffset, duration: 4 },
+  { start: 28 + startOffset, duration: 3 },
+  { start: 31 + startOffset, duration: 3 },
+  { start: 34 + startOffset, duration: 2 },
+  { start: 36 + startOffset, duration: 4 },
+  { start: 40 + startOffset, duration: 3 },
 ];
 
 const createLightColor = () => {
@@ -32,7 +37,7 @@ const createMultiplesOfNumber = (n: number, m: number) => {
 const findTheSection = (sectionsStart: number[], playTime: number) => {
   let i = 0;
   while (i < sectionsStart.length) {
-    if (playTime > sectionsStart[i] && playTime < sectionsStart[i + 1]) {
+    if (playTime < sectionsStart[i]) {
       return i;
     }
     i++;
@@ -102,7 +107,21 @@ type Props = {
     string | null,
     React.Dispatch<React.SetStateAction<string | null>>
   ];
-  startInstrumental: () => void;
+  startInstrumental: () => Promise<{
+    instrPlayerRef: any;
+    playerRef: any;
+  }>;
+  tilesVoiceObjState: [
+    {
+      [key: string]: string;
+    },
+    React.Dispatch<
+      React.SetStateAction<{
+        [key: string]: string;
+      }>
+    >
+  ];
+  changeVoice: (voice: string, delay: number) => void;
 };
 
 const SectionsFalling = ({
@@ -116,9 +135,11 @@ const SectionsFalling = ({
   startState,
   finalOverIdState,
   startInstrumental,
+  tilesVoiceObjState,
+  changeVoice,
 }: Props) => {
-  const [numberOfTracks, setNumberOfTracks] = useState(3);
-  const [trackWidth, setTrackWidth] = useState(120);
+  const [numberOfTracks, setNumberOfTracks] = useState(6);
+  const [trackWidth, setTrackWidth] = useState(80);
   const [waitTimeInSeconds, setWaitTimeInSeconds] = useState(5);
   const [pxPerSecondSpeed, setPxPerSecondSpeed] = useState(100);
   const [playheadHeight, setPlayHeadHeight] = useState(600);
@@ -133,12 +154,14 @@ const SectionsFalling = ({
   }>({ angle: 0, divCenterX: 0, divCenterY: 0 });
   const targetRef = useRef<HTMLDivElement | null>(null);
   const [start, setStart] = startState;
-  const [playAreaId, setPlayAreaId] = useState<number | null>(1);
+  const [playAreaId, setPlayAreaId] = useState<number>(1);
   const [finalOverId, setFinalOverId] = finalOverIdState;
+  const [tilesVoiceObj, setTilesVoiceObj] = tilesVoiceObjState;
 
   const onStart = () => {
     setStart(true);
   };
+
   const onMouseUp = (event: MouseEvent) => {
     if (!mouseDownId) return;
     let _mouseDownId = mouseDownId;
@@ -146,13 +169,32 @@ const SectionsFalling = ({
     const intrvl = setInterval(() => {
       if (isOverlapping(ballRef.current[mouseDownId], targetRef.current)) {
         // overIdRef.current = _mouseDownId;
+        // controls.start({
+        //   x: initialObj[_mouseDownId].x,
+        //   y: initialObj[_mouseDownId].y,
+        //   opacity: 0,
+        // });
+        controls.set({ opacity: 0, transition: { duration: 0.5 } });
+        setTilesVoiceObj((obj) => ({
+          ...obj,
+          [playAreaId.toString()]: _mouseDownId,
+        }));
         setFinalOverId(_mouseDownId);
+        changeVoice(_mouseDownId, sections[playAreaId - 1].start - playTime);
         clearInterval(intrvl);
       }
     }, 10);
     setTimeout(() => {
       clearInterval(intrvl);
-    }, 1000);
+      controls.start({
+        x: initialObj[mouseDownId].x,
+        y: initialObj[mouseDownId].y,
+        transition: { ease: "linear", duration: 0 },
+        // opacity 0 to 1
+        opacity: 1,
+      });
+      setMouseDownId("");
+    }, 500);
   };
   const onMouseMove = (event: MouseEvent) => {
     if (mouseDownId) {
@@ -203,7 +245,7 @@ const SectionsFalling = ({
     return () => {
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [mouseDownId, throwObj]);
+  }, [mouseDownId, throwObj, playAreaId]);
   useEffect(() => {
     window.addEventListener("mousemove", onMouseMove);
     return () => {
@@ -227,18 +269,24 @@ const SectionsFalling = ({
       );
       const ms = 100;
       const pxPerMs = pxPerSecondSpeed / 1000; // 0.04
-      (async () => await startInstrumental())();
-      const intrvl = setInterval(() => {
-        setTop((prev) => prev + pxPerMs * ms);
-        setTimer((timer) => timer + ms);
-        setPlayTime(Tone.Transport.seconds);
-      }, ms);
-      const totlaDuration = _sections
-        .map((s) => s.duration)
-        .reduce((a, b) => a + b, 0);
-      setTimeout(() => {
-        clearInterval(intrvl);
-      }, (totlaDuration + 5) * 1000);
+      (async () => {
+        const { instrPlayerRef, playerRef } = await startInstrumental();
+        instrPlayerRef.current.start(0);
+        playerRef.current.start(0);
+        Tone.Transport.start("+5", startOffset);
+
+        const intrvl = setInterval(() => {
+          setTop((prev) => prev + pxPerMs * ms);
+          setTimer((timer) => timer + ms);
+          setPlayTime(Tone.Transport.seconds);
+        }, ms);
+        const totlaDuration = _sections
+          .map((s) => s.duration)
+          .reduce((a, b) => a + b, 0);
+        setTimeout(() => {
+          clearInterval(intrvl);
+        }, (totlaDuration + 5) * 1000);
+      })();
     }
   }, [start]);
   const isOverlapping = (draggable: any, target: any) => {
@@ -287,11 +335,11 @@ const SectionsFalling = ({
       //       s.start - 1 < Tone.Transport.seconds &&
       //       s.start + 2.5 > Tone.Transport.seconds
       //   )[0];
-      if (idx) {
+      if (idx && sections[idx]) {
         // setShowPlayArea(!!section);
         setPlayAreaId(sections[idx].id);
       } else {
-        setPlayAreaId(null);
+        setPlayAreaId(0);
       }
     }
     //     if (playTime) {
@@ -372,7 +420,7 @@ const SectionsFalling = ({
         width={"100%"}
         height={"100%"}
         sx={{
-          backgroundImage: "url(/bg1.webp)",
+          backgroundImage: "url(/bg1.png)",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           filter: "blur(80px)",
@@ -395,7 +443,7 @@ const SectionsFalling = ({
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundImage: "url(/bg1.webp)",
+            backgroundImage: "url(/bg1.png)",
             backgroundPosition: "center",
             // backgroundRepeat: "no-repeat",
             // filter: "blur(80px)",
@@ -406,30 +454,43 @@ const SectionsFalling = ({
         {sections.map((section, i) => (
           <motion.div
             key={i}
+            id={section.id.toString()}
             style={{
               height: section.height,
               width: trackWidth,
-              background: section.color,
+              backgroundColor:
+                playAreaId === section.id ? "#8973F8" : `transparent`,
+              border: "3px solid",
               position: "absolute",
               color: "white",
               borderRadius: "4px",
-              boxShadow: `rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px`,
-              backgroundImage: finalOverId
-                ? `url('/${nameToSlug(finalOverId)}.png')`
+              backgroundImage: !!tilesVoiceObj[section.id]
+                ? `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+                    tilesVoiceObj[section.id]
+                  )}_200x200?alt=media)`
                 : "unset",
+              backgroundPosition: "center",
               backgroundSize: "cover",
+              // filter: finalOverId ? "blur(2px)" : "unset",
             }}
             animate={{
               x: section.xPosition,
               y: top - section.negativeTop,
             }}
-            ref={(ref) => {
-              if (ref && playAreaId === section.id) {
-                targetRef.current = ref;
-              }
-            }}
           >
-            {playAreaId === section.id && <Typography>Throw</Typography>}
+            {playAreaId === section.id && (
+              <Box
+                ref={targetRef}
+                position={"absolute"}
+                top={0}
+                left={0}
+                width={"100%"}
+                height={"100%"}
+                sx={{
+                  boxShadow: "0 0 20 #8973F8",
+                }}
+              />
+            )}
           </motion.div>
         ))}
         <Stack
@@ -438,11 +499,23 @@ const SectionsFalling = ({
           width={trackWidth * numberOfTracks}
           height={"calc(100vh - 600px)"}
         >
-          {!start && (
-            <Button onClick={onStart} variant="contained" sx={{ zIndex: 9 }}>
-              Start
-            </Button>
-          )}
+          <Button
+            onClick={onStart}
+            variant="contained"
+            color="info"
+            sx={{
+              zIndex: 9,
+              borderTop: "2px solid",
+              borderBottom: "2px solid",
+              borderRadius: 0,
+            }}
+          >
+            {start
+              ? `${(timer / 1000).toFixed(1)} - ${(
+                  playTime - startOffset
+                ).toFixed(1)}`
+              : `start`}
+          </Button>
           {!start && (
             <Stack
               alignItems={"center"}
@@ -473,11 +546,6 @@ const SectionsFalling = ({
               />
             </Stack>
           )}
-          (
-          <Typography align="center" position={"absolute"} zIndex={9}>
-            {parseFloat((timer / 1000).toFixed(1)).toFixed(1)} - {playTime}
-          </Typography>
-          )
           <Box
             width={"100%"}
             height={"100%"}

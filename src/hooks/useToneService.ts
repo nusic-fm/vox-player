@@ -111,8 +111,9 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     vocalsUrl: string,
     bpm: number,
     duration: number,
-    changeInstr: boolean = false // Change the whole track
-  ): Promise<void> => {
+    changeInstr: boolean = false, // Change the whole track
+    delay: number = 0
+  ): Promise<{ instrPlayerRef: any; playerRef: any }> => {
     if (bpm) Tone.Transport.bpm.value = bpm;
     else Tone.Transport.bpm.dispose();
     if (toneLoadingForSection) {
@@ -122,8 +123,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     }
     if (playerRef.current && !changeInstr) {
       playerRef.current.mute = false;
-      await switchAudio(vocalsUrl);
-      return;
+      await switchAudio(vocalsUrl, delay);
+      return { instrPlayerRef, playerRef };
     }
     await initializeTone();
     if (Tone.Transport.seconds) Tone.Transport.stop();
@@ -170,16 +171,17 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     // Tone.Transport.setLoopPoints(0, duration);
     // Tone.Transport.loop = true;
 
-    playerRef.current?.start();
-    instrPlayerRef.current?.start();
-    Tone.Transport.start("+4.5"); // TODO
+    // playerRef.current?.start();
+    // instrPlayerRef.current?.start();
+    // Tone.Transport.start("+4.5"); // TODO
     setIsEnded(false);
     if (!vocalsDataArray) add(player.buffer.toArray(), vocalsUrl);
     if (!instrDataArray && instrPlayerRef.current)
       add(instrPlayerRef.current.buffer.toArray(), instrUrl);
+    return { instrPlayerRef, playerRef };
   };
 
-  const switchAudio = async (url: string) => {
+  const switchAudio = async (url: string, delay: number) => {
     const audioArrayData = (await getByID(url)) as Float32Array;
     let buffer: null | Tone.ToneAudioBuffer = null;
     if (audioArrayData) {
@@ -197,7 +199,11 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       // Audio is downloaded
       if (isTonePlaying) {
         if (playerRef.current) {
-          changePlayerBuffer(buffer, Tone.Transport.seconds);
+          setTimeout(() => {
+            if (buffer) {
+              changePlayerBuffer(buffer, Tone.Transport.seconds);
+            }
+          }, delay * 1000);
         }
       } else if (playerRef.current) {
         playerRef.current.buffer = buffer;
@@ -292,7 +298,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
   };
   const connectVocals = async (url: string) => {
     if (playerRef.current) {
-      await switchAudio(url);
+      await switchAudio(url, 0);
     } else {
       const vocalsDataArray = (await getByID(url)) as Float32Array;
       let vocalsInput: string | Tone.ToneAudioBuffer = url;

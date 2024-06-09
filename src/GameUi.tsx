@@ -590,6 +590,7 @@ const GameUi = (props: Props) => {
         mouseDownId={mouseDownId}
         onMouseDown={(e, id) => setMouseDownId(id)}
         voices={voices}
+        finalOverId={finalOverId}
       />
       {/* {mouseDownId && <AngleDots x={angleOne.x} y={angleOne.y} />}
       {mouseDownId && <AngleDots x={angleTwo.x} y={angleTwo.y} />}

@@ -7,8 +7,8 @@ export const AngleDots = ({ x, y }: { x: number; y: number }) => {
       style={{
         position: "absolute",
         // padding: 4,
-        width: 10,
-        height: 10,
+        width: 8,
+        height: 8,
         borderRadius: "50%",
         background: "#fff",
         left: x,
@@ -27,6 +27,7 @@ type Props = {
   ballRef: any;
   initialObj: { [key: string]: { x: number; y: number } };
   controls: AnimationControls;
+  finalOverId: string | null;
 };
 
 const Marbles = ({
@@ -38,6 +39,7 @@ const Marbles = ({
   ballRef,
   initialObj,
   controls,
+  finalOverId,
 }: Props) => {
   return (
     <>
@@ -69,7 +71,9 @@ const Marbles = ({
             height: 60,
             borderRadius: "50%",
             position: "absolute",
-            background: `url('/${nameToSlug(id)}.png')`,
+            background: `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+              id
+            )}_200x200?alt=media)`,
             backgroundSize: "cover",
             cursor: "pointer",
             zIndex: 999999,
