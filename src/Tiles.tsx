@@ -355,9 +355,9 @@ const SectionsFalling = ({
       const section = sections.find((s) => s.start > playTime);
       if (section) {
         if (tilesVoiceObj[section.id]) {
-          const findOneWithoutVoice = sections.find(
-            (s) => !tilesVoiceObj[s.id]
-          );
+          const findOneWithoutVoice = sections
+            .slice(section.id)
+            .find((s) => !tilesVoiceObj[s.id]);
           if (findOneWithoutVoice) {
             setPlayAreaId(findOneWithoutVoice.id);
           }
