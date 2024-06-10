@@ -16,6 +16,7 @@ export const getYouTubeVideoId = (url: string) => {
 };
 
 export const getUserAvatar = (uid: string, avatarId: string) => {
+  if (!avatarId) return "";
   if (avatarId.length <= 2) {
     return `https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/avatars%2F${avatarId}.webp?alt=media`;
   }
