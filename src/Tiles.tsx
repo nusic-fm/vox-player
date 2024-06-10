@@ -25,6 +25,12 @@ const sectionsMeta = [
   { start: 34 + startOffset, duration: 2 },
   { start: 36 + startOffset, duration: 4 },
   { start: 40 + startOffset, duration: 3 },
+  { start: 43 + startOffset, duration: 4 },
+  { start: 47 + startOffset, duration: 3 },
+  { start: 50 + startOffset, duration: 3 },
+  { start: 53 + startOffset, duration: 2 },
+  { start: 55 + startOffset, duration: 4 },
+  { start: 59 + startOffset, duration: 3 },
 ];
 
 const createLightColor = () => {
@@ -121,7 +127,7 @@ type Props = {
       }>
     >
   ];
-  changeVoice: (voice: string, delay: number) => void;
+  changeVoice: (voice: string, delay: number, duration: number) => void;
 };
 
 const SectionsFalling = ({
@@ -157,6 +163,8 @@ const SectionsFalling = ({
   const [playAreaId, setPlayAreaId] = useState<number>(1);
   const [finalOverId, setFinalOverId] = finalOverIdState;
   const [tilesVoiceObj, setTilesVoiceObj] = tilesVoiceObjState;
+  // Quick reference to the playAreaId
+  const playAreaIdRef = useRef<number>(1);
 
   const onStart = () => {
     setStart(true);
@@ -194,7 +202,11 @@ const SectionsFalling = ({
           [playAreaId.toString()]: _mouseDownId,
         }));
         setFinalOverId(_mouseDownId);
-        changeVoice(_mouseDownId, sections[playAreaId - 1].start - playTime);
+        changeVoice(
+          _mouseDownId,
+          sections[playAreaId - 1].start - playTime,
+          sections[playAreaId - 1].duration
+        );
         controls.start({
           x: initialObj[mouseDownId].x,
           y: initialObj[mouseDownId].y,
@@ -284,7 +296,7 @@ const SectionsFalling = ({
       (async () => {
         const { instrPlayerRef, playerRef } = await startInstrumental();
         instrPlayerRef.current.start(0);
-        playerRef.current.start(0);
+        playerRef.current.start(0, 0, 0.1);
         Tone.Transport.start("+5", startOffset);
 
         const intrvl = setInterval(() => {
@@ -350,7 +362,17 @@ const SectionsFalling = ({
       //   )[0];
       if (idx && sections[idx]) {
         // setShowPlayArea(!!section);
+        if (
+          !finalOverId &&
+          playAreaIdRef.current !== sections[idx].id &&
+          !tilesVoiceObj[sections[idx].id]
+        ) {
+          console.log("No voice");
+          // muteVocals();
+        }
         setPlayAreaId(sections[idx].id);
+        playAreaIdRef.current = sections[idx].id;
+        setFinalOverId(null);
       } else {
         setPlayAreaId(0);
       }

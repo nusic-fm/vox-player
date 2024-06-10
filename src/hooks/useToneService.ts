@@ -96,12 +96,13 @@ export const useTonejs = (onPlayEnd?: () => void) => {
 
   const changePlayerBuffer = (
     bf: ToneAudioBuffer,
-    offsetPosition: Tone.Unit.Time
+    offsetPosition: Tone.Unit.Time,
+    playDuration: number = 0
   ) => {
     if (playerRef.current) {
       playerRef.current.stop();
       playerRef.current.buffer = bf;
-      playerRef.current.start(undefined, offsetPosition);
+      playerRef.current.start(undefined, offsetPosition, playDuration);
       if (instrPlayerRef.current) instrPlayerRef.current.seek(offsetPosition);
     }
   };
@@ -112,7 +113,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     bpm: number,
     duration: number,
     changeInstr: boolean = false, // Change the whole track
-    delay: number = 0
+    delay: number = 0,
+    playDuration: number = 0
   ): Promise<{ instrPlayerRef: any; playerRef: any }> => {
     if (bpm) Tone.Transport.bpm.value = bpm;
     else Tone.Transport.bpm.dispose();
@@ -122,8 +124,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
       onEndedCalledRef.current = false;
     }
     if (playerRef.current && !changeInstr) {
-      playerRef.current.mute = false;
-      await switchAudio(vocalsUrl, delay);
+      // playerRef.current.mute = false;
+      await switchAudio(vocalsUrl, delay, playDuration);
       return { instrPlayerRef, playerRef };
     }
     await initializeTone();
@@ -145,7 +147,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     }
     // Load and play the new audio
     const player = new Tone.Player(vocalsInput).sync().toDestination();
-    player.mute = true;
+    // player.mute = true;
     playerRef.current = player;
     playerRef.current.connect(reverbRef.current);
     let instrDataArray: null | Float32Array = null;
@@ -181,7 +183,11 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     return { instrPlayerRef, playerRef };
   };
 
-  const switchAudio = async (url: string, delay: number) => {
+  const switchAudio = async (
+    url: string,
+    delay: number,
+    playDuration: number = 0
+  ) => {
     const audioArrayData = (await getByID(url)) as Float32Array;
     let buffer: null | Tone.ToneAudioBuffer = null;
     if (audioArrayData) {
@@ -201,7 +207,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
         if (playerRef.current) {
           setTimeout(() => {
             if (buffer) {
-              changePlayerBuffer(buffer, Tone.Transport.seconds);
+              changePlayerBuffer(buffer, Tone.Transport.seconds, playDuration);
             }
           }, delay * 1000);
         }
@@ -336,6 +342,7 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     addReverb,
     onlyInstrument,
     connectVocals,
+    playerRef,
     // changeInstrAudio,
   };
 };

@@ -5,7 +5,15 @@ import { useTonejs } from "./hooks/useToneService";
 import Marbles from "./Marbles";
 import SectionsFalling from "./Tiles";
 
-const voices = ["Spongebob", "Eric Cartman", "Plankton", "Gawr Gura"];
+const voices = [
+  "Spongebob",
+  "Eric Cartman",
+  "Plankton",
+  "Gawr Gura",
+  "Dua Lipa",
+  "Trevor_GTA V",
+  "The Weeknd",
+];
 
 const coverDocId = "ByE2N5MsLcSYpUR8s6a3";
 const bpm = 98;
@@ -47,12 +55,12 @@ const TilesMarblesGame = () => {
   //       playAudio(instrumental, vocals, bpm, duration, false);
   //     }
   //   }, [finalOverId]);
-  const changeVoice = (voiceName: string, delay: number) => {
+  const changeVoice = (voiceName: string, delay: number, _duration: number) => {
     const instrumental = `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`;
     const vocals = `https://voxaudio.nusic.fm/covers/${coverDocId}/${nameToSlug(
       voiceName
     )}.mp3`;
-    playAudio(instrumental, vocals, bpm, duration, false, delay);
+    playAudio(instrumental, vocals, bpm, duration, false, delay, _duration);
   };
 
   const startInstrumental = async (): Promise<{
@@ -114,6 +122,9 @@ const TilesMarblesGame = () => {
         startInstrumental={startInstrumental}
         tilesVoiceObjState={[tilesVoiceObj, setTilesVoiceObj]}
         changeVoice={changeVoice}
+        // muteVocals={() => {
+        //   if (playerRef.current) playerRef.current.mute = true;
+        // }}
       />
       {start && (
         <Marbles
