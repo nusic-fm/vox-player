@@ -3,6 +3,7 @@ import { AnimationControls, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { createRandomNumber, nameToSlug } from "./helpers";
 import * as Tone from "tone";
+import { LoadingButton } from "@mui/lab";
 
 type SectionsMeta = {
   start: number;
@@ -115,7 +116,7 @@ type Props = {
   ];
   startInstrumental: () => Promise<{
     instrPlayerRef: any;
-    playerRef: any;
+    playersRef: any;
   }>;
   tilesVoiceObjState: [
     {
@@ -127,7 +128,8 @@ type Props = {
       }>
     >
   ];
-  changeVoice: (voice: string, delay: number, duration: number) => void;
+  changeVoice: (voice: string, start: number, duration: number) => void;
+  isDownloading: boolean;
 };
 
 const SectionsFalling = ({
@@ -143,6 +145,7 @@ const SectionsFalling = ({
   startInstrumental,
   tilesVoiceObjState,
   changeVoice,
+  isDownloading,
 }: Props) => {
   const [numberOfTracks, setNumberOfTracks] = useState(6);
   const [trackWidth, setTrackWidth] = useState(80);
@@ -151,7 +154,7 @@ const SectionsFalling = ({
   const [playheadHeight, setPlayHeadHeight] = useState(600);
   const [sections, setSections] = useState<Section[]>([]);
   const [top, setTop] = useState(0);
-  const [timer, setTimer] = useState(0);
+  const [timerClock, setTimerClock] = useState(0);
   const [playTime, setPlayTime] = useState(0);
   const [throwObj, setThrowObj] = useState<{
     angle: number;
@@ -204,7 +207,7 @@ const SectionsFalling = ({
         setFinalOverId(_mouseDownId);
         changeVoice(
           _mouseDownId,
-          sections[playAreaId - 1].start - playTime,
+          sections[playAreaId - 1].start,
           sections[playAreaId - 1].duration
         );
         controls.start({
@@ -294,14 +297,15 @@ const SectionsFalling = ({
       const ms = 100;
       const pxPerMs = pxPerSecondSpeed / 1000; // 0.04
       (async () => {
-        const { instrPlayerRef, playerRef } = await startInstrumental();
+        const { instrPlayerRef } = await startInstrumental();
         instrPlayerRef.current.start(0);
-        playerRef.current.start(0, 0, 0.1);
+        // voices.map((v) => playersRef.current[v].start(0));
+        // voices.map((v) => playersRef.current[v].stop());
         Tone.Transport.start("+5", startOffset);
 
         const intrvl = setInterval(() => {
           setTop((prev) => prev + pxPerMs * ms);
-          setTimer((timer) => timer + ms);
+          setTimerClock((timer) => timer + ms);
           setPlayTime(Tone.Transport.seconds);
         }, ms);
         const totlaDuration = _sections
@@ -351,44 +355,34 @@ const SectionsFalling = ({
   };
 
   useEffect(() => {
-    if (playTime) {
-      const sectionsStart = sections.map((s) => s.start);
-
-      const idx = findTheSection(sectionsStart, playTime);
-      //   const section = sections.filter(
-      //     (s, i) =>
-      //       s.start - 1 < Tone.Transport.seconds &&
-      //       s.start + 2.5 > Tone.Transport.seconds
-      //   )[0];
-      if (idx && sections[idx]) {
-        // setShowPlayArea(!!section);
-        if (
-          !finalOverId &&
-          playAreaIdRef.current !== sections[idx].id &&
-          !tilesVoiceObj[sections[idx].id]
-        ) {
-          console.log("No voice");
-          // muteVocals();
+    if (timerClock) {
+      const section = sections.find((s) => s.start > playTime);
+      if (section) {
+        if (tilesVoiceObj[section.id]) {
+          const findOneWithoutVoice = sections.find(
+            (s) => !tilesVoiceObj[s.id]
+          );
+          if (findOneWithoutVoice) {
+            setPlayAreaId(findOneWithoutVoice.id);
+          }
+        } else {
+          // if (
+          //   !finalOverId &&
+          //   playAreaIdRef.current !== sections[idx].id &&
+          //   !tilesVoiceObj[sections[idx].id]
+          // ) {
+          //   console.log("No voice");
+          //   // muteVocals();
+          // }
+          setPlayAreaId(section.id);
+          // playAreaIdRef.current = sections[idx].id;
+          setFinalOverId(null);
         }
-        setPlayAreaId(sections[idx].id);
-        playAreaIdRef.current = sections[idx].id;
-        setFinalOverId(null);
       } else {
         setPlayAreaId(0);
       }
     }
-    //     if (playTime) {
-    //       const section = sections.filter(
-    //         (s, i) => s.start + s.duration < playTime
-    //       )[0];
-    //       if (section) {
-    //         // setShowPlayArea(!!section);
-    //         setPlayAreaId(section.id);
-    //       } else {
-    //         setPlayAreaId(null);
-    //       }
-    //     }
-  }, [playTime]);
+  }, [timerClock]);
 
   return (
     <Box
@@ -536,7 +530,8 @@ const SectionsFalling = ({
           width={trackWidth * numberOfTracks}
           height={"calc(100vh - 600px)"}
         >
-          <Button
+          <LoadingButton
+            loading={isDownloading}
             onClick={onStart}
             variant="contained"
             color="info"
@@ -548,11 +543,11 @@ const SectionsFalling = ({
             }}
           >
             {start
-              ? `${(timer / 1000).toFixed(1)} - ${(
+              ? `${(timerClock / 1000).toFixed(1)} - ${(
                   playTime - startOffset
                 ).toFixed(1)}`
               : `start`}
-          </Button>
+          </LoadingButton>
           {!start && (
             <Stack
               alignItems={"center"}

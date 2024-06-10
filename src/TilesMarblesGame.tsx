@@ -1,11 +1,11 @@
 import { useAnimation } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { calculatePositions, nameToSlug } from "./helpers";
 import { useTonejs } from "./hooks/useToneService";
 import Marbles from "./Marbles";
 import SectionsFalling from "./Tiles";
 
-const voices = [
+export const voices = [
   "Spongebob",
   "Eric Cartman",
   "Plankton",
@@ -42,7 +42,34 @@ const TilesMarblesGame = () => {
     [sectionId: string]: string;
   }>({});
   const [finalOverId, setFinalOverId] = useState<string | null>(null);
-  const { playAudio, isTonePlaying } = useTonejs();
+  const {
+    playAudio,
+    isTonePlaying,
+    downloadAudioFiles,
+    playAudioFromDownloadObj,
+    playVoice,
+  } = useTonejs();
+  const downloadStartedRef = useRef(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    if (!downloadStartedRef.current) {
+      downloadStartedRef.current = true;
+      (async () => {
+        setIsDownloading(true);
+        await downloadAudioFiles([
+          `https://voxaudio.nusic.fm/covers/${coverDocId}/instrumental.mp3`,
+          ...voices.map(
+            (v) =>
+              `https://voxaudio.nusic.fm/covers/${coverDocId}/${nameToSlug(
+                v
+              )}.mp3`
+          ),
+        ]);
+        setIsDownloading(false);
+      })();
+    }
+  }, []);
 
   //   useEffect(() => {
   //     if (finalOverId) {
@@ -119,9 +146,12 @@ const TilesMarblesGame = () => {
         voices={voices}
         startState={[start, setStart]}
         finalOverIdState={[finalOverId, setFinalOverId]}
-        startInstrumental={startInstrumental}
+        startInstrumental={async () => {
+          return playAudioFromDownloadObj(coverDocId, voices, bpm);
+        }}
         tilesVoiceObjState={[tilesVoiceObj, setTilesVoiceObj]}
-        changeVoice={changeVoice}
+        changeVoice={playVoice}
+        isDownloading={isDownloading}
         // muteVocals={() => {
         //   if (playerRef.current) playerRef.current.mute = true;
         // }}
