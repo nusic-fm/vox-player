@@ -588,7 +588,7 @@ const GameUi = (props: Props) => {
         controls={controls}
         initialObj={initialObj}
         mouseDownId={mouseDownId}
-        onMouseDown={(e, id) => setMouseDownId(id)}
+        onMouseDown={(id) => setMouseDownId(id)}
         voices={voices}
         finalOverId={finalOverId}
       />

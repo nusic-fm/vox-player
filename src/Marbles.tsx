@@ -23,7 +23,7 @@ type Props = {
   angleOne: { x: number; y: number };
   angleTwo: { x: number; y: number };
   voices: string[];
-  onMouseDown: (e: any, id: string) => void;
+  onMouseDown: (id: string) => void;
   ballRef: any;
   initialObj: { [key: string]: { x: number; y: number } };
   controls: AnimationControls;
@@ -59,7 +59,9 @@ const Marbles = ({
         <motion.div
           key={id}
           onMouseDown={(e: any) => {
-            onMouseDown(e, id);
+            e.preventDefault();
+            e.stopPropagation();
+            onMouseDown(id);
           }}
           ref={(r) => {
             ballRef.current[id] = r;
@@ -77,6 +79,7 @@ const Marbles = ({
             backgroundSize: "cover",
             cursor: "pointer",
             zIndex: 999999,
+            userSelect: "none",
           }}
           initial={{ x: initialObj[id].x }}
           animate={mouseDownId === id ? controls : initialObj[id]}

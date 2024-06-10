@@ -1,6 +1,6 @@
 import { useAnimation } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import { nameToSlug } from "./helpers";
+import { useState, useRef } from "react";
+import { calculatePositions, nameToSlug } from "./helpers";
 import { useTonejs } from "./hooks/useToneService";
 import Marbles from "./Marbles";
 import SectionsFalling from "./Tiles";
@@ -18,8 +18,13 @@ const TilesMarblesGame = () => {
   const ballRef = useRef<{ [id: string]: any }>({});
   const [initialObj, setInitialObj] = useState(() => {
     const obj: { [key: string]: { x: number; y: number } } = {};
+    const positions = calculatePositions(
+      window.innerWidth,
+      window.innerHeight,
+      voices.length
+    );
     voices.map((v, i) => {
-      obj[v] = { x: 60 * (i + 1) + 600, y: 800 };
+      obj[v] = positions[i];
     });
     return obj;
   });
@@ -84,6 +89,15 @@ const TilesMarblesGame = () => {
   //     }
   //   }, [start]);
 
+  const onMouseDown = (id: string) => {
+    setMouseDownId((prevId) => {
+      if (prevId) {
+        return prevId;
+      }
+      return id;
+    });
+  };
+
   return (
     <>
       <SectionsFalling
@@ -109,7 +123,7 @@ const TilesMarblesGame = () => {
           controls={controls}
           initialObj={initialObj}
           mouseDownId={mouseDownId}
-          onMouseDown={(e, id) => setMouseDownId(id)}
+          onMouseDown={onMouseDown}
           voices={voices}
           finalOverId={finalOverId}
         />

@@ -1,4 +1,4 @@
-import { Stack, Button, TextField, Typography, Box } from "@mui/material";
+import { Stack, Button, TextField, Box } from "@mui/material";
 import { AnimationControls, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { createRandomNumber, nameToSlug } from "./helpers";
@@ -166,25 +166,8 @@ const SectionsFalling = ({
     if (!mouseDownId) return;
     let _mouseDownId = mouseDownId;
     handleThrow(throwObj.angle, throwObj.divCenterX, throwObj.divCenterY);
-    const intrvl = setInterval(() => {
-      if (isOverlapping(ballRef.current[mouseDownId], targetRef.current)) {
-        // overIdRef.current = _mouseDownId;
-        // controls.start({
-        //   x: initialObj[_mouseDownId].x,
-        //   y: initialObj[_mouseDownId].y,
-        //   opacity: 0,
-        // });
-        controls.set({ opacity: 0, transition: { duration: 0.5 } });
-        setTilesVoiceObj((obj) => ({
-          ...obj,
-          [playAreaId.toString()]: _mouseDownId,
-        }));
-        setFinalOverId(_mouseDownId);
-        changeVoice(_mouseDownId, sections[playAreaId - 1].start - playTime);
-        clearInterval(intrvl);
-      }
-    }, 10);
-    setTimeout(() => {
+    let intrvl: NodeJS.Timeout;
+    const timer = setTimeout(() => {
       clearInterval(intrvl);
       controls.start({
         x: initialObj[mouseDownId].x,
@@ -195,9 +178,38 @@ const SectionsFalling = ({
       });
       setMouseDownId("");
     }, 500);
+    intrvl = setInterval(() => {
+      if (isOverlapping(ballRef.current[mouseDownId], targetRef.current)) {
+        // overIdRef.current = _mouseDownId;
+        // controls.start({
+        //   x: initialObj[_mouseDownId].x,
+        //   y: initialObj[_mouseDownId].y,
+        //   opacity: 0,
+        // });
+        clearTimeout(timer);
+        clearInterval(intrvl);
+        controls.set({ opacity: 0, transition: { duration: 0.5 } });
+        setTilesVoiceObj((obj) => ({
+          ...obj,
+          [playAreaId.toString()]: _mouseDownId,
+        }));
+        setFinalOverId(_mouseDownId);
+        changeVoice(_mouseDownId, sections[playAreaId - 1].start - playTime);
+        controls.start({
+          x: initialObj[mouseDownId].x,
+          y: initialObj[mouseDownId].y,
+          transition: { ease: "linear", duration: 0 },
+          // opacity 0 to 1
+          opacity: 1,
+        });
+        setMouseDownId("");
+      }
+    }, 10);
   };
   const onMouseMove = (event: MouseEvent) => {
     if (mouseDownId) {
+      event.preventDefault();
+      event.stopPropagation();
       if (!ballRef.current[mouseDownId]) return;
       const divRect = (
         ballRef.current[mouseDownId] as any
@@ -289,6 +301,7 @@ const SectionsFalling = ({
       })();
     }
   }, [start]);
+
   const isOverlapping = (draggable: any, target: any) => {
     if (!draggable || !target) return;
     const draggableRect = draggable.getBoundingClientRect();
@@ -311,8 +324,8 @@ const SectionsFalling = ({
     const next2Y = divCenterY + distance * Math.sin(angle);
     const duration = 0.6;
     controls.start({
-      x: next2X - 40,
-      y: next2Y - 40,
+      x: next2X - 30, // half of the size of the ball
+      y: next2Y - 30,
       transition: { ease: "linear", duration },
     });
     // setTimeout(() => {
@@ -361,6 +374,7 @@ const SectionsFalling = ({
       width="100vw"
       display={"flex"}
       justifyContent="center"
+      sx={{ userSelect: "none" }}
       //   onMouseUp={(event) => {
       //     if (!mouseDownId) return;
       //     let _mouseDownId = mouseDownId;
@@ -376,41 +390,41 @@ const SectionsFalling = ({
       //       clearInterval(intrvl);
       //     }, 1000);
       //   }}
-      onMouseMove={(event: any) => {
-        // if (mouseDownId) {
-        //   if (!ballRef.current[mouseDownId]) return;
-        //   const divRect = (
-        //     ballRef.current[mouseDownId] as any
-        //   ).getBoundingClientRect();
-        //   const divCenterX = divRect.left + divRect.width / 2;
-        //   const divCenterY = divRect.top + divRect.height / 2;
-        //   const mouseX = event.clientX;
-        //   const mouseY = event.clientY;
-        //   if (mouseY > divCenterY) {
-        //     return;
-        //   }
-        //   const dx = mouseX - divCenterX;
-        //   const dy = mouseY - divCenterY;
-        //   const angle = Math.atan2(dy, dx);
-        //   //   console.log("Angle (radians):", angle);
-        //   //   console.log("Angle (degrees):", angle * (180 / Math.PI));
-        //   // Projection distance (speed of the throw)
-        //   const distance = 100;
-        //   const distance2 = 200;
-        //   // Next point coordinates
-        //   const nextX = divCenterX + distance * Math.cos(angle);
-        //   const nextY = divCenterY + distance * Math.sin(angle);
-        //   setAngleOne({ x: nextX - 5, y: nextY - 5 });
-        //   const next2X = divCenterX + distance2 * Math.cos(angle);
-        //   const next2Y = divCenterY + distance2 * Math.sin(angle);
-        //   setAngleTwo({ x: next2X - 5, y: next2Y - 5 });
-        //   setThrowObj({
-        //     angle,
-        //     divCenterX,
-        //     divCenterY,
-        //   });
-        // }
-      }}
+      // onMouseMove={(event: any) => {
+      // if (mouseDownId) {
+      //   if (!ballRef.current[mouseDownId]) return;
+      //   const divRect = (
+      //     ballRef.current[mouseDownId] as any
+      //   ).getBoundingClientRect();
+      //   const divCenterX = divRect.left + divRect.width / 2;
+      //   const divCenterY = divRect.top + divRect.height / 2;
+      //   const mouseX = event.clientX;
+      //   const mouseY = event.clientY;
+      //   if (mouseY > divCenterY) {
+      //     return;
+      //   }
+      //   const dx = mouseX - divCenterX;
+      //   const dy = mouseY - divCenterY;
+      //   const angle = Math.atan2(dy, dx);
+      //   //   console.log("Angle (radians):", angle);
+      //   //   console.log("Angle (degrees):", angle * (180 / Math.PI));
+      //   // Projection distance (speed of the throw)
+      //   const distance = 100;
+      //   const distance2 = 200;
+      //   // Next point coordinates
+      //   const nextX = divCenterX + distance * Math.cos(angle);
+      //   const nextY = divCenterY + distance * Math.sin(angle);
+      //   setAngleOne({ x: nextX - 5, y: nextY - 5 });
+      //   const next2X = divCenterX + distance2 * Math.cos(angle);
+      //   const next2Y = divCenterY + distance2 * Math.sin(angle);
+      //   setAngleTwo({ x: next2X - 5, y: next2Y - 5 });
+      //   setThrowObj({
+      //     angle,
+      //     divCenterX,
+      //     divCenterY,
+      //   });
+      // }
+      // }}
     >
       <Box
         position={"absolute"}
@@ -431,6 +445,7 @@ const SectionsFalling = ({
       <Box
         sx={{
           overflow: "hidden",
+          boxShadow: "0 10px 20px -5px rgba(0,0,0,0.3)",
         }}
         position="relative"
         height={"100vh"}
@@ -463,7 +478,7 @@ const SectionsFalling = ({
               border: "3px solid",
               position: "absolute",
               color: "white",
-              borderRadius: "4px",
+              borderRadius: "8px",
               backgroundImage: !!tilesVoiceObj[section.id]
                 ? `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
                     tilesVoiceObj[section.id]
