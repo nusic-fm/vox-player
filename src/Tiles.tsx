@@ -1,10 +1,11 @@
-import { Stack, Button, TextField, Box } from "@mui/material";
+import { Stack, Button, TextField, Box, useMediaQuery } from "@mui/material";
 import { AnimationControls, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { createRandomNumber, nameToSlug } from "./helpers";
 import * as Tone from "tone";
 import { LoadingButton } from "@mui/lab";
 import { AngleDots } from "./Marbles";
+import theme from "./theme";
 
 type SectionsMeta = {
   start: number;
@@ -141,8 +142,11 @@ const SectionsFalling = ({
   changeVoice,
   isDownloading,
 }: Props) => {
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
   const [numberOfTracks, setNumberOfTracks] = useState(6);
-  const [trackWidth, setTrackWidth] = useState(80);
+  const [trackWidth, setTrackWidth] = useState(
+    isMobileView ? Math.floor(window.innerWidth / 6) : 80
+  );
   const [waitTimeInSeconds, setWaitTimeInSeconds] = useState(5);
   const [pxPerSecondSpeed, setPxPerSecondSpeed] = useState(100);
   const [playheadHeight, setPlayHeadHeight] = useState(600);
@@ -169,7 +173,7 @@ const SectionsFalling = ({
     setStart(true);
   };
 
-  const onMouseUp = (event: MouseEvent) => {
+  const onMouseUp = (event: MouseEvent | TouchEvent) => {
     if (!mouseDownId) return;
     let _mouseDownId = mouseDownId;
     handleThrow(throwObj.angle, throwObj.divCenterX, throwObj.divCenterY);
@@ -217,9 +221,9 @@ const SectionsFalling = ({
       }
     }, 10);
   };
-  const onMouseMove = (event: MouseEvent) => {
+  const onMouseMove = (event: MouseEvent | TouchEvent) => {
     if (mouseDownId) {
-      event.preventDefault();
+      // event.preventDefault();
       event.stopPropagation();
       if (!ballRef.current[mouseDownId]) return;
       const divRect = (
@@ -228,8 +232,12 @@ const SectionsFalling = ({
       const divCenterX = divRect.left + divRect.width / 2;
       const divCenterY = divRect.top + divRect.height / 2;
 
-      const mouseX = event.clientX;
-      const mouseY = event.clientY;
+      const mouseX =
+        (event as MouseEvent).clientX ||
+        (event as TouchEvent).touches[0].clientX;
+      const mouseY =
+        (event as MouseEvent).clientY ||
+        (event as TouchEvent).touches[0].clientY;
 
       if (mouseY > divCenterY) {
         return;
@@ -262,17 +270,20 @@ const SectionsFalling = ({
       });
     }
   };
-
   useEffect(() => {
     window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("touchend", onMouseUp);
     return () => {
       window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("touchend", onMouseUp);
     };
   }, [mouseDownId, throwObj, playAreaId]);
   useEffect(() => {
     window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("touchmove", onMouseMove);
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("touchmove", onMouseMove);
     };
   }, [mouseDownId]);
 

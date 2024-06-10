@@ -57,6 +57,10 @@ const Marbles = ({
             e.stopPropagation();
             onMouseDown(id);
           }}
+          onTouchStart={(e: any) => {
+            e.stopPropagation();
+            onMouseDown(id);
+          }}
           ref={(r) => {
             ballRef.current[id] = r;
           }}
