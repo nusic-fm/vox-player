@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createRandomNumber, nameToSlug } from "./helpers";
 import * as Tone from "tone";
 import { LoadingButton } from "@mui/lab";
+import { AngleDots } from "./Marbles";
 
 type SectionsMeta = {
   start: number;
@@ -32,6 +33,13 @@ const sectionsMeta = [
   { start: 53 + startOffset, duration: 2 },
   { start: 55 + startOffset, duration: 4 },
   { start: 59 + startOffset, duration: 3 },
+  { start: 62 + startOffset, duration: 3 },
+  { start: 65 + startOffset, duration: 4 },
+  { start: 69 + startOffset, duration: 3 },
+  { start: 72 + startOffset, duration: 3 },
+  { start: 75 + startOffset, duration: 2 },
+  { start: 79 + startOffset, duration: 4 },
+  { start: 82 + startOffset, duration: 3 },
 ];
 
 const createLightColor = () => {
@@ -91,18 +99,6 @@ const getTileHeights = (
 type Props = {
   mouseDownId: string;
   setMouseDownId: React.Dispatch<React.SetStateAction<string>>;
-  setAngleOne: React.Dispatch<
-    React.SetStateAction<{
-      x: number;
-      y: number;
-    }>
-  >;
-  setAngleTwo: React.Dispatch<
-    React.SetStateAction<{
-      x: number;
-      y: number;
-    }>
-  >;
   voices: string[];
   initialObj: { [key: string]: { x: number; y: number } };
   controls: AnimationControls;
@@ -134,8 +130,6 @@ type Props = {
 
 const SectionsFalling = ({
   mouseDownId,
-  setAngleOne,
-  setAngleTwo,
   controls,
   initialObj,
   setMouseDownId,
@@ -168,6 +162,8 @@ const SectionsFalling = ({
   const [tilesVoiceObj, setTilesVoiceObj] = tilesVoiceObjState;
   // Quick reference to the playAreaId
   const playAreaIdRef = useRef<number>(1);
+  const [angleOne, setAngleOne] = useState({ x: 0, y: 0 });
+  const [angleTwo, setAngleTwo] = useState({ x: 0, y: 0 });
 
   const onStart = () => {
     setStart(true);
@@ -385,211 +381,165 @@ const SectionsFalling = ({
   }, [timerClock]);
 
   return (
-    <Box
-      position={"absolute"}
-      width="100vw"
-      display={"flex"}
-      justifyContent="center"
-      sx={{ userSelect: "none" }}
-      //   onMouseUp={(event) => {
-      //     if (!mouseDownId) return;
-      //     let _mouseDownId = mouseDownId;
-      //     handleThrow(throwObj.angle, throwObj.divCenterX, throwObj.divCenterY);
-      //     const intrvl = setInterval(() => {
-      //       if (isOverlapping(event.target, targetRef.current)) {
-      //         // overIdRef.current = _mouseDownId;
-      //         // setFinalOverId(_mouseDownId);
-      //         clearInterval(intrvl);
-      //       }
-      //     }, 10);
-      //     setTimeout(() => {
-      //       clearInterval(intrvl);
-      //     }, 1000);
-      //   }}
-      // onMouseMove={(event: any) => {
-      // if (mouseDownId) {
-      //   if (!ballRef.current[mouseDownId]) return;
-      //   const divRect = (
-      //     ballRef.current[mouseDownId] as any
-      //   ).getBoundingClientRect();
-      //   const divCenterX = divRect.left + divRect.width / 2;
-      //   const divCenterY = divRect.top + divRect.height / 2;
-      //   const mouseX = event.clientX;
-      //   const mouseY = event.clientY;
-      //   if (mouseY > divCenterY) {
-      //     return;
-      //   }
-      //   const dx = mouseX - divCenterX;
-      //   const dy = mouseY - divCenterY;
-      //   const angle = Math.atan2(dy, dx);
-      //   //   console.log("Angle (radians):", angle);
-      //   //   console.log("Angle (degrees):", angle * (180 / Math.PI));
-      //   // Projection distance (speed of the throw)
-      //   const distance = 100;
-      //   const distance2 = 200;
-      //   // Next point coordinates
-      //   const nextX = divCenterX + distance * Math.cos(angle);
-      //   const nextY = divCenterY + distance * Math.sin(angle);
-      //   setAngleOne({ x: nextX - 5, y: nextY - 5 });
-      //   const next2X = divCenterX + distance2 * Math.cos(angle);
-      //   const next2Y = divCenterY + distance2 * Math.sin(angle);
-      //   setAngleTwo({ x: next2X - 5, y: next2Y - 5 });
-      //   setThrowObj({
-      //     angle,
-      //     divCenterX,
-      //     divCenterY,
-      //   });
-      // }
-      // }}
-    >
+    <>
+      {mouseDownId && <AngleDots x={angleOne.x} y={angleOne.y} />}
+      {mouseDownId && <AngleDots x={angleTwo.x} y={angleTwo.y} />}
       <Box
         position={"absolute"}
-        top={0}
-        left={0}
-        zIndex={0}
-        width={"100%"}
-        height={"100%"}
-        sx={{
-          backgroundImage: "url(/bg1.png)",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          filter: "blur(80px)",
-          backgroundSize: "cover",
-          opacity: 0.5,
-        }}
-      ></Box>
-      <Box
-        sx={{
-          overflow: "hidden",
-          boxShadow: "0 10px 20px -5px rgba(0,0,0,0.3)",
-        }}
-        position="relative"
-        height={"100vh"}
-        width={trackWidth * numberOfTracks}
+        width="100vw"
+        display={"flex"}
+        justifyContent="center"
+        sx={{ userSelect: "none" }}
       >
         <Box
+          position={"absolute"}
+          top={0}
+          left={0}
+          zIndex={0}
+          width={"100%"}
+          height={"100%"}
           sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
             backgroundImage: "url(/bg1.png)",
             backgroundPosition: "center",
-            // backgroundRepeat: "no-repeat",
-            // filter: "blur(80px)",
+            backgroundRepeat: "no-repeat",
+            filter: "blur(80px)",
             backgroundSize: "cover",
-            // opacity: 0.5,
+            opacity: 0.5,
           }}
         ></Box>
-        {sections.map((section, i) => (
-          <motion.div
-            key={i}
-            id={section.id.toString()}
-            style={{
-              height: section.height,
-              width: trackWidth,
-              backgroundColor:
-                playAreaId === section.id ? "#8973F8" : `transparent`,
-              border: "3px solid",
-              position: "absolute",
-              color: "white",
-              borderRadius: "8px",
-              backgroundImage: !!tilesVoiceObj[section.id]
-                ? `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
-                    tilesVoiceObj[section.id]
-                  )}_200x200?alt=media)`
-                : "unset",
-              backgroundPosition: "center",
-              backgroundSize: "cover",
-              // filter: finalOverId ? "blur(2px)" : "unset",
-            }}
-            animate={{
-              x: section.xPosition,
-              y: top - section.negativeTop,
-            }}
-          >
-            {playAreaId === section.id && (
-              <Box
-                ref={targetRef}
-                position={"absolute"}
-                top={0}
-                left={0}
-                width={"100%"}
-                height={"100%"}
-                sx={{
-                  boxShadow: "0 0 20 #8973F8",
-                }}
-              />
-            )}
-          </motion.div>
-        ))}
-        <Stack
-          position={"absolute"}
-          top={playheadHeight}
+        <Box
+          sx={{
+            overflow: "hidden",
+            boxShadow: "0 10px 20px -5px rgba(0,0,0,0.3)",
+          }}
+          position="relative"
+          height={"100vh"}
           width={trackWidth * numberOfTracks}
-          height={"calc(100vh - 600px)"}
         >
-          <LoadingButton
-            loading={isDownloading}
-            onClick={onStart}
-            variant="contained"
-            color="info"
-            sx={{
-              zIndex: 9,
-              borderTop: "2px solid",
-              borderBottom: "2px solid",
-              borderRadius: 0,
-            }}
-          >
-            {start
-              ? `${(timerClock / 1000).toFixed(1)} - ${(
-                  playTime - startOffset
-                ).toFixed(1)}`
-              : `start`}
-          </LoadingButton>
-          {!start && (
-            <Stack
-              alignItems={"center"}
-              justifyContent="center"
-              mt={2}
-              zIndex={9}
-              gap={1}
-            >
-              <TextField
-                size="small"
-                label="Number of Tracks"
-                type={"number"}
-                value={numberOfTracks}
-                onChange={(e) => {
-                  const no = parseInt(e.target.value);
-                  if (no < 3 || no > 20) return;
-                  setNumberOfTracks(no);
-                }}
-                color="secondary"
-              />
-              <TextField
-                size="small"
-                label="Track Width"
-                type={"number"}
-                value={trackWidth}
-                onChange={(e) => setTrackWidth(parseInt(e.target.value))}
-                color="secondary"
-              />
-            </Stack>
-          )}
           <Box
-            width={"100%"}
-            height={"100%"}
-            sx={{ background: "rgba(0,0,0,0.6)" }}
-            position="absolute"
-            top={0}
-            left={0}
-            zIndex={0}
-          />
-        </Stack>
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundImage: "url(/bg1.png)",
+              backgroundPosition: "center",
+              // backgroundRepeat: "no-repeat",
+              // filter: "blur(80px)",
+              backgroundSize: "cover",
+              // opacity: 0.5,
+            }}
+          ></Box>
+          {sections.map((section, i) => (
+            <motion.div
+              key={i}
+              id={section.id.toString()}
+              style={{
+                height: section.height,
+                width: trackWidth,
+                backgroundColor:
+                  playAreaId === section.id ? "#8973F8" : `transparent`,
+                border: "3px solid",
+                position: "absolute",
+                color: "white",
+                borderRadius: "8px",
+                backgroundImage: !!tilesVoiceObj[section.id]
+                  ? `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+                      tilesVoiceObj[section.id]
+                    )}_200x200?alt=media)`
+                  : "unset",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                // filter: finalOverId ? "blur(2px)" : "unset",
+              }}
+              animate={{
+                x: section.xPosition,
+                y: top - section.negativeTop,
+              }}
+            >
+              {playAreaId === section.id && (
+                <Box
+                  ref={targetRef}
+                  position={"absolute"}
+                  top={0}
+                  left={0}
+                  width={"100%"}
+                  height={"100%"}
+                  sx={{
+                    boxShadow: "0 0 20 #8973F8",
+                  }}
+                />
+              )}
+            </motion.div>
+          ))}
+          <Stack
+            position={"absolute"}
+            top={playheadHeight}
+            width={trackWidth * numberOfTracks}
+            height={"calc(100vh - 600px)"}
+          >
+            <LoadingButton
+              loading={isDownloading}
+              onClick={onStart}
+              variant="contained"
+              color="info"
+              sx={{
+                zIndex: 9,
+                borderTop: "2px solid",
+                borderBottom: "2px solid",
+                borderRadius: 0,
+              }}
+            >
+              {start
+                ? `${(timerClock / 1000).toFixed(1)} - ${(
+                    playTime - startOffset
+                  ).toFixed(1)}`
+                : `start`}
+            </LoadingButton>
+            {!start && (
+              <Stack
+                alignItems={"center"}
+                justifyContent="center"
+                mt={2}
+                zIndex={9}
+                gap={1}
+              >
+                <TextField
+                  size="small"
+                  label="Number of Tracks"
+                  type={"number"}
+                  value={numberOfTracks}
+                  onChange={(e) => {
+                    const no = parseInt(e.target.value);
+                    if (no < 3 || no > 20) return;
+                    setNumberOfTracks(no);
+                  }}
+                  color="secondary"
+                />
+                <TextField
+                  size="small"
+                  label="Track Width"
+                  type={"number"}
+                  value={trackWidth}
+                  onChange={(e) => setTrackWidth(parseInt(e.target.value))}
+                  color="secondary"
+                />
+              </Stack>
+            )}
+            <Box
+              width={"100%"}
+              height={"100%"}
+              sx={{ background: "rgba(0,0,0,0.6)" }}
+              position="absolute"
+              top={0}
+              left={0}
+              zIndex={0}
+            />
+          </Stack>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 export default SectionsFalling;

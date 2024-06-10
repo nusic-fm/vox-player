@@ -21,8 +21,6 @@ const duration = 210.6;
 
 const TilesMarblesGame = () => {
   const controls = useAnimation();
-  const [angleOne, setAngleOne] = useState({ x: 0, y: 0 });
-  const [angleTwo, setAngleTwo] = useState({ x: 0, y: 0 });
   const ballRef = useRef<{ [id: string]: any }>({});
   const [initialObj, setInitialObj] = useState(() => {
     const obj: { [key: string]: { x: number; y: number } } = {};
@@ -137,11 +135,9 @@ const TilesMarblesGame = () => {
     <>
       <SectionsFalling
         mouseDownId={mouseDownId}
-        setAngleOne={setAngleOne}
         controls={controls}
         initialObj={initialObj}
         ballRef={ballRef}
-        setAngleTwo={setAngleTwo}
         setMouseDownId={setMouseDownId}
         voices={voices}
         startState={[start, setStart]}
@@ -158,8 +154,6 @@ const TilesMarblesGame = () => {
       />
       {start && (
         <Marbles
-          angleOne={angleOne}
-          angleTwo={angleTwo}
           ballRef={ballRef}
           controls={controls}
           initialObj={initialObj}

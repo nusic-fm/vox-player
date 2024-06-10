@@ -20,8 +20,6 @@ export const AngleDots = ({ x, y }: { x: number; y: number }) => {
 };
 type Props = {
   mouseDownId: string | null;
-  angleOne: { x: number; y: number };
-  angleTwo: { x: number; y: number };
   voices: string[];
   onMouseDown: (id: string) => void;
   ballRef: any;
@@ -32,8 +30,6 @@ type Props = {
 
 const Marbles = ({
   mouseDownId,
-  angleOne,
-  angleTwo,
   voices,
   onMouseDown,
   ballRef,
@@ -43,8 +39,6 @@ const Marbles = ({
 }: Props) => {
   return (
     <>
-      {mouseDownId && <AngleDots x={angleOne.x} y={angleOne.y} />}
-      {mouseDownId && <AngleDots x={angleTwo.x} y={angleTwo.y} />}
       {voices.map((id, i) => (
         // <Box
         //   key={id}
