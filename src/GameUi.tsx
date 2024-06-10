@@ -582,8 +582,8 @@ const GameUi = (props: Props) => {
         )}
       </Box>
       <Marbles
-        angleOne={angleOne}
-        angleTwo={angleTwo}
+        // angleOne={angleOne}
+        // angleTwo={angleTwo}
         ballRef={ballRef}
         controls={controls}
         initialObj={initialObj}
