@@ -410,7 +410,7 @@ const SectionsFalling = ({
           width={"100%"}
           height={"100%"}
           sx={{
-            backgroundImage: "url(/bg1.png)",
+            backgroundImage: "url(/bg.webp)",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             filter: "blur(80px)",
@@ -434,7 +434,7 @@ const SectionsFalling = ({
               left: 0,
               width: "100%",
               height: "100%",
-              backgroundImage: "url(/bg1.png)",
+              backgroundImage: "url(/bg.webp)",
               backgroundPosition: "center",
               // backgroundRepeat: "no-repeat",
               // filter: "blur(80px)",
