@@ -93,8 +93,12 @@ export const sortArrBasedOnLikesObj = (
 //     minute: "numeric",
 //   });
 // };
-export const createRandomNumber = (min: number, max: number) => {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+export const createRandomNumber = (min: number, max: number, not?: number) => {
+  let random = Math.floor(Math.random() * (max - min + 1) + min);
+  while (random === not) {
+    random = Math.floor(Math.random() * (max - min + 1) + min);
+  }
+  return random;
 };
 
 export const calculateXYPosition = (

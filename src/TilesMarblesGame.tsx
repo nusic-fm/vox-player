@@ -4,6 +4,7 @@ import { calculatePositions, nameToSlug } from "./helpers";
 import { useTonejs } from "./hooks/useToneService";
 import Marbles from "./Marbles";
 import SectionsFalling from "./Tiles";
+import "./index.css";
 
 export const voices = [
   "Spongebob",

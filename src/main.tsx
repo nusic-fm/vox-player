@@ -12,7 +12,6 @@ import {
   // Link,
 } from "react-router-dom";
 import GlobalStateProvider from "./components/providers/GlobalStateProvider";
-import Admin from "./Admin";
 import TilesMarblesGame from "./TilesMarblesGame";
 
 export const GlobalStateContext = createContext<any>(null);

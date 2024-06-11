@@ -78,20 +78,26 @@ const getTileHeights = (
   noOfTracks: number
 ): Section[] => {
   const heights = sectionsMeta.map((meta) => meta.duration * pxPerSecond);
-  const widths = createMultiplesOfNumber(noOfTracks, width);
-  const arr = sectionsMeta.map((meta, i) => ({
-    id: i + 1,
-    start: meta.start,
-    height: heights[i],
-    duration: meta.duration,
-    color: createLightColor(),
-    xPosition: widths[createRandomNumber(0, noOfTracks - 1)],
-    negativeTop: i
-      ? i === 1
-        ? heights[i]
-        : heights.slice(1, i + 1).reduce((a, b) => a + b)
-      : 0,
-  }));
+  const positions = createMultiplesOfNumber(noOfTracks, width);
+  let prevPosition: number = -1;
+  const arr = sectionsMeta.map((meta, i) => {
+    const newPositionIdx = createRandomNumber(0, noOfTracks - 1, prevPosition);
+    let newPosition = positions[newPositionIdx];
+    prevPosition = newPositionIdx;
+    return {
+      id: i + 1,
+      start: meta.start,
+      height: heights[i],
+      duration: meta.duration,
+      color: createLightColor(),
+      xPosition: newPosition,
+      negativeTop: i
+        ? i === 1
+          ? heights[i]
+          : heights.slice(1, i + 1).reduce((a, b) => a + b)
+        : 0,
+    };
+  });
   return arr;
 };
 
@@ -129,7 +135,7 @@ type Props = {
   isDownloading: boolean;
 };
 
-const SectionsFalling = ({
+const Tiles = ({
   mouseDownId,
   controls,
   initialObj,
@@ -462,7 +468,6 @@ const SectionsFalling = ({
                   : "unset",
                 backgroundPosition: "center",
                 backgroundSize: "cover",
-                // filter: finalOverId ? "blur(2px)" : "unset",
               }}
               animate={{
                 x: section.xPosition,
@@ -553,4 +558,4 @@ const SectionsFalling = ({
     </>
   );
 };
-export default SectionsFalling;
+export default Tiles;

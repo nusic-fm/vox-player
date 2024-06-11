@@ -71,7 +71,7 @@ const Marbles = ({
             height: 60,
             borderRadius: "50%",
             position: "absolute",
-            background: `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+            background: `url(https://voxaudio.nusic.fm/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
               id
             )}_200x200?alt=media)`,
             backgroundSize: "cover",
