@@ -1,47 +1,10 @@
-import { Stack, Button, TextField, Box, useMediaQuery } from "@mui/material";
+import { Box } from "@mui/material";
 import { AnimationControls, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { createRandomNumber, nameToSlug } from "./helpers";
 import * as Tone from "tone";
-import { LoadingButton } from "@mui/lab";
 import { AngleDots } from "./Marbles";
-import theme from "./theme";
-
-type SectionsMeta = {
-  start: number;
-  duration: number;
-};
-const startOffset = 68;
-const sectionsMeta = [
-  { start: 0 + startOffset, duration: 3 },
-  { start: 3 + startOffset, duration: 2 },
-  { start: 5 + startOffset, duration: 4 },
-  { start: 9 + startOffset, duration: 3 },
-  { start: 12 + startOffset, duration: 2 },
-  { start: 14 + startOffset, duration: 3 },
-  { start: 17 + startOffset, duration: 2 },
-  { start: 19 + startOffset, duration: 3 },
-  { start: 22 + startOffset, duration: 2 },
-  { start: 24 + startOffset, duration: 4 },
-  { start: 28 + startOffset, duration: 3 },
-  { start: 31 + startOffset, duration: 3 },
-  { start: 34 + startOffset, duration: 2 },
-  { start: 36 + startOffset, duration: 4 },
-  { start: 40 + startOffset, duration: 3 },
-  { start: 43 + startOffset, duration: 4 },
-  { start: 47 + startOffset, duration: 3 },
-  { start: 50 + startOffset, duration: 3 },
-  { start: 53 + startOffset, duration: 2 },
-  { start: 55 + startOffset, duration: 4 },
-  { start: 59 + startOffset, duration: 3 },
-  { start: 62 + startOffset, duration: 3 },
-  { start: 65 + startOffset, duration: 4 },
-  { start: 69 + startOffset, duration: 3 },
-  { start: 72 + startOffset, duration: 3 },
-  { start: 75 + startOffset, duration: 2 },
-  { start: 79 + startOffset, duration: 4 },
-  { start: 82 + startOffset, duration: 3 },
-];
+import { SectionsWithDuration } from "./TilesMarblesGame";
 
 const createLightColor = () => {
   return `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
@@ -50,18 +13,7 @@ const createLightColor = () => {
 const createMultiplesOfNumber = (n: number, m: number) => {
   return new Array(n).fill(0).map((_, i) => i * m);
 };
-const findTheSection = (sectionsStart: number[], playTime: number) => {
-  let i = 0;
-  while (i < sectionsStart.length) {
-    if (playTime < sectionsStart[i]) {
-      return i;
-    }
-    i++;
-  }
-  return -1;
-};
-
-type Section = {
+type SectionTile = {
   id: number;
   start: number;
   height: number;
@@ -72,11 +24,11 @@ type Section = {
 };
 
 const getTileHeights = (
-  sectionsMeta: SectionsMeta[],
+  sectionsMeta: SectionsWithDuration[],
   pxPerSecond: number,
   width: number,
   noOfTracks: number
-): Section[] => {
+): SectionTile[] => {
   const heights = sectionsMeta.map((meta) => meta.duration * pxPerSecond);
   const positions = createMultiplesOfNumber(noOfTracks, width);
   let prevPosition: number = -1;
@@ -112,7 +64,6 @@ type Props = {
   ballRef: React.MutableRefObject<{
     [id: string]: any;
   }>;
-  startState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   finalOverIdState: [
     string | null,
     React.Dispatch<React.SetStateAction<string | null>>
@@ -132,7 +83,13 @@ type Props = {
     >
   ];
   changeVoice: (voice: string, start: number, duration: number) => void;
-  isDownloading: boolean;
+
+  startOffset: number;
+  sectionsWithDuration: SectionsWithDuration[];
+  playheadHeight: number;
+  trackWidth: number;
+  numberOfTracks: number;
+  isStarted: boolean;
 };
 
 const Tiles = ({
@@ -141,22 +98,20 @@ const Tiles = ({
   initialObj,
   setMouseDownId,
   ballRef,
-  startState,
   finalOverIdState,
   startInstrumental,
   tilesVoiceObjState,
   changeVoice,
-  isDownloading,
+  startOffset,
+  sectionsWithDuration,
+  playheadHeight,
+  trackWidth,
+  numberOfTracks,
+  isStarted,
 }: Props) => {
-  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
-  const [numberOfTracks, setNumberOfTracks] = useState(6);
-  const [trackWidth, setTrackWidth] = useState(
-    isMobileView ? Math.floor(window.innerWidth / 6) : 80
-  );
   const [waitTimeInSeconds, setWaitTimeInSeconds] = useState(5);
   const [pxPerSecondSpeed, setPxPerSecondSpeed] = useState(100);
-  const [playheadHeight, setPlayHeadHeight] = useState(600);
-  const [sections, setSections] = useState<Section[]>([]);
+  const [sections, setSections] = useState<SectionTile[]>([]);
   const [top, setTop] = useState(0);
   const [timerClock, setTimerClock] = useState(0);
   const [playTime, setPlayTime] = useState(0);
@@ -166,7 +121,6 @@ const Tiles = ({
     divCenterY: number;
   }>({ angle: 0, divCenterX: 0, divCenterY: 0 });
   const targetRef = useRef<HTMLDivElement | null>(null);
-  const [start, setStart] = startState;
   const [playAreaId, setPlayAreaId] = useState<number>(1);
   const [finalOverId, setFinalOverId] = finalOverIdState;
   const [tilesVoiceObj, setTilesVoiceObj] = tilesVoiceObjState;
@@ -174,10 +128,6 @@ const Tiles = ({
   const playAreaIdRef = useRef<number>(1);
   const [angleOne, setAngleOne] = useState({ x: 0, y: 0 });
   const [angleTwo, setAngleTwo] = useState({ x: 0, y: 0 });
-
-  const onStart = () => {
-    setStart(true);
-  };
 
   const onMouseUp = (event: MouseEvent | TouchEvent) => {
     if (!mouseDownId) return;
@@ -294,9 +244,9 @@ const Tiles = ({
   }, [mouseDownId]);
 
   useEffect(() => {
-    if (start) {
+    if (isStarted) {
       const _sections = getTileHeights(
-        sectionsMeta,
+        sectionsWithDuration,
         pxPerSecondSpeed,
         trackWidth,
         numberOfTracks
@@ -329,7 +279,7 @@ const Tiles = ({
         }, (totlaDuration + 5) * 1000);
       })();
     }
-  }, [start]);
+  }, [isStarted]);
 
   const isOverlapping = (draggable: any, target: any) => {
     if (!draggable || !target) return;
@@ -369,7 +319,7 @@ const Tiles = ({
 
   useEffect(() => {
     if (timerClock) {
-      const section = sections.find((s) => s.start > playTime);
+      const section = sections.find((s) => playTime < s.start + s.duration);
       if (section) {
         if (tilesVoiceObj[section.id]) {
           const findOneWithoutVoice = sections
@@ -422,6 +372,7 @@ const Tiles = ({
             filter: "blur(80px)",
             backgroundSize: "cover",
             opacity: 0.5,
+            overflow: "hidden",
           }}
         ></Box>
         <Box
@@ -489,70 +440,6 @@ const Tiles = ({
               )}
             </motion.div>
           ))}
-          <Stack
-            position={"absolute"}
-            top={playheadHeight}
-            width={trackWidth * numberOfTracks}
-            height={"calc(100vh - 600px)"}
-          >
-            <LoadingButton
-              loading={isDownloading}
-              onClick={onStart}
-              variant="contained"
-              color="info"
-              sx={{
-                zIndex: 9,
-                borderTop: "2px solid",
-                borderBottom: "2px solid",
-                borderRadius: 0,
-              }}
-            >
-              {start
-                ? `${(timerClock / 1000).toFixed(1)} - ${(
-                    playTime - startOffset
-                  ).toFixed(1)}`
-                : `start`}
-            </LoadingButton>
-            {!start && (
-              <Stack
-                alignItems={"center"}
-                justifyContent="center"
-                mt={2}
-                zIndex={9}
-                gap={1}
-              >
-                <TextField
-                  size="small"
-                  label="Number of Tracks"
-                  type={"number"}
-                  value={numberOfTracks}
-                  onChange={(e) => {
-                    const no = parseInt(e.target.value);
-                    if (no < 3 || no > 20) return;
-                    setNumberOfTracks(no);
-                  }}
-                  color="secondary"
-                />
-                <TextField
-                  size="small"
-                  label="Track Width"
-                  type={"number"}
-                  value={trackWidth}
-                  onChange={(e) => setTrackWidth(parseInt(e.target.value))}
-                  color="secondary"
-                />
-              </Stack>
-            )}
-            <Box
-              width={"100%"}
-              height={"100%"}
-              sx={{ background: "rgba(0,0,0,0.6)" }}
-              position="absolute"
-              top={0}
-              left={0}
-              zIndex={0}
-            />
-          </Stack>
         </Box>
       </Box>
     </>
