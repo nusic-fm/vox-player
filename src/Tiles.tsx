@@ -319,7 +319,7 @@ const Tiles = ({
 
   useEffect(() => {
     if (timerClock) {
-      const section = sections.find((s) => playTime < s.start + s.duration);
+      const section = sections.find((s) => playTime < s.start);
       if (section) {
         if (tilesVoiceObj[section.id]) {
           const findOneWithoutVoice = sections
@@ -341,8 +341,6 @@ const Tiles = ({
           // playAreaIdRef.current = sections[idx].id;
           setFinalOverId(null);
         }
-      } else {
-        setPlayAreaId(0);
       }
     }
   }, [timerClock]);

@@ -60,9 +60,12 @@ const TilesMarblesGame = () => {
   const [trackWidth, setTrackWidth] = useState(
     isMobileView ? Math.floor(window.innerWidth / 6) : 80
   );
+  const [barsRange, setBarsRange] = useState([1, 2]);
+  const [startSection, setStartSection] = useState(4);
 
   const fetchCoverDoc = async (_coverId: string) => {
     const doc = await getCoverDocById(_coverId);
+    if (!doc) return;
     // let userName = "NUSIC User";
     // if (_uid) {
     //   const user = await getUserById(_uid);
@@ -81,21 +84,25 @@ const TilesMarblesGame = () => {
         obj[v] = positions[i];
       });
     setInitialObj(obj);
-    if (doc.sections) {
+  };
+
+  useEffect(() => {
+    if (coverDoc?.sections) {
       // const durations = doc.sections?.map((s, i, arr) => ({
       //   start: s.start,
       //   duration: (arr[i + 1]?.start || doc.duration) - s.start,
       // }));
       // const minBars = doc.bpm > 140 ? 6 : doc.bpm > 100 ? 4 : 2;
       // const maxBars = doc.bpm > 140 ? 8 : doc.bpm > 100 ? 6 : 4;
-      const minBars = 1;
-      const maxBars = 3;
-      const beatDuration = 60 / doc.bpm;
+      const minBars = barsRange[0];
+      const maxBars = barsRange[1];
+      const beatDuration = 60 / coverDoc.bpm;
       const barDuration = beatDuration * 4;
-      let start = 0;
+      let start = coverDoc.sections[startSection].start;
       const durations = [];
-      while (start < doc.duration) {
-        const duration = barDuration * createRandomNumber(minBars, maxBars);
+      while (start < coverDoc.duration) {
+        const randomNo = createRandomNumber(minBars, maxBars);
+        const duration = barDuration * randomNo;
         durations.push({
           start,
           duration,
@@ -103,9 +110,9 @@ const TilesMarblesGame = () => {
         start += duration;
       }
       if (durations) setSectionsWithDuration(durations);
-      setStartOffset(0);
+      setStartOffset(coverDoc.sections[startSection].start);
     }
-  };
+  }, [coverDoc, barsRange, startSection]);
 
   useEffect(() => {
     if (location.search) {
@@ -263,6 +270,30 @@ const TilesMarblesGame = () => {
                 value={trackWidth}
                 onChange={(e) => setTrackWidth(parseInt(e.target.value))}
                 color="secondary"
+              />
+              <TextField
+                size="small"
+                label="Min Bars, Max Bars"
+                value={barsRange.join(",")}
+                onChange={(e) => {
+                  const [min, max] = e.target.value.split(",").map((v) => {
+                    const n = parseInt(v);
+                    return isNaN(n) ? 0 : n;
+                  });
+                  setBarsRange([min, max]);
+                }}
+                color="secondary"
+              />
+              <TextField
+                size="small"
+                label="Start Section Idx"
+                type={"number"}
+                value={startSection}
+                onChange={(e) => setStartSection(parseInt(e.target.value))}
+                color="secondary"
+                helperText={`Track will start at ${
+                  coverDoc?.sections?.at(startSection)?.start
+                }s`}
               />
             </Stack>
           )}
