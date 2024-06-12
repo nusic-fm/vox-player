@@ -1,10 +1,40 @@
-import { Box } from "@mui/material";
-import { AnimationControls, motion } from "framer-motion";
+import { Box, Typography } from "@mui/material";
+import {
+  animate,
+  AnimationControls,
+  motion,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { createRandomNumber, nameToSlug } from "./helpers";
 import * as Tone from "tone";
 import { AngleDots } from "./Marbles";
 import { SectionsWithDuration } from "./TilesMarblesGame";
+import SportsScoreOutlinedIcon from "@mui/icons-material/SportsScoreOutlined";
+
+const AnimateContent = ({
+  newCount,
+  total,
+}: {
+  newCount: number;
+  total: number;
+}) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+
+  useEffect(() => {
+    const controls = animate(count, newCount);
+
+    return () => controls.stop();
+  }, [newCount]);
+
+  return (
+    <Typography display={"flex"}>
+      <motion.div>{rounded}</motion.div>/{total}
+    </Typography>
+  );
+};
 
 const createLightColor = () => {
   return `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`;
@@ -125,12 +155,14 @@ const Tiles = ({
   const [finalOverId, setFinalOverId] = finalOverIdState;
   const [tilesVoiceObj, setTilesVoiceObj] = tilesVoiceObjState;
   // Quick reference to the playAreaId
-  const playAreaIdRef = useRef<number>(1);
+  // const playAreaIdRef = useRef<number>(1);
   const [angleOne, setAngleOne] = useState({ x: 0, y: 0 });
   const [angleTwo, setAngleTwo] = useState({ x: 0, y: 0 });
+  const [currentHits, setCurrentHits] = useState(0);
 
   const onMouseUp = (event: MouseEvent | TouchEvent) => {
     if (!mouseDownId) return;
+    setCurrentHits((prev) => prev + 1);
     let _mouseDownId = mouseDownId;
     handleThrow(throwObj.angle, throwObj.divCenterX, throwObj.divCenterY);
     let intrvl: NodeJS.Timeout;
@@ -356,6 +388,32 @@ const Tiles = ({
         justifyContent="center"
         sx={{ userSelect: "none" }}
       >
+        <Box
+          position={"absolute"}
+          top={0}
+          left={0}
+          width="100%"
+          display={"flex"}
+          justifyContent="center"
+          zIndex={9}
+        >
+          <Box
+            width={trackWidth * numberOfTracks}
+            display="flex"
+            bgcolor={"rgba(0,0,0,0.25)"}
+            p={1}
+          >
+            <Typography sx={{ ml: "auto" }}>
+              {playTime
+                ? playTime.toFixed(1)
+                : (timerClock / 1000 - 5).toFixed(1)}
+            </Typography>
+            <Box ml={"auto"} display="flex" alignItems={"center"}>
+              <SportsScoreOutlinedIcon fontSize="small" />
+              <AnimateContent newCount={currentHits} total={sections.length} />
+            </Box>
+          </Box>
+        </Box>
         <Box
           position={"absolute"}
           top={0}

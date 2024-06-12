@@ -6,13 +6,13 @@ import Marbles from "./Marbles";
 import SectionsFalling from "./Tiles";
 import "./index.css";
 import { CoverV1, getCoverDocById } from "./services/db/coversV1.service";
-import { getUserById } from "./services/db/users.service";
 import {
   Box,
   Dialog,
   DialogContent,
   Stack,
   TextField,
+  Typography,
   useMediaQuery,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
@@ -251,51 +251,74 @@ const TilesMarblesGame = () => {
               zIndex={9}
               gap={1}
             >
-              <TextField
-                size="small"
-                label="Number of Tracks"
-                type={"number"}
-                value={numberOfTracks}
-                onChange={(e) => {
-                  const no = parseInt(e.target.value);
-                  if (no < 3 || no > 20) return;
-                  setNumberOfTracks(no);
-                }}
-                color="secondary"
-              />
-              <TextField
-                size="small"
-                label="Track Width"
-                type={"number"}
-                value={trackWidth}
-                onChange={(e) => setTrackWidth(parseInt(e.target.value))}
-                color="secondary"
-              />
-              <TextField
-                size="small"
-                label="Min Beats, Max Beats"
-                value={beatsRange.join(",")}
-                onChange={(e) => {
-                  const [min, max] = e.target.value.split(",").map((v) => {
-                    const n = parseInt(v);
-                    return isNaN(n) ? 0 : n;
-                  });
-                  setBeatsRange([min, max]);
-                }}
-                color="secondary"
-              />
-              <TextField
-                size="small"
-                label="Start Section Idx"
-                type={"number"}
-                value={startSection}
-                onChange={(e) => setStartSection(parseInt(e.target.value))}
-                color="secondary"
-                helperText={`Track will start at ${
-                  coverDoc?.sections?.at(startSection)?.start
-                }s`}
-              />
+              <Box
+                display={"flex"}
+                justifyContent="space-between"
+                gap={2}
+                px={2}
+              >
+                <TextField
+                  size="small"
+                  label="Number of Tracks"
+                  type={"number"}
+                  value={numberOfTracks}
+                  onChange={(e) => {
+                    const no = parseInt(e.target.value);
+                    if (no < 3 || no > 20) return;
+                    setNumberOfTracks(no);
+                  }}
+                  color="secondary"
+                />
+                <TextField
+                  size="small"
+                  label="Track Width"
+                  type={"number"}
+                  value={trackWidth}
+                  onChange={(e) => setTrackWidth(parseInt(e.target.value))}
+                  color="secondary"
+                />
+              </Box>
+              <Box
+                display={"flex"}
+                justifyContent="space-between"
+                gap={2}
+                px={2}
+                my={1}
+              >
+                <TextField
+                  size="small"
+                  label="Min Beats, Max Beats"
+                  value={beatsRange.join(",")}
+                  onChange={(e) => {
+                    const [min, max] = e.target.value.split(",").map((v) => {
+                      const n = parseInt(v);
+                      return isNaN(n) ? 0 : n;
+                    });
+                    setBeatsRange([min, max]);
+                  }}
+                  color="secondary"
+                />
+                <TextField
+                  size="small"
+                  label="Start Section Idx"
+                  type={"number"}
+                  value={startSection}
+                  onChange={(e) => setStartSection(parseInt(e.target.value))}
+                  color="secondary"
+                  helperText={`Track will start at ${
+                    coverDoc?.sections?.at(startSection)?.start
+                  }s`}
+                  FormHelperTextProps={{
+                    sx: { color: "yellow" },
+                  }}
+                />
+              </Box>
             </Stack>
+          )}
+          {!!coverDoc && (
+            <Typography align="center" zIndex={9}>
+              {coverDoc.title}
+            </Typography>
           )}
           <Box
             width={"100%"}
