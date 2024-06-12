@@ -7,7 +7,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { createRandomNumber, nameToSlug } from "./helpers";
+import { createRandomNumber, formatDuration, nameToSlug } from "./helpers";
 import * as Tone from "tone";
 import { AngleDots } from "./Marbles";
 import { SectionsWithDuration } from "./TilesMarblesGame";
@@ -360,7 +360,7 @@ const Tiles = ({
           if (findOneWithoutVoice) {
             setPlayAreaId(findOneWithoutVoice.id);
           }
-        } else {
+        } else if (playTime || Object.keys(tilesVoiceObj).length) {
           // if (
           //   !finalOverId &&
           //   playAreaIdRef.current !== sections[idx].id &&
@@ -405,8 +405,8 @@ const Tiles = ({
           >
             <Typography sx={{ ml: "auto" }}>
               {playTime
-                ? playTime.toFixed(1)
-                : (timerClock / 1000 - 5).toFixed(1)}
+                ? formatDuration(playTime)
+                : (-(timerClock / 1000 - 5)).toFixed(0)}
             </Typography>
             <Box ml={"auto"} display="flex" alignItems={"center"}>
               <SportsScoreOutlinedIcon fontSize="small" />

@@ -35,6 +35,7 @@ export const nameToSlug = (name: string, delimiter = "-") => {
     .trim(); // Trim any leading/trailing whitespace
 };
 
+// Format a duration in seconds to a string in the format "mm:ss"
 export const formatDuration = (value: number) => {
   const minute = Math.floor(value / 60);
   const secondLeft = value - minute * 60;

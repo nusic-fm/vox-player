@@ -61,7 +61,7 @@ const TilesMarblesGame = () => {
     isMobileView ? Math.floor(window.innerWidth / 6) : 80
   );
   const [beatsRange, setBeatsRange] = useState([2, 8]);
-  const [startSection, setStartSection] = useState(4);
+  const [startSection, setStartSection] = useState(0);
 
   const fetchCoverDoc = async (_coverId: string) => {
     const doc = await getCoverDocById(_coverId);
@@ -102,7 +102,7 @@ const TilesMarblesGame = () => {
       const durations = [];
       while (start < coverDoc.duration) {
         const randomNo = createRandomNumber(minBeats, maxBeats);
-        const duration = beatDuration * randomNo;
+        const duration = parseFloat((beatDuration * randomNo).toFixed(2));
         durations.push({
           start,
           duration,
