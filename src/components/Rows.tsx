@@ -91,6 +91,7 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import SportsEsportsOutlinedIcon from "@mui/icons-material/SportsEsportsOutlined";
 
 export type YTP_CONTENT = {
   title: string;
@@ -839,6 +840,16 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         </Typography>
                       </Box>
                     )}
+                    <IconButton
+                      href={`https://nusic-ai-cover-game.netlify.app?coverId=${id}`}
+                      target="_blank"
+                      size="small"
+                    >
+                      <SportsEsportsOutlinedIcon
+                        fontSize="small"
+                        sx={{ width: 16, height: 16, color: "#c3c3c3" }}
+                      />
+                    </IconButton>
                   </Box>
                   {(songId === id || showCommentsByCoverId === id) && (
                     <CommentsArea coverDocId={id} />
@@ -1646,6 +1657,16 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           </Typography>
                         </Box>
                       )}
+                      <IconButton
+                        href={`https://nusic-ai-cover-game.netlify.app?coverId=${id}`}
+                        target="_blank"
+                        size="small"
+                      >
+                        <SportsEsportsOutlinedIcon
+                          fontSize="small"
+                          sx={{ width: 16, height: 16, color: "#c3c3c3" }}
+                        />
+                      </IconButton>
                     </Box>
                   </Box>
                   {(songId === id || showCommentsByCoverId === id) && (
