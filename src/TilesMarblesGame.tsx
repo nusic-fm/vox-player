@@ -240,7 +240,7 @@ const TilesMarblesGame = () => {
                 borderRadius: 0,
               }}
             >
-              Start
+              Play
             </LoadingButton>
           )}
           {!start && (

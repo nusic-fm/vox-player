@@ -162,7 +162,6 @@ const Tiles = ({
 
   const onMouseUp = (event: MouseEvent | TouchEvent) => {
     if (!mouseDownId) return;
-    setCurrentHits((prev) => prev + 1);
     let _mouseDownId = mouseDownId;
     handleThrow(throwObj.angle, throwObj.divCenterX, throwObj.divCenterY);
     let intrvl: NodeJS.Timeout;
@@ -193,6 +192,7 @@ const Tiles = ({
           [playAreaId.toString()]: _mouseDownId,
         }));
         setFinalOverId(_mouseDownId);
+        setCurrentHits((prev) => prev + 1);
         changeVoice(
           _mouseDownId,
           sections[playAreaId - 1].start,
