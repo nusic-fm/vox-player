@@ -60,7 +60,7 @@ const TilesMarblesGame = () => {
   const [trackWidth, setTrackWidth] = useState(
     isMobileView ? Math.floor(window.innerWidth / 6) : 80
   );
-  const [barsRange, setBarsRange] = useState([1, 2]);
+  const [beatsRange, setBeatsRange] = useState([2, 8]);
   const [startSection, setStartSection] = useState(4);
 
   const fetchCoverDoc = async (_coverId: string) => {
@@ -94,15 +94,15 @@ const TilesMarblesGame = () => {
       // }));
       // const minBars = doc.bpm > 140 ? 6 : doc.bpm > 100 ? 4 : 2;
       // const maxBars = doc.bpm > 140 ? 8 : doc.bpm > 100 ? 6 : 4;
-      const minBars = barsRange[0];
-      const maxBars = barsRange[1];
+      const minBeats = beatsRange[0];
+      const maxBeats = beatsRange[1];
       const beatDuration = 60 / coverDoc.bpm;
-      const barDuration = beatDuration * 4;
+      // const barDuration = beatDuration * 4;
       let start = coverDoc.sections[startSection].start;
       const durations = [];
       while (start < coverDoc.duration) {
-        const randomNo = createRandomNumber(minBars, maxBars);
-        const duration = barDuration * randomNo;
+        const randomNo = createRandomNumber(minBeats, maxBeats);
+        const duration = beatDuration * randomNo;
         durations.push({
           start,
           duration,
@@ -112,7 +112,7 @@ const TilesMarblesGame = () => {
       if (durations) setSectionsWithDuration(durations);
       setStartOffset(coverDoc.sections[startSection].start);
     }
-  }, [coverDoc, barsRange, startSection]);
+  }, [coverDoc, beatsRange, startSection]);
 
   useEffect(() => {
     if (location.search) {
@@ -122,7 +122,7 @@ const TilesMarblesGame = () => {
       if (_coverId) {
         setCoverDocId(_coverId);
         console.log("Cover:", _coverId);
-        window.history.replaceState(null, "", window.location.origin);
+        // window.history.replaceState(null, "", window.location.origin);
         // location.search = "";
       }
     }
@@ -273,14 +273,14 @@ const TilesMarblesGame = () => {
               />
               <TextField
                 size="small"
-                label="Min Bars, Max Bars"
-                value={barsRange.join(",")}
+                label="Min Beats, Max Beats"
+                value={beatsRange.join(",")}
                 onChange={(e) => {
                   const [min, max] = e.target.value.split(",").map((v) => {
                     const n = parseInt(v);
                     return isNaN(n) ? 0 : n;
                   });
-                  setBarsRange([min, max]);
+                  setBeatsRange([min, max]);
                 }}
                 color="secondary"
               />
