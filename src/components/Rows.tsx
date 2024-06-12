@@ -841,7 +841,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       </Box>
                     )}
                     <IconButton
-                      href={`https://nusic-ai-cover-game.netlify.app?coverId=${id}`}
+                      href={`https://play.nusic.fm?coverId=${id}`}
                       target="_blank"
                       size="small"
                     >
@@ -1658,7 +1658,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         </Box>
                       )}
                       <IconButton
-                        href={`https://nusic-ai-cover-game.netlify.app?coverId=${id}`}
+                        href={`https://play.nusic.fm?coverId=${id}`}
                         target="_blank"
                         size="small"
                       >
