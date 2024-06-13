@@ -76,6 +76,7 @@ const TilesMarblesGame = () => {
     const positions = calculatePositions(
       window.innerWidth,
       window.innerHeight,
+      trackWidth * numberOfTracks,
       doc.voices.length
     );
     doc.voices

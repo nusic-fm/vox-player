@@ -122,6 +122,7 @@ export const calculateXYPosition = (
 export const calculatePositions = (
   containerWidth: number,
   containerHeight: number,
+  innerContainerWidth: number,
   n: number
 ) => {
   // Element size
@@ -136,20 +137,53 @@ export const calculatePositions = (
   const centerX = refX - 0.5 * elementWidth;
   const centerY = refY - 0.5 * elementHeight;
 
-  // Calculate the starting left position of the row
-  const startX = centerX - ((n - 1) * elementWidth) / 2;
+  // Calculate the number of rows and columns needed based on the inner container width
+  const cols = Math.floor(innerContainerWidth / elementWidth);
+  const rows = Math.ceil(n / cols);
+
+  // Calculate the starting top-left position of the grid
+  const startX = centerX - ((cols - 1) * elementWidth) / 2;
+  const startY = centerY - ((rows - 1) * elementHeight) / 2;
+
+  // if there is only one row, center the elements horizontally
+  if (rows === 1) {
+    const positions = [];
+    for (let i = 0; i < n; i++) {
+      const x = centerX + (i - (n - 1) / 2) * elementWidth;
+      const y = centerY;
+      positions.push({ x, y });
+    }
+    return positions;
+  }
 
   // Initialize an array to store positions
   const positions = [];
 
-  // Loop to calculate positions for each element in the row
+  // Loop to calculate positions for each element in the grid
   for (let i = 0; i < n; i++) {
-    const x = startX + i * elementWidth;
-    const y = centerY; // All elements in the same row
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const x = startX + col * elementWidth;
+    const y = startY + row * elementHeight;
     positions.push({ x, y });
   }
 
   return positions;
+
+  // // Calculate the starting left position of the row
+  // const startX = centerX - ((n - 1) * elementWidth) / 2;
+
+  // // Initialize an array to store positions
+  // const positions = [];
+
+  // // Loop to calculate positions for each element in the row
+  // for (let i = 0; i < n; i++) {
+  //   const x = startX + i * elementWidth;
+  //   const y = centerY; // All elements in the same row
+  //   positions.push({ x, y });
+  // }
+
+  // return positions;
 
   // // Calculate the number of rows and columns needed
   // const rows = Math.ceil(Math.sqrt(n));
