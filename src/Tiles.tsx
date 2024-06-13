@@ -72,7 +72,9 @@ const getTileHeights = (
       height: heights[i],
       duration: meta.duration,
       color: createLightColor(),
-      xPosition: newPosition,
+      xPosition:
+        newPosition +
+        (newPositionIdx === 0 || newPositionIdx === noOfTracks - 1 ? 5 : 0),
       negativeTop: i
         ? i === 1
           ? heights[i]
@@ -398,7 +400,7 @@ const Tiles = ({
           zIndex={9}
         >
           <Box
-            width={trackWidth * numberOfTracks}
+            width={trackWidth * numberOfTracks + 10}
             display="flex"
             bgcolor={"rgba(0,0,0,0.25)"}
             p={1}
@@ -438,7 +440,7 @@ const Tiles = ({
           }}
           position="relative"
           height={"100vh"}
-          width={trackWidth * numberOfTracks}
+          width={trackWidth * numberOfTracks + 10}
         >
           <Box
             sx={{
@@ -455,47 +457,97 @@ const Tiles = ({
               // opacity: 0.5,
             }}
           ></Box>
-          {sections.map((section, i) => (
-            <motion.div
-              key={i}
-              id={section.id.toString()}
-              style={{
-                height: section.height,
-                width: trackWidth,
-                backgroundColor:
-                  playAreaId === section.id ? "#8973F8" : `transparent`,
+          {sections.map((section, i) => {
+            let backgroundObj: any;
+            if (tilesVoiceObj[section.id]) {
+              // backgroundObj = {
+              //   backgroundImage: `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+              //     tilesVoiceObj[section.id]
+              //   )}_200x200?alt=media)`,
+              //   backgroundPosition: "center",
+              //   backgroundSize: "cover",
+              //   border: "3px solid",
+              //   animation: "hitEffect 0.5s ease",
+              // };
+              backgroundObj = {};
+            } else if (section.id === playAreaId) {
+              backgroundObj = {
+                background: "linear-gradient(45deg, #7355f4, #dcd0ff, #928dab)",
+                boxShadow:
+                  "0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3)",
+                // transition: "boxShadow 0.3s",1
+                backgroundSize: "200% 200%",
+                animation:
+                  "gradient 3s ease infinite, glow 1s infinite alternate",
+              };
+            } else {
+              backgroundObj = {
+                backgroundColor: "transparent",
                 border: "3px solid",
-                position: "absolute",
-                color: "white",
-                borderRadius: "8px",
-                backgroundImage: !!tilesVoiceObj[section.id]
-                  ? `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
-                      tilesVoiceObj[section.id]
-                    )}_200x200?alt=media)`
-                  : "unset",
-                backgroundPosition: "center",
-                backgroundSize: "cover",
-              }}
-              animate={{
-                x: section.xPosition,
-                y: top - section.negativeTop,
-              }}
-            >
-              {playAreaId === section.id && (
-                <Box
-                  ref={targetRef}
-                  position={"absolute"}
-                  top={0}
-                  left={0}
-                  width={"100%"}
-                  height={"100%"}
-                  sx={{
-                    boxShadow: "0 0 20 #8973F8",
-                  }}
-                />
-              )}
-            </motion.div>
-          ))}
+              };
+            }
+
+            return (
+              <motion.div
+                key={i}
+                id={section.id.toString()}
+                style={{
+                  height: section.height,
+                  width: trackWidth,
+                  borderRadius: "25px",
+                  // backgroundColor:
+                  //   playAreaId === section.id ? "#8973F8" : `transparent`,
+
+                  position: "absolute",
+                  color: "white",
+                  // backgroundImage: !!tilesVoiceObj[section.id]
+                  //   ? `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+                  //       tilesVoiceObj[section.id]
+                  //     )}_200x200?alt=media)`
+                  //   : "unset",
+                  ...backgroundObj,
+                }}
+                animate={{
+                  x: section.xPosition,
+                  y: top - section.negativeTop,
+                }}
+              >
+                {playAreaId === section.id && (
+                  <Box
+                    ref={targetRef}
+                    position={"absolute"}
+                    top={0}
+                    left={0}
+                    width={"100%"}
+                    height={"100%"}
+                    sx={{
+                      boxShadow: "0 0 20 #8973F8",
+                    }}
+                  />
+                )}
+                {tilesVoiceObj[section.id] && (
+                  <Box
+                    ref={targetRef}
+                    position={"absolute"}
+                    top={0}
+                    left={0}
+                    width={"100%"}
+                    height={"100%"}
+                    style={{
+                      borderRadius: "25px",
+                      backgroundImage: `url(https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+                        tilesVoiceObj[section.id]
+                      )}_200x200?alt=media)`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                      border: "3px solid",
+                      animation: "hitEffect 0.5s ease",
+                    }}
+                  />
+                )}
+              </motion.div>
+            );
+          })}
         </Box>
       </Box>
     </>

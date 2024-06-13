@@ -225,7 +225,7 @@ const TilesMarblesGame = () => {
         <Stack
           position={"absolute"}
           top={playheadHeight}
-          width={trackWidth * numberOfTracks}
+          width={trackWidth * numberOfTracks + 10}
           height={`calc(100vh - ${playheadHeight}px)`}
         >
           {!start && (
