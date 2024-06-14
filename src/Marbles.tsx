@@ -8,13 +8,14 @@ export const AngleDots = ({ x, y }: { x: number; y: number }) => {
       style={{
         position: "absolute",
         // padding: 4,
-        width: 8,
-        height: 8,
+        width: 10,
+        height: 10,
         borderRadius: "50%",
         background: "#fff",
         left: x,
         top: y,
         zIndex: 9999999,
+        boxShadow: "0px 0px 6px 3px rgba(255,255,255,0.5)",
       }}
     />
   );

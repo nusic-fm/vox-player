@@ -218,6 +218,11 @@ const Tiles = ({
           opacity: 1,
         });
         setMouseDownId("");
+        setAimAngleObj({
+          top: { x: 0, y: 0 },
+          middle: { x: 0, y: 0 },
+          bottom: { x: 0, y: 0 },
+        });
       }
     }, 10);
   };
@@ -251,9 +256,9 @@ const Tiles = ({
       const angle = Math.atan2(dy, dx);
 
       // Projection distance
-      const distance = 80;
-      const distance2 = 150;
-      const distance3 = 180;
+      const distance = 70;
+      const distance2 = 120;
+      const distance3 = 170;
 
       // Next point coordinates
       const nextX = divCenterX + distance * Math.cos(angle);
@@ -426,9 +431,9 @@ const Tiles = ({
       {mouseDownId && (
         <AngleDots x={aimAngleObj.middle.x} y={aimAngleObj.middle.y} />
       )}
-      {/* {mouseDownId && (
+      {mouseDownId && (
         <AngleDots x={aimAngleObj.bottom.x} y={aimAngleObj.bottom.y} />
-      )} */}
+      )}
       <Box
         position={"absolute"}
         width="100vw"

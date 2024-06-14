@@ -1,4 +1,4 @@
-import { useAnimation } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { calculatePositions, createRandomNumber } from "./helpers";
 import { useTonejs } from "./hooks/useToneService";
@@ -10,10 +10,6 @@ import {
   Box,
   Dialog,
   DialogContent,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Stack,
   TextField,
   Typography,
@@ -25,6 +21,12 @@ import theme from "./theme";
 export type SectionsWithDuration = {
   start: number;
   duration: number;
+};
+
+const motionButton = {
+  rest: { scale: 1 },
+  hover: { scale: 1.1 },
+  pressed: { scale: 0.95 },
 };
 
 const TilesMarblesGame = () => {
@@ -235,20 +237,32 @@ const TilesMarblesGame = () => {
           height={`calc(100vh - ${playheadHeight}px)`}
         >
           {!start && (
-            <LoadingButton
-              loading={isDownloading}
-              onClick={() => setStart(true)}
-              variant="contained"
-              color="info"
-              sx={{
+            <motion.div
+              style={{
+                padding: "10px 20px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "30px",
+                background: "linear-gradient(45deg, #928dab, #7355f4, #928dab)",
+                backgroundSize: "200% 200%",
+                animation: !isDownloading
+                  ? "gradient 2.5s ease infinite"
+                  : "unset",
                 zIndex: 9,
                 borderTop: "2px solid",
                 borderBottom: "2px solid",
-                borderRadius: 0,
               }}
+              onClick={() => !isDownloading && setStart(true)}
+              variants={motionButton}
+              initial={!isDownloading ? "rest" : undefined}
+              whileHover={!isDownloading ? "hover" : undefined}
+              whileTap={!isDownloading ? "pressed" : undefined}
             >
-              Play
-            </LoadingButton>
+              <Typography>
+                {isDownloading ? "Downloading..." : "Play"}
+              </Typography>
+            </motion.div>
           )}
           {!start && (
             <Stack
@@ -332,14 +346,18 @@ const TilesMarblesGame = () => {
             </Stack>
           )}
           {!!coverDoc && (
-            <Typography align="center" zIndex={9}>
+            <Typography align="center" zIndex={9} my={1}>
               {coverDoc.title}
             </Typography>
           )}
           <Box
             width={"100%"}
             height={"100%"}
-            sx={{ background: "rgba(0,0,0,0.6)" }}
+            sx={{
+              background: "rgba(0,0,0,0.6)",
+              borderTopRightRadius: 30,
+              borderTopLeftRadius: 30,
+            }}
             position="absolute"
             top={0}
             left={0}
