@@ -319,7 +319,17 @@ const TilesMarblesGame = () => {
                     label="Start Section Idx"
                     type={"number"}
                     value={startSection}
-                    onChange={(e) => setStartSection(parseInt(e.target.value))}
+                    autoComplete="off"
+                    onChange={(e) => {
+                      const newIdx = parseInt(e.target.value);
+                      if (
+                        coverDoc.sections?.length &&
+                        newIdx >= 0 &&
+                        newIdx < coverDoc.sections.length
+                      ) {
+                        setStartSection(newIdx);
+                      }
+                    }}
                     color="secondary"
                     helperText={`Track will start at ${
                       coverDoc?.sections?.at(startSection)?.start

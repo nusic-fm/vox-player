@@ -169,6 +169,11 @@ const Tiles = ({
 
   const onMouseUp = (event: MouseEvent | TouchEvent) => {
     if (!mouseDownId) return;
+    setAimAngleObj({
+      top: { x: 0, y: 0 },
+      middle: { x: 0, y: 0 },
+      bottom: { x: 0, y: 0 },
+    });
     let _mouseDownId = mouseDownId;
     handleThrow(throwObj.angle, throwObj.divCenterX, throwObj.divCenterY);
     let intrvl: NodeJS.Timeout;
@@ -218,11 +223,6 @@ const Tiles = ({
           opacity: 1,
         });
         setMouseDownId("");
-        setAimAngleObj({
-          top: { x: 0, y: 0 },
-          middle: { x: 0, y: 0 },
-          bottom: { x: 0, y: 0 },
-        });
       }
     }, 10);
   };
@@ -256,9 +256,9 @@ const Tiles = ({
       const angle = Math.atan2(dy, dx);
 
       // Projection distance
-      const distance = 70;
-      const distance2 = 120;
-      const distance3 = 170;
+      const distance = 50;
+      const distance2 = 100;
+      const distance3 = 150;
 
       // Next point coordinates
       const nextX = divCenterX + distance * Math.cos(angle);
