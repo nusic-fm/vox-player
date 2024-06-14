@@ -10,6 +10,10 @@ import {
   Box,
   Dialog,
   DialogContent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   TextField,
   Typography,
@@ -58,10 +62,11 @@ const TilesMarblesGame = () => {
   const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
   const [numberOfTracks, setNumberOfTracks] = useState(6);
   const [trackWidth, setTrackWidth] = useState(
-    isMobileView ? Math.floor(window.innerWidth / 6) : 80
+    isMobileView ? Math.floor((window.innerWidth - 10) / 6) : 80
   );
   const [beatsRange, setBeatsRange] = useState([2, 8]);
   const [startSection, setStartSection] = useState(0);
+  const [hitMode, setHitMode] = useState<0 | 1>(0);
 
   const fetchCoverDoc = async (_coverId: string) => {
     const doc = await getCoverDocById(_coverId);
@@ -200,6 +205,7 @@ const TilesMarblesGame = () => {
         trackWidth={trackWidth}
         numberOfTracks={numberOfTracks}
         isStarted={start}
+        hitMode={hitMode}
         // muteVocals={() => {
         //   if (playerRef.current) playerRef.current.mute = true;
         // }}
@@ -279,41 +285,50 @@ const TilesMarblesGame = () => {
                   color="secondary"
                 />
               </Box>
-              <Box
-                display={"flex"}
-                justifyContent="space-between"
-                gap={2}
-                px={2}
-                my={1}
-              >
-                <TextField
-                  size="small"
-                  label="Min Beats, Max Beats"
-                  value={beatsRange.join(",")}
-                  onChange={(e) => {
-                    const [min, max] = e.target.value.split(",").map((v) => {
-                      const n = parseInt(v);
-                      return isNaN(n) ? 0 : n;
-                    });
-                    setBeatsRange([min, max]);
-                  }}
-                  color="secondary"
-                />
-                <TextField
-                  size="small"
-                  label="Start Section Idx"
-                  type={"number"}
-                  value={startSection}
-                  onChange={(e) => setStartSection(parseInt(e.target.value))}
-                  color="secondary"
-                  helperText={`Track will start at ${
-                    coverDoc?.sections?.at(startSection)?.start
-                  }s`}
-                  FormHelperTextProps={{
-                    sx: { color: "yellow" },
-                  }}
-                />
-              </Box>
+              <Stack px={2} my={1}>
+                <Box display={"flex"} gap={2} width="100%">
+                  <TextField
+                    size="small"
+                    label="Min,Max Beats"
+                    value={beatsRange.join(",")}
+                    onChange={(e) => {
+                      const [min, max] = e.target.value.split(",").map((v) => {
+                        const n = parseInt(v);
+                        return isNaN(n) ? 0 : n;
+                      });
+                      setBeatsRange([min, max]);
+                    }}
+                    color="secondary"
+                  />
+                  <TextField
+                    size="small"
+                    label="Start Section Idx"
+                    type={"number"}
+                    value={startSection}
+                    onChange={(e) => setStartSection(parseInt(e.target.value))}
+                    color="secondary"
+                    helperText={`Track will start at ${
+                      coverDoc?.sections?.at(startSection)?.start
+                    }s`}
+                    FormHelperTextProps={{
+                      sx: { color: "yellow" },
+                    }}
+                  />
+                </Box>
+                <FormControl size="small">
+                  <InputLabel>Hit Mode</InputLabel>
+                  <Select
+                    label="Hit Mode"
+                    sx={{ width: 120 }}
+                    color="secondary"
+                    value={hitMode}
+                    onChange={(e) => setHitMode(e.target.value as 0 | 1)}
+                  >
+                    <MenuItem value={0}>Reverse</MenuItem>
+                    <MenuItem value={1}>Front</MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
             </Stack>
           )}
           {!!coverDoc && (

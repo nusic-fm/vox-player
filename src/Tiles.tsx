@@ -122,6 +122,7 @@ type Props = {
   trackWidth: number;
   numberOfTracks: number;
   isStarted: boolean;
+  hitMode: 0 | 1;
 };
 
 const Tiles = ({
@@ -140,6 +141,7 @@ const Tiles = ({
   trackWidth,
   numberOfTracks,
   isStarted,
+  hitMode,
 }: Props) => {
   const [waitTimeInSeconds, setWaitTimeInSeconds] = useState(5);
   const [pxPerSecondSpeed, setPxPerSecondSpeed] = useState(100);
@@ -177,6 +179,8 @@ const Tiles = ({
         opacity: 1,
       });
       setMouseDownId("");
+      setAngleOne({ x: 0, y: 0 });
+      setAngleTwo({ x: 0, y: 0 });
     }, 500);
     intrvl = setInterval(() => {
       if (isOverlapping(ballRef.current[mouseDownId], targetRef.current)) {
@@ -229,17 +233,16 @@ const Tiles = ({
         (event as MouseEvent).clientY ||
         (event as TouchEvent).touches[0].clientY;
 
-      if (mouseY > divCenterY) {
+      if (
+        (hitMode === 0 && mouseY <= divCenterY) ||
+        (hitMode === 1 && mouseY > divCenterY)
+      ) {
         return;
       }
 
-      const dx = mouseX - divCenterX;
-      const dy = mouseY - divCenterY;
-
+      const dx = hitMode === 0 ? divCenterX - mouseX : mouseX - divCenterX;
+      const dy = hitMode === 0 ? divCenterY - mouseY : mouseY - divCenterY;
       const angle = Math.atan2(dy, dx);
-
-      //   console.log("Angle (radians):", angle);
-      //   console.log("Angle (degrees):", angle * (180 / Math.PI));
 
       // Projection distance (speed of the throw)
       const distance = 100;
