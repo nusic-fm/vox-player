@@ -1,3 +1,4 @@
+import { Avatar } from "@mui/material";
 import { AnimationControls, motion } from "framer-motion";
 import { nameToSlug } from "./helpers";
 
@@ -71,10 +72,10 @@ const Marbles = ({
             height: 60,
             borderRadius: "50%",
             position: "absolute",
-            background: `url(https://voxaudio.nusic.fm/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
-              id
-            )}_200x200?alt=media)`,
-            backgroundSize: "cover",
+            // background: `url(https://voxaudio.nusic.fm/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+            //   id
+            // )}_200x200?alt=media)`,
+            // backgroundSize: "cover",
             cursor: "pointer",
             zIndex: 999999,
             userSelect: "none",
@@ -91,7 +92,21 @@ const Marbles = ({
             },
           }}
           title="Press & Hold"
-        />
+        >
+          <Avatar
+            sx={{ width: "100%", height: "100%" }}
+            src={`https://voxaudio.nusic.fm/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+              id
+            )}_200x200?alt=media`}
+          >
+            <Avatar
+              sx={{ width: "100%", height: "100%" }}
+              src={`https://voxaudio.nusic.fm/voice_models%2Favatars%2Fthumbs%2F${nameToSlug(
+                id
+              )}_200x200.webp?alt=media`}
+            ></Avatar>
+          </Avatar>
+        </motion.div>
         // </Box>
       ))}
     </>
