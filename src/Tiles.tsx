@@ -160,8 +160,11 @@ const Tiles = ({
   const [tilesVoiceObj, setTilesVoiceObj] = tilesVoiceObjState;
   // Quick reference to the playAreaId
   // const playAreaIdRef = useRef<number>(1);
-  const [angleOne, setAngleOne] = useState({ x: 0, y: 0 });
-  const [angleTwo, setAngleTwo] = useState({ x: 0, y: 0 });
+  const [aimAngleObj, setAimAngleObj] = useState({
+    top: { x: 0, y: 0 },
+    middle: { x: 0, y: 0 },
+    bottom: { x: 0, y: 0 },
+  });
   const [currentHits, setCurrentHits] = useState(0);
 
   const onMouseUp = (event: MouseEvent | TouchEvent) => {
@@ -179,8 +182,11 @@ const Tiles = ({
         opacity: 1,
       });
       setMouseDownId("");
-      setAngleOne({ x: 0, y: 0 });
-      setAngleTwo({ x: 0, y: 0 });
+      setAimAngleObj({
+        top: { x: 0, y: 0 },
+        middle: { x: 0, y: 0 },
+        bottom: { x: 0, y: 0 },
+      });
     }, 500);
     intrvl = setInterval(() => {
       if (isOverlapping(ballRef.current[mouseDownId], targetRef.current)) {
@@ -244,18 +250,50 @@ const Tiles = ({
       const dy = hitMode === 0 ? divCenterY - mouseY : mouseY - divCenterY;
       const angle = Math.atan2(dy, dx);
 
-      // Projection distance (speed of the throw)
-      const distance = 100;
-      const distance2 = 200;
+      // Projection distance
+      const distance = 80;
+      const distance2 = 150;
+      const distance3 = 180;
 
       // Next point coordinates
       const nextX = divCenterX + distance * Math.cos(angle);
       const nextY = divCenterY + distance * Math.sin(angle);
-      setAngleOne({ x: nextX - 5, y: nextY - 5 });
-      const next2X = divCenterX + distance2 * Math.cos(angle);
-      const next2Y = divCenterY + distance2 * Math.sin(angle);
-      setAngleTwo({ x: next2X - 5, y: next2Y - 5 });
-
+      const angleObj: any = {};
+      angleObj.top = { x: nextX - 5, y: nextY - 5 };
+      // setAngleOne({ x: nextX - 5, y: nextY - 5 });
+      // Calculate angleTwo to be constrained within angleOne
+      const next2X = mouseX + distance2 * Math.cos(angle);
+      const next2Y = mouseY + distance2 * Math.sin(angle);
+      if (next2Y > nextY - 10) {
+        angleObj.middle = {
+          x: divCenterX + (distance + 10) * Math.cos(angle) - 5,
+          y: divCenterY + (distance + 10) * Math.sin(angle) - 5,
+        };
+        // setAngleTwo({
+        //   x: divCenterX + (distance + 10) * Math.cos(angle) - 5,
+        //   y: divCenterY + (distance + 10) * Math.sin(angle) - 5,
+        // });
+      } else {
+        angleObj.middle = { x: next2X - 5, y: next2Y - 5 };
+        // setAngleTwo({ x: next2X - 5, y: next2Y - 5 });
+      }
+      // Calculate angleTwo to be constrained within angleOne
+      const next3X = mouseX + distance3 * Math.cos(angle);
+      const next3Y = mouseY + distance3 * Math.sin(angle);
+      if (next3Y > nextY - 20) {
+        angleObj.bottom = {
+          x: divCenterX + (distance + 20) * Math.cos(angle) - 5,
+          y: divCenterY + (distance + 20) * Math.sin(angle) - 5,
+        };
+        // setAngleThree({
+        //   x: divCenterX + (distance + 20) * Math.cos(angle) - 5,
+        //   y: divCenterY + (distance + 20) * Math.sin(angle) - 5,
+        // });
+      } else {
+        angleObj.bottom = { x: next3X - 5, y: next3Y - 5 };
+        // setAngleThree({ x: next3X - 5, y: next3Y - 5 });
+      }
+      setAimAngleObj(angleObj);
       setThrowObj({
         angle,
         divCenterX,
@@ -384,8 +422,13 @@ const Tiles = ({
 
   return (
     <>
-      {mouseDownId && <AngleDots x={angleOne.x} y={angleOne.y} />}
-      {mouseDownId && <AngleDots x={angleTwo.x} y={angleTwo.y} />}
+      {mouseDownId && <AngleDots x={aimAngleObj.top.x} y={aimAngleObj.top.y} />}
+      {mouseDownId && (
+        <AngleDots x={aimAngleObj.middle.x} y={aimAngleObj.middle.y} />
+      )}
+      {/* {mouseDownId && (
+        <AngleDots x={aimAngleObj.bottom.x} y={aimAngleObj.bottom.y} />
+      )} */}
       <Box
         position={"absolute"}
         width="100vw"

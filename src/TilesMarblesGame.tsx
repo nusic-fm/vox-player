@@ -315,7 +315,7 @@ const TilesMarblesGame = () => {
                     }}
                   />
                 </Box>
-                <FormControl size="small">
+                {/* <FormControl size="small">
                   <InputLabel>Hit Mode</InputLabel>
                   <Select
                     label="Hit Mode"
@@ -327,7 +327,7 @@ const TilesMarblesGame = () => {
                     <MenuItem value={0}>Reverse</MenuItem>
                     <MenuItem value={1}>Front</MenuItem>
                   </Select>
-                </FormControl>
+                </FormControl> */}
               </Stack>
             </Stack>
           )}
