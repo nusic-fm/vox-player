@@ -32,6 +32,7 @@ export const nameToSlug = (name: string, delimiter = "-") => {
     .trim(); // Trim any leading/trailing whitespace
 };
 
+// Format a duration in seconds to a string in the format "mm:ss"
 export const formatDuration = (value: number) => {
   const minute = Math.floor(value / 60);
   const secondLeft = value - minute * 60;
@@ -100,3 +101,126 @@ export const getDiscordLoginUrl = () => {
 //     minute: "numeric",
 //   });
 // };
+export const createRandomNumber = (min: number, max: number, not?: number) => {
+  let random = Math.floor(Math.random() * (max - min + 1) + min);
+  while (random === not) {
+    random = Math.floor(Math.random() * (max - min + 1) + min);
+  }
+  return random;
+};
+
+export const calculateXYPosition = (
+  containerWidth: number,
+  containerHeight: number,
+  elementWidth: number,
+  elementHeight: number
+) => {
+  // Initial position from left and top properties
+  let x = 0.5 * containerWidth;
+  let y = 0.9 * containerHeight;
+
+  // Adjust for the translate(-50%, -50%) transform
+  x -= 0.5 * elementWidth;
+  y -= 0.5 * elementHeight;
+
+  return { x, y };
+};
+
+export const calculatePositions = (
+  containerWidth: number,
+  containerHeight: number,
+  innerContainerWidth: number,
+  n: number
+) => {
+  // Element size
+  const elementWidth = 60;
+  const elementHeight = 60;
+
+  // Reference point
+  const refX = 0.5 * containerWidth;
+  const refY = 0.9 * containerHeight;
+
+  // Adjust for translation (-50%, -50%)
+  const centerX = refX - 0.5 * elementWidth;
+  const centerY = refY - 0.5 * elementHeight;
+
+  // Calculate the number of rows and columns needed based on the inner container width
+  const cols = Math.floor(innerContainerWidth / elementWidth);
+  const rows = Math.ceil(n / cols);
+
+  // Calculate the starting top-left position of the grid
+  const startX = centerX - ((cols - 1) * elementWidth) / 2;
+  const startY = centerY - ((rows - 1) * elementHeight) / 2;
+
+  // if there is only one row, center the elements horizontally
+  if (rows === 1) {
+    const positions = [];
+    for (let i = 0; i < n; i++) {
+      const x = centerX + (i - (n - 1) / 2) * elementWidth;
+      const y = centerY;
+      positions.push({ x, y });
+    }
+    return positions;
+  }
+
+  // Initialize an array to store positions
+  const positions = [];
+
+  // Loop to calculate positions for each element in the grid
+  for (let i = 0; i < n; i++) {
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const x = startX + col * elementWidth;
+    const y = startY + row * elementHeight;
+    positions.push({ x, y });
+  }
+
+  return positions;
+
+  // // Calculate the starting left position of the row
+  // const startX = centerX - ((n - 1) * elementWidth) / 2;
+
+  // // Initialize an array to store positions
+  // const positions = [];
+
+  // // Loop to calculate positions for each element in the row
+  // for (let i = 0; i < n; i++) {
+  //   const x = startX + i * elementWidth;
+  //   const y = centerY; // All elements in the same row
+  //   positions.push({ x, y });
+  // }
+
+  // return positions;
+
+  // // Calculate the number of rows and columns needed
+  // const rows = Math.ceil(Math.sqrt(n));
+  // const cols = rows;
+
+  // // Calculate the starting top-left position of the grid
+  // const startX = centerX - ((cols - 1) * elementWidth) / 2;
+  // const startY = centerY - ((rows - 1) * elementHeight) / 2;
+
+  // // Initialize an array to store positions
+  // const positions = [];
+
+  // // Loop to calculate positions for each element in the grid
+  // for (let i = 0; i < n; i++) {
+  //   const row = Math.floor(i / cols);
+  //   const col = i % cols;
+  //   const x = startX + col * elementWidth;
+  //   const y = startY + row * elementHeight;
+  //   positions.push({ x, y });
+  // }
+
+  // return positions;
+
+  // // Positions for the 4 elements in a 2x2 grid
+  // const positions = [
+  //   { x: centerX - elementWidth * 2, y: centerY - elementHeight / 2 }, // Top-left
+  //   { x: centerX - elementWidth * 1, y: centerY - elementHeight / 2 }, // Top-right
+  //   { x: centerX + elementWidth * 1, y: centerY - elementHeight / 2 }, // Bottom-left
+  //   { x: centerX + elementWidth * 2, y: centerY - elementHeight / 2 }, // Bottom-right
+  // ];
+
+  // return positions;
+};
