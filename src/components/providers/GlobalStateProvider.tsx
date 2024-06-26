@@ -1,6 +1,7 @@
-import { Box } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
-
+import { Box, Button } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getWidthByDuration, timeToSeconds } from "../../helpers/audio";
+import * as Tone from "tone";
 import { useTonejs } from "../../hooks/useToneService";
 import { GlobalStateContext } from "../../main";
 import { CoverV1 } from "../../services/db/coversV1.service";
@@ -21,6 +22,10 @@ export type MusicState = {
   bpm: number;
   duration: number;
   playlist?: { [x: string]: CoverV1 };
+  sections?: {
+    name: string;
+    start: number;
+  }[];
 };
 
 type Props = {};
@@ -42,6 +47,7 @@ const GlobalStateProvider = ({ children }: any) => {
     duration: 0,
   });
   const [lastSongLoadTime, setLastSongLoadTime] = useState(0);
+  const [showFooterPlayer, setShowFooterPlayer] = useState(false);
 
   const onPlayEndCallback = useCallback(async () => {
     if (playlist) {
@@ -76,6 +82,7 @@ const GlobalStateProvider = ({ children }: any) => {
         bpm: _coverDoc.bpm,
         voiceId: _voiceId,
         duration: _coverDoc.duration,
+        sections: _coverDoc.sections,
       });
       // setLoading(true);
       // const startTime = Date.now();
@@ -112,6 +119,10 @@ const GlobalStateProvider = ({ children }: any) => {
     setSongInfo(newState);
   };
 
+  const switchFooterPlayVisibility = (show: boolean) => {
+    setShowFooterPlayer(show);
+  };
+
   useEffect(() => {
     if (songInfo.coverVocalsUrl) {
       (async () => {
@@ -146,13 +157,14 @@ const GlobalStateProvider = ({ children }: any) => {
         voiceId,
         loading,
         lastSongLoadTime,
+        switchFooterPlayVisibility,
       }}
     >
       {/* <LoginModal /> */}
       <Box sx={{ overflowY: "auto" }} height={"100vh"} pb={"100px"}>
         {children}
       </Box>
-      {songId && (
+      {songId && showFooterPlayer && (
         <FooterPlayer
           songInfo={songInfo}
           loading={loading}

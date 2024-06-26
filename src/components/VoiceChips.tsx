@@ -171,7 +171,7 @@ const VoiceChips = ({
     >
       {chipVoice && (
         <Box display={"flex"} gap={1} flexWrap="wrap" my={1}>
-          {sortArrBasedOnLikesObj(coverDoc.voices, coverDoc.likes).map((v) => (
+          {/* {sortArrBasedOnLikesObj(coverDoc.voices, coverDoc.likes).map((v) => (
             <Chip
               label={v.name}
               key={v.name}
@@ -216,7 +216,7 @@ const VoiceChips = ({
                 //   setVoice(v.id);
               }}
             />
-          ))}
+          ))} */}
           {songId === id && (
             <Box display={"flex"} gap={2} justifyContent="end" ml="auto">
               {user && (
@@ -229,7 +229,7 @@ const VoiceChips = ({
                   onRefreshUserObj={onRefreshUserObj}
                 />
               )}
-              <Button
+              {/* <Button
                 variant="contained"
                 size="small"
                 onClick={() => {
@@ -239,7 +239,7 @@ const VoiceChips = ({
                 disabled={!coverDoc.stemsReady}
               >
                 Revox
-              </Button>
+              </Button> */}
             </Box>
           )}
         </Box>
