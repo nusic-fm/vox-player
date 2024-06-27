@@ -118,7 +118,7 @@ const App = (props: Props) => {
 
   return (
     <Box>
-      <Stack>
+      <Stack gap={4}>
         {/* <Box display="flex" justifyContent={"center"}>
           <img src="/nusic_purple.png" width={155} alt="" />
         </Box> */}
@@ -126,7 +126,11 @@ const App = (props: Props) => {
             AI Cover Charts
           </Typography> */}
         <Rows user={user} tempUserId={tempUserId} onUserChange={onUserChange} />
-        {/* <HelperTextContent /> */}
+        <Box display={"flex"} justifyContent="center">
+          <Box width={{ md: "1250px" }}>
+            <HelperTextContent />
+          </Box>
+        </Box>
       </Stack>
     </Box>
   );

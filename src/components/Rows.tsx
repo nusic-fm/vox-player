@@ -1190,12 +1190,82 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             justifyContent={"space-between"}
             alignItems="center"
           >
-            <Stack>
+            <Stack flexBasis={"20%"} alignItems="center">
               <img src="/nusic_purple.png" width={155} alt="" />
               <Typography variant="body2" textAlign={"center"}>
                 AI Cover Charts
               </Typography>
             </Stack>
+            <Box
+              display={"flex"}
+              gap={2}
+              alignItems="center"
+              py={2}
+              flexBasis="50%"
+            >
+              <TextField
+                fullWidth
+                placeholder="Add your AI Cover to this Playlist, Youtube url goes here"
+                sx={{ transition: "1s width" }}
+                value={newAiCoverUrl}
+                onChange={(e) => setNewAiCoverUrl(e.target.value)}
+              />
+              <LoadingButton
+                variant="contained"
+                disabled={!newAiCoverUrl}
+                loading={isNewCoverLoading}
+                onClick={async () => {
+                  const vid = getYouTubeVideoId(newAiCoverUrl);
+                  if (vid) {
+                    setIsNewCoverLoading(true);
+                    const isExists = await checkIfYoutubeVideoIdExists(vid);
+                    if (isExists) {
+                      setNewAiCoverUrl("");
+                      setIsNewCoverLoading(false);
+                      setErrorSnackbarMsg("Cover already Exists");
+                      // TODO: Play that cover
+                      return;
+                    }
+                    if (!user) {
+                      alert("Kindly Sign In...");
+                      window.open(getDiscordLoginUrl());
+                      return;
+                    }
+                    const formData = new FormData();
+                    formData.append("vid", vid);
+                    const res = await axios.post(
+                      `${import.meta.env.VITE_YOUTUBE_API}/ytp-content`,
+                      formData
+                    );
+                    const {
+                      channelId,
+                      channelTitle,
+                      title,
+                      videoThumbnail,
+                      channelThumbnail,
+                      videoDescription,
+                      channelDescription,
+                    } = res.data;
+                    setCoverInfo({
+                      channelDescription,
+                      channelThumbnail,
+                      videoDescription,
+                      videoThumbnail,
+                      channelId,
+                      channelTitle,
+                      title,
+                      vid,
+                      url: newAiCoverUrl,
+                    });
+                    setIsNewCoverLoading(false);
+                  } else {
+                    setErrorSnackbarMsg("Invalid Youtube URL");
+                  }
+                }}
+              >
+                Save
+              </LoadingButton>
+            </Box>
             <Header
               user={user}
               tempUserId={tempUserId}
@@ -1207,7 +1277,13 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
         </Stack>
         <Box display={"flex"}>
           <Stack
-            sx={{ overflowY: "auto" }}
+            sx={{
+              overflowY: "auto",
+              // background: `linear-gradient(white 30%,rgba(255, 255, 255, 0)) center top,linear-gradient(rgba(255, 255, 255, 0), white 70%) center bottom,radial-gradient(farthest-side at 50% 0,rgba(0, 0, 0, 0.2),rgba(0, 0, 0, 0)) center top,radial-gradient(farthest-side at 50% 100%,rgba(0, 0, 0, 0.2),rgba(0, 0, 0, 0)) center bottom`,
+              // backgroundRepeat: "no-repeat",
+              // backgroundSize: "100% 40px, 100% 40px, 100% 14px, 100% 14px",
+              // backgroundAttachment: "local, local, scroll, scroll",
+            }}
             height={"calc(100vh - 95px)"}
             flexBasis="20%"
             minWidth={345}
@@ -1649,44 +1725,46 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         </CardActionArea>
                       </Card>
                     ))}
-                    <Card
-                      sx={{
-                        width: 140,
-                        minHeight: 220,
-                        zIndex: 99,
-                        backgroundColor: "transparent",
-                        boxShadow: "none",
-                        backgroundImage: "unset",
-                      }}
-                      onClick={() => {
-                        if (!user?.uid) alert("Sign in to Add a New Voice");
-                        else if (coversSnapshot) {
-                          setRevoxSongInfo(
-                            selectedCoverDoc ||
-                              (coversSnapshot.docs[0].data() as CoverV1)
-                          );
-                        }
-                      }}
-                    >
-                      <CardActionArea sx={{ height: "100%" }}>
-                        <Box
-                          width={140}
-                          height={140}
-                          display="flex"
-                          justifyContent={"center"}
-                          alignItems="center"
-                        >
-                          <AddRoundedIcon sx={{ width: 80, height: 80 }} />
-                        </Box>
-                        <CardContent sx={{ height: "100%" }}>
-                          <Box sx={{ height: "100%" }}>
-                            <Typography align="center">
-                              Add <br /> New Voice
-                            </Typography>
+                    {!coversLoading && (
+                      <Card
+                        sx={{
+                          width: 140,
+                          minHeight: 220,
+                          zIndex: 99,
+                          backgroundColor: "transparent",
+                          boxShadow: "none",
+                          backgroundImage: "unset",
+                        }}
+                        onClick={() => {
+                          if (!user?.uid) alert("Sign in to Add a New Voice");
+                          else if (coversSnapshot) {
+                            setRevoxSongInfo(
+                              selectedCoverDoc ||
+                                (coversSnapshot.docs[0].data() as CoverV1)
+                            );
+                          }
+                        }}
+                      >
+                        <CardActionArea sx={{ height: "100%" }}>
+                          <Box
+                            width={140}
+                            height={140}
+                            display="flex"
+                            justifyContent={"center"}
+                            alignItems="center"
+                          >
+                            <AddRoundedIcon sx={{ width: 80, height: 80 }} />
                           </Box>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
+                          <CardContent sx={{ height: "100%" }}>
+                            <Box sx={{ height: "100%" }}>
+                              <Typography align="center">
+                                Add <br /> New Voice
+                              </Typography>
+                            </Box>
+                          </CardContent>
+                        </CardActionArea>
+                      </Card>
+                    )}
                   </Box>
                 </Stack>
                 <Box sx={{ my: "auto", zIndex: 9 }}>
