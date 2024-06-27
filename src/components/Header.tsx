@@ -70,7 +70,7 @@ const Header = ({
 
   return (
     <Box
-      my={2}
+      // my={2}
       display="flex"
       justifyContent={"center"}
       alignItems="center"
