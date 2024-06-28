@@ -204,6 +204,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const playAreaRef = useRef<HTMLDivElement | null>(null);
   const sectionsBarRef = useRef<HTMLDivElement | null>(null);
   const [sectionsWidth, setSectionsWidth] = useState<number[]>([]);
+  const firstCoverRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (songId && coversSnapshot) {
@@ -551,6 +552,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
       setCoversSnapshot(coversCollectionSnapshot);
+      setTimeout(() => {
+        firstCoverRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 800);
       // if (coversCollectionSnapshot.docs.length > 0) {
       //   const coverDoc = coversCollectionSnapshot.docs[0].data() as CoverV1;
       // }
@@ -559,12 +563,22 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
 
   if (isMobileView) {
     return (
-      <Stack>
+      <Stack
+        sx={{
+          overflowY: "auto",
+          scrollSnapType: "y mandatory",
+          height: "100vh",
+        }}
+      >
         <Box
           display={"flex"}
           justifyContent="space-between"
           alignItems={"center"}
           p={2}
+          sx={{
+            scrollSnapAlign: "start",
+            scrollSnapStop: "always",
+          }}
         >
           <Stack alignItems="center">
             <img src="/nusic_purple.png" width={130} alt="" />
@@ -627,18 +641,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             )}
           </Fab>
         </Box>
-        <Stack gap={1}>
+        <Stack gap={1} height="100%">
           {(!coversSnapshot || coversSnapshot?.docs.length === 0) &&
             !coversLoading && (
               <Typography align="center">No Covers are available</Typography>
             )}
-          <Box
-            sx={{
-              overflowY: "auto",
-              scrollSnapType: "y mandatory",
-              height: "calc(100vh - 140px)",
-            }}
-          >
+          <Box>
             {coversSnapshot?.docs.map((doc, i) => {
               const id = doc.id;
               const coverDoc = doc.data() as CoverV1;
@@ -646,6 +654,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                 <Box
                   id={id}
                   key={id}
+                  ref={i === 0 ? firstCoverRef : null}
                   // display="flex"
                   // alignItems={"center"}
                   gap={2}
@@ -662,7 +671,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                   }}
                   py={1}
                   width="100%"
-                  height="100%"
+                  height="100vh"
                   position={"relative"}
                   p={2}
                 >
@@ -690,6 +699,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       sx={{
                         backgroundColor: "transparent",
                         backgroundImage: "unset",
+                        flexShrink: 0,
                       }}
                       onClick={(e) => {
                         if (loading || voiceLoading) return;
@@ -884,7 +894,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       </Box>
                       <Box
                         width={"100%"}
-                        display="flex"
+                        // display="flex"
+                        // gap={2}
+                        display="grid"
+                        gridTemplateRows={"auto auto"}
+                        gridAutoFlow="column"
                         gap={2}
                         sx={{ overflowX: "auto" }}
                         my={1}
@@ -999,7 +1013,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                       <CommentsArea coverDocId={id} />
                     )} */}
                     {/* Post a Comment */}
-                    {songId === id && (
+                    {/* {songId === id && (
                       <Box width={"100%"}>
                         <TextField
                           sx={{
@@ -1063,7 +1077,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           }}
                         />
                       </Box>
-                    )}
+                    )} */}
                     <Box
                       display={"flex"}
                       justifyContent="center"
@@ -1084,7 +1098,12 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         onRefreshUserObj={onRefreshUserObj}
                       />
                     </Box>
-                    <Box sx={{ mt: "auto", zIndex: 9, marginBottom: "110px" }}>
+                    <Box
+                      sx={{
+                        zIndex: 9,
+                        // mt: "auto", marginBottom: "110px"
+                      }}
+                    >
                       <motion.div
                         style={{
                           padding: "10px 20px",
