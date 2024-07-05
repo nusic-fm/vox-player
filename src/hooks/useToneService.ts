@@ -399,6 +399,38 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     }
   };
 
+  const marbleRaceOnlyInstrument = async (id: string, bpm: number) => {
+    if (bpm) Tone.Transport.bpm.value = bpm;
+    else Tone.Transport.bpm.dispose();
+    await initializeTone();
+    if (Tone.Transport.seconds) Tone.Transport.stop();
+    if (instrPlayerRef.current) {
+      instrPlayerRef.current.stop();
+      instrPlayerRef.current.dispose();
+      instrPlayerRef.current = null;
+    }
+    let instrDataArray: Tone.ToneAudioBuffer =
+      downloadObj.current[
+        `https://voxaudio.nusic.fm/covers/${id}/instrumental.mp3`
+      ];
+    const instrPlayer = new Tone.Player(instrDataArray).sync().toDestination();
+    instrPlayerRef.current = instrPlayer;
+    await Tone.loaded();
+    instrPlayerRef.current.start();
+    return { instrPlayerRef, playerRef };
+  };
+  const marbleRacePlayVocals = async (id: string, vId: string) => {
+    const buffer =
+      downloadObj.current[`https://voxaudio.nusic.fm/covers/${id}/${vId}.mp3`];
+    if (!playerRef.current) {
+      playerRef.current = new Tone.Player(buffer).sync().toDestination();
+      playerRef.current.start(undefined, Tone.Transport.seconds);
+    } else {
+      playerRef.current.stop();
+      playerRef.current.buffer = buffer;
+      playerRef.current.start(undefined, Tone.Transport.seconds);
+    }
+  };
   return {
     playAudio,
     mutePlayer,
@@ -420,6 +452,8 @@ export const useTonejs = (onPlayEnd?: () => void) => {
     downloadAudioFiles,
     playAudioFromDownloadObj,
     playVoice,
+    marbleRaceOnlyInstrument,
+    marbleRacePlayVocals,
     // changeInstrAudio,
   };
 };

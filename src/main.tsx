@@ -12,7 +12,8 @@ import {
   // Link,
 } from "react-router-dom";
 import GlobalStateProvider from "./components/providers/GlobalStateProvider";
-import TilesMarblesGame from "./TilesMarblesGame";
+import TilesMarblesGame from "./TilesMarblesGame/TilesMarblesGame";
+import MarbleRace from "./MarbleRace";
 
 export const GlobalStateContext = createContext<any>(null);
 
@@ -21,7 +22,7 @@ export const useGlobalState = () => useContext(GlobalStateContext);
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <TilesMarblesGame />,
+    element: <MarbleRace />,
   },
 ]);
 const AppWithRouter = () => (

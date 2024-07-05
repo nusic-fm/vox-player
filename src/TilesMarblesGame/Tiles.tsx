@@ -7,7 +7,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { createRandomNumber, formatDuration, nameToSlug } from "./helpers";
+import { createRandomNumber, formatDuration, nameToSlug } from "../helpers";
 import * as Tone from "tone";
 import { AngleDots } from "./Marbles";
 import { SectionsWithDuration } from "./TilesMarblesGame";

@@ -1,11 +1,11 @@
 import { motion, useAnimation } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { calculatePositions, createRandomNumber } from "./helpers";
-import { useTonejs } from "./hooks/useToneService";
+import { calculatePositions, createRandomNumber } from "../helpers";
+import { useTonejs } from "../hooks/useToneService";
 import Marbles from "./Marbles";
 import SectionsFalling from "./Tiles";
 import "./index.css";
-import { CoverV1, getCoverDocById } from "./services/db/coversV1.service";
+import { CoverV1, getCoverDocById } from "../services/db/coversV1.service";
 import {
   Box,
   Dialog,
@@ -16,7 +16,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import theme from "./theme";
+import theme from "../theme";
 
 export type SectionsWithDuration = {
   start: number;

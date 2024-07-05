@@ -23,6 +23,7 @@
     "colormap": "^2.3.2",
     "firebase": "^10.8.0",
     "framer-motion": "^11.2.10",
+    "matter-js": "^0.20.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@types/colormap": "^2.3.4",
+    "@types/matter-js": "^0.19.6",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@types/webfontloader": "^1.6.38",
