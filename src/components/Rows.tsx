@@ -552,9 +552,10 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   useEffect(() => {
     if (coversCollectionSnapshot?.size) {
       setCoversSnapshot(coversCollectionSnapshot);
-      setTimeout(() => {
-        firstCoverRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 800);
+      if (isMobileView)
+        setTimeout(() => {
+          firstCoverRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 800);
       // if (coversCollectionSnapshot.docs.length > 0) {
       //   const coverDoc = coversCollectionSnapshot.docs[0].data() as CoverV1;
       // }
@@ -866,7 +867,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         )}
                       </Stack>
                     )}
-                    <Stack>
+                    <Stack gap={2}>
                       <Box
                         width={"100%"}
                         display="flex"
@@ -874,7 +875,9 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         alignItems="center"
                         sx={{ zIndex: 1 }}
                       >
-                        <Typography>Choose the Voice...</Typography>
+                        <Typography variant="h6">
+                          Choose the Voice...
+                        </Typography>
                         <Button
                           size="small"
                           startIcon={<AddRoundedIcon />}
@@ -901,6 +904,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                         gridAutoFlow="column"
                         gap={2}
                         sx={{ overflowX: "auto" }}
+                        justifyItems="center"
                         my={1}
                       >
                         {coverDoc.voices.map((v) => (
@@ -1901,6 +1905,18 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                   filter: "blur(15px) brightness(0.6)",
                 }}
               />
+            )}
+            {playStart && (
+              <Box position={"absolute"} top={0} left={20} m={1}>
+                <Button
+                  color="error"
+                  onClick={() => setPlayStart(false)}
+                  variant="contained"
+                  sx={{ py: 0 }}
+                >
+                  Stop
+                </Button>
+              </Box>
             )}
             {!playStart && (
               <Stack
