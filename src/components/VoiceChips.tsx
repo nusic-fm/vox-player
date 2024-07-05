@@ -62,13 +62,13 @@ const VoiceChips = ({
   if (isMobileView) {
     return (
       <Stack
-        // display={"flex"}
-        flexGrow={1}
-        // alignItems="center"
-        // justifyContent={"space-between"}
-        // flexWrap="wrap"
+      // display={"flex"}
+      // flexGrow={1}
+      // alignItems="center"
+      // justifyContent={"space-between"}
+      // flexWrap="wrap"
       >
-        {chipVoice && (
+        {/* {chipVoice && (
           <Box
             display={"flex"}
             gap={1}
@@ -132,7 +132,7 @@ const VoiceChips = ({
                 />
               ))}
           </Box>
-        )}
+        )} */}
         {songId === id && (
           <Box display={"flex"} gap={2} justifyContent="space-between">
             {user && (
@@ -145,7 +145,7 @@ const VoiceChips = ({
                 onRefreshUserObj={onRefreshUserObj}
               />
             )}
-            <Button
+            {/* <Button
               variant="contained"
               size="small"
               onClick={() => {
@@ -155,7 +155,7 @@ const VoiceChips = ({
               disabled={!coverDoc.stemsReady}
             >
               Revox
-            </Button>
+            </Button> */}
           </Box>
         )}
       </Stack>
@@ -171,7 +171,7 @@ const VoiceChips = ({
     >
       {chipVoice && (
         <Box display={"flex"} gap={1} flexWrap="wrap" my={1}>
-          {sortArrBasedOnLikesObj(coverDoc.voices, coverDoc.likes).map((v) => (
+          {/* {sortArrBasedOnLikesObj(coverDoc.voices, coverDoc.likes).map((v) => (
             <Chip
               label={v.name}
               key={v.name}
@@ -216,7 +216,7 @@ const VoiceChips = ({
                 //   setVoice(v.id);
               }}
             />
-          ))}
+          ))} */}
           {songId === id && (
             <Box display={"flex"} gap={2} justifyContent="end" ml="auto">
               {user && (
@@ -229,7 +229,7 @@ const VoiceChips = ({
                   onRefreshUserObj={onRefreshUserObj}
                 />
               )}
-              <Button
+              {/* <Button
                 variant="contained"
                 size="small"
                 onClick={() => {
@@ -239,7 +239,7 @@ const VoiceChips = ({
                 disabled={!coverDoc.stemsReady}
               >
                 Revox
-              </Button>
+              </Button> */}
             </Box>
           )}
         </Box>

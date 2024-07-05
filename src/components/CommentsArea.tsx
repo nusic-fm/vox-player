@@ -27,7 +27,12 @@ const CommentsArea = ({ coverDocId }: Props) => {
                 sx={{ width: 24, height: 24 }}
               />
             </Tooltip>
-            <Box display={"flex"} justifyContent="space-between" width={"100%"}>
+            <Box
+              display={"flex"}
+              justifyContent="space-between"
+              width={"100%"}
+              flexWrap="wrap"
+            >
               <Typography variant="caption" sx={{ fontStyle: "italic" }}>
                 {c.content}
               </Typography>

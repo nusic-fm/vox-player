@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -117,16 +117,20 @@ const App = (props: Props) => {
   //   }, [songId]);
 
   return (
-    <Box display={"flex"} justifyContent="center">
-      <Stack px={{ xs: 2, md: 0 }} py={2} width={{ xs: "100vw", md: "950px" }}>
-        <Box display="flex" justifyContent={"center"}>
+    <Box>
+      <Stack gap={4}>
+        {/* <Box display="flex" justifyContent={"center"}>
           <img src="/nusic_purple.png" width={155} alt="" />
-        </Box>
+        </Box> */}
         {/* <Typography variant="body2" textAlign={"center"}>
             AI Cover Charts
           </Typography> */}
         <Rows user={user} tempUserId={tempUserId} onUserChange={onUserChange} />
-        <HelperTextContent />
+        <Box display={"flex"} justifyContent="center">
+          <Box width={{ md: "1250px" }}>
+            <HelperTextContent />
+          </Box>
+        </Box>
       </Stack>
     </Box>
   );
