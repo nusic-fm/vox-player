@@ -10,6 +10,8 @@ import { LoadingButton } from "@mui/lab";
 import * as Tone from "tone";
 import { useBarsScreen } from "./Screens/useBars";
 import { createTriangleBodiesScreen } from "./Screens/useTriangle";
+import { createUtils } from "./Screens/utils";
+import { createMarbles } from "./Screens/marbles";
 type Props = {};
 
 const voices = ["snoop-dogg", "cardi-b", "trevor_gta-v", "eric-cartman"];
@@ -62,73 +64,39 @@ const index = (props: Props) => {
     if (sceneRef.current) {
       const engine = Matter.Engine.create();
       const { world } = engine;
-      engine.gravity.scale = 0.0015;
+      engine.gravity.scale = 0.001;
 
       const canvasWidth = 800;
       const marbleRadius = 35;
       const marbleBounce = 0.5;
-      // Create circles (falling objects)
-      const marble1 = Matter.Bodies.circle(380, 0, marbleRadius, {
-        restitution: marbleBounce,
-        label: "Circle 1",
-        // collisionFilter: { mask: 0x0001 },
-        render: {
-          sprite: {
-            texture:
-              "https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2Farthur-morgan_rdr2-_200x200?alt=media&token=330a3b59-e78d-4b88-81a8-94142b3b4182",
-            xScale: (2 * marbleRadius) / 200,
-            yScale: (2 * marbleRadius) / 200,
-          },
-        },
-      });
-      const marble2 = Matter.Bodies.circle(380, 0, marbleRadius, {
-        restitution: marbleBounce,
-        label: "Circle 2",
-        // collisionFilter: { mask: 0x0001 },
-        render: {
-          sprite: {
-            texture:
-              "https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2Fbillie-eilish-2019_200x200?alt=media&token=d2b5866e-0640-4bc7-915e-05a15cd532d5",
-            xScale: (2 * marbleRadius) / 200,
-            yScale: (2 * marbleRadius) / 200,
-          },
-        },
-      });
-      const marble3 = Matter.Bodies.circle(380, 0, marbleRadius, {
-        restitution: marbleBounce,
-        label: "Circle 3",
-        // collisionFilter: { mask: 0x0001 },
-        render: {
-          sprite: {
-            texture:
-              "https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2Fchester-bennington-_200x200?alt=media&token=30576234-1f5a-4104-860a-103e06f452d8",
-            xScale: (2 * marbleRadius) / 200,
-            yScale: (2 * marbleRadius) / 200,
-          },
-        },
-      });
-      const marble4 = Matter.Bodies.circle(380, 0, marbleRadius, {
-        restitution: marbleBounce,
-        label: "Circle 4",
-        // collisionFilter: { mask: 0x0001 },
-        render: {
-          sprite: {
-            texture:
-              "https://firebasestorage.googleapis.com/v0/b/nusic-vox-player.appspot.com/o/voice_models%2Favatars%2Fthumbs%2Farthur-morgan_rdr2-_200x200?alt=media&token=330a3b59-e78d-4b88-81a8-94142b3b4182",
-            xScale: (2 * marbleRadius) / 200,
-            yScale: (2 * marbleRadius) / 200,
-          },
-        },
-      });
+      const friction = 0.4;
+
+      const marbles: Matter.Body[] = createMarbles(
+        marbleRadius,
+        marbleBounce,
+        friction
+      );
+      const wheelX = 500;
+      const wheelY = 300;
+      // Create a circular constraint for each marble
+      // const constraints: Matter.Constraint[] = marbles.map((marble, index) => {
+      //   return Matter.Constraint.create({
+      //     pointA: { x: wheelX, y: wheelY },
+      //     bodyB: marble,
+      //     pointB: { x: 0, y: 0 },
+      //     length: 100,
+      //     stiffness: 0.1,
+      //   });
+      // });
       circlesRef.current = {
-        marble1,
-        marble2,
-        marble3,
-        marble4,
+        marble1: marbles[0],
+        marble2: marbles[1],
+        marble3: marbles[2],
+        marble4: marbles[3],
       };
       const screens: (Matter.Body | Matter.Constraint | Matter.Composite)[] =
         [];
-      let startOffset = 100;
+      let startOffset = 500;
       const circleScreen = createCircleBody(startOffset);
       screens.push(...circleScreen);
       startOffset += 850; // Screen1 offset
@@ -142,22 +110,18 @@ const index = (props: Props) => {
       screens.push(...crossScreen.constraints);
       startOffset += 850; // Screen1 offset
       startOffset += 300; // Gap
+      const circleScreen2 = createCircleBody(startOffset);
+      screens.push(...circleScreen2);
+      startOffset += 850; // Screen1 offset
       // startOffset += 300; // Gap
-      // startOffset += 850; // Screen1 offset
-      // startOffset += 300; // Gap
+      const miniCircleScreen2 = createMiniCircleBody(startOffset);
+      screens.push(...miniCircleScreen2);
+      startOffset += 850; // Screen1 offset
+      startOffset += 300; // Gap
       // const barsScreen = createBarsBody(startOffset);
       // screens.push(...barsScreen);
       // startOffset += 850; // Screen1 offset
-      // startOffset += 600; // Gap
-      const ground = Matter.Bodies.rectangle(
-        0,
-        startOffset,
-        canvasWidth * 2,
-        100,
-        {
-          isStatic: true,
-        }
-      );
+      // startOffset += 300; // Gap
 
       // // Function to create a checkered pattern canvas
       // function createCheckeredPattern(
@@ -202,27 +166,6 @@ const index = (props: Props) => {
       //   }
       // );
       startOffset += 250; // Screen1 offset
-      // const ceiling = Matter.Bodies.rectangle(
-      //   canvasWidth / 2,
-      //   0,
-      //   canvasWidth,
-      //   50,
-      //   { isStatic: true }
-      // );
-      const leftWall = Matter.Bodies.rectangle(
-        0,
-        startOffset / 2,
-        100,
-        startOffset,
-        { isStatic: true }
-      );
-      const rightWall = Matter.Bodies.rectangle(
-        canvasWidth,
-        startOffset / 2,
-        100,
-        startOffset,
-        { isStatic: true, friction: 1 }
-      );
 
       // Create a renderer
       const render = Matter.Render.create({
@@ -235,51 +178,56 @@ const index = (props: Props) => {
           background: "#fff",
         },
       });
-      // add mouse control
-      const mouse = Matter.Mouse.create(render.canvas);
-      const mouseConstraint = Matter.MouseConstraint.create(engine, {
-        mouse: mouse,
-        constraint: {
-          stiffness: 0.2,
-          render: {
-            visible: false,
-          },
-        },
+      // TODO: Enable Mouse
+      // // add mouse control
+      // const mouse = Matter.Mouse.create(render.canvas);
+      // const mouseConstraint = Matter.MouseConstraint.create(engine, {
+      //   mouse: mouse,
+      //   constraint: {
+      //     stiffness: 0.2,
+      //     render: {
+      //       visible: false,
+      //     },
+      //   },
+      // });
+      // Create a circular constraint
+      const centerX = 300,
+        centerY = 300;
+      const rotationConstraint = Matter.Constraint.create({
+        pointA: { x: centerX, y: centerY },
+        bodyB: marbles[0],
+        pointB: { x: 0, y: 0 },
+        length: 100,
+        stiffness: 0.05,
       });
-      if (isStarted) {
-        Matter.World.add(world, [
-          marble1,
-          marble2,
-          marble3,
-          marble4,
-          ...screens,
-          // ...createCircleBody(startOffset + 600),
-          // ...createMiniCircleBody(startOffset + 750),
-          // ...createCircleBody(startOffset + 600),
-          // ...createMiniCircleBody(startOffset + 2700),
-          // ...createCircleBody(2100),
-          // ...obstacles1,
-          // ...obstacles2,
-          // ...obstacles3,
-          ground,
-          // ceiling,
-          leftWall,
-          rightWall,
-          mouseConstraint,
-        ]);
-      } else
-        Matter.World.add(world, [
-          ...screens,
-          ground,
-          // ceiling,
-          leftWall,
-          rightWall,
-        ]);
-      // keep the mouse in sync with rendering
-      render.mouse = mouse;
+      // if (isStarted) {
+      Matter.World.add(world, [
+        ...marbles,
+        // ...constraints,
+        ...screens,
+        // ...createCircleBody(startOffset + 600),
+        // ...createMiniCircleBody(startOffset + 750),
+        // ...createCircleBody(startOffset + 600),
+        // ...createMiniCircleBody(startOffset + 2700),
+        // ...createCircleBody(2100),
+        // ...obstacles1,
+        // ...obstacles2,
+        // ...obstacles3,
+        ...createUtils(startOffset, canvasWidth),
+        // mouseConstraint, // TODO: Enable Mouse
+      ]);
+      // } else
+      //   Matter.World.add(world, [
+      //     ...screens,
+      //     ...createUtils(startOffset, canvasWidth),
+      //   ]);
+      // TODO: Enable Mouse
+      // // keep the mouse in sync with rendering
+      // render.mouse = mouse;
       // Run the engine
-      const runner = Matter.Runner.create();
+      const runner = Matter.Runner.create({ delta: 1.5, isFixed: true });
       Matter.Runner.run(runner, engine);
+      // Matter.Engine.run(engine)
 
       // Run the renderer
       Matter.Render.run(render);
@@ -307,10 +255,24 @@ const index = (props: Props) => {
           }
           // }, 10); // Check every second
         }
-        trails1.push({ x: marble1.position.x, y: marble1.position.y - 20 });
-        trails2.push({ x: marble2.position.x, y: marble2.position.y - 20 });
-        trails3.push({ x: marble3.position.x, y: marble3.position.y - 20 });
-        trails4.push({ x: marble4.position.x, y: marble4.position.y - 20 });
+        if (marbles.length) {
+          trails1.push({
+            x: marbles[0].position.x,
+            y: marbles[0].position.y - 20,
+          });
+          trails2.push({
+            x: marbles[1].position.x,
+            y: marbles[1].position.y - 20,
+          });
+          trails3.push({
+            x: marbles[2].position.x,
+            y: marbles[2].position.y - 20,
+          });
+          trails4.push({
+            x: marbles[3].position.x,
+            y: marbles[3].position.y - 20,
+          });
+        }
         const trailLength = 20;
         if (trails1.length > trailLength) {
           trails1.shift();
@@ -369,16 +331,45 @@ const index = (props: Props) => {
         //   ctx.stroke();
         // }
       });
+      // Flag to stop updating positions
+      let stopRotation = false;
       Matter.Events.on(engine, "beforeUpdate", function (event) {
+        // Cross Rotating Config
         crossScreen.crosses.map((c, i) =>
-          Matter.Body.setAngularVelocity(c, i % 2 ? 0.03 : -0.03)
+          // Matter.Body.setAngularVelocity(c, i % 2 ? 0.025 : -0.025)
+          Matter.Body.setAngle(c, i % 2 ? c.angle - 0.003 : c.angle + 0.003)
         );
+        // if (!stopRotation) {
+        //   const time = engine.timing.timestamp / 400;
+        //   marbles.forEach((marble, index) => {
+        //     const angle = time + index * (Math.PI / 2);
+        //     Matter.Body.setPosition(marble, {
+        //       x: wheelX + 100 * Math.cos(angle),
+        //       y: wheelY + 100 * Math.sin(angle),
+        //     });
+        //   });
+        // } else {
+        // }
+        // if (isStarted) {
+        //   // Apply forces and remove constraints after 3 seconds
+        //   setTimeout(() => {
+        //     stopRotation = true;
+        //     constraints.forEach((constraint) =>
+        //       Matter.World.remove(world, constraint)
+        //     );
+        //     // marbles.forEach((marble) => {
+        //     //   Matter.Body.applyForce(marble, marble.position, {
+        //     //     x: (Math.random() - 0.5) * 0.05,
+        //     //     y: (Math.random() - 0.5) * 0.05,
+        //     //   });
+        //     // });
+        //   }, 3000);
+        // }
         // if (movingBar.position.x >= endX) {
         //   direction = -1; // Change direction to left
         // } else if (movingBar.position.x <= startX) {
         //   direction = 1; // Change direction to right
         // }
-
         // // Move the bar
         // Matter.Body.setPosition(movingBar, {
         //   x: movingBar.position.x + direction * speed,
@@ -386,21 +377,21 @@ const index = (props: Props) => {
         // });
       });
       // Event listener for collisions
-      Matter.Events.on(engine, "collisionStart", function (event) {
-        // var pairs = event.pairs;
-        // pairs.forEach(function (pair) {
-        //   if (
-        //     barsScreen.includes(pair.bodyA) ||
-        //     barsScreen.includes(pair.bodyB)
-        //   ) {
-        //     if (barsScreen.includes(pair.bodyA)) {
-        //       pair.bodyB.restitution = 2;
-        //     } else {
-        //       pair.bodyA.restitution = 2;
-        //     }
-        //   }
-        // });
-      });
+      // Matter.Events.on(engine, "collisionStart", function (event) {
+      // var pairs = event.pairs;
+      // pairs.forEach(function (pair) {
+      //   if (
+      //     barsScreen.includes(pair.bodyA) ||
+      //     barsScreen.includes(pair.bodyB)
+      //   ) {
+      //     if (barsScreen.includes(pair.bodyA)) {
+      //       pair.bodyB.restitution = 2;
+      //     } else {
+      //       pair.bodyA.restitution = 2;
+      //     }
+      //   }
+      // });
+      // });
 
       // Clean up
       return () => {

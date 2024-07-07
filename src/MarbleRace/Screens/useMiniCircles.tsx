@@ -240,19 +240,19 @@ export const useMiniCirclesScreen = () => {
       )
     );
     obstacles.push(
-      Matter.Bodies.circle(170, offset + 800, circleRadius, {
+      Matter.Bodies.circle(200, offset + 800, circleRadius, {
         isStatic: true,
         render: { fillStyle: "#ff5733" },
       })
     );
     obstacles.push(
-      Matter.Bodies.circle(370, offset + 800, circleRadius, {
+      Matter.Bodies.circle(400, offset + 800, circleRadius, {
         isStatic: true,
         render: { fillStyle: "#ff5733" },
       })
     );
     obstacles.push(
-      Matter.Bodies.circle(570, offset + 800, circleRadius, {
+      Matter.Bodies.circle(600, offset + 800, circleRadius, {
         isStatic: true,
         render: { fillStyle: "#ff5733" },
       })
@@ -268,13 +268,13 @@ export const useMiniCirclesScreen = () => {
       )
     );
     obstacles.push(
-      Matter.Bodies.circle(280, offset + 900, circleRadius, {
+      Matter.Bodies.circle(300, offset + 900, circleRadius, {
         isStatic: true,
         render: { fillStyle: "#ff5733" },
       })
     );
     obstacles.push(
-      Matter.Bodies.circle(480, offset + 900, circleRadius, {
+      Matter.Bodies.circle(500, offset + 900, circleRadius, {
         isStatic: true,
         render: { fillStyle: "#ff5733" },
       })

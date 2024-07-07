@@ -11,11 +11,11 @@ export const useCirclesScreen = () => {
     const obstacle3 = Matter.Bodies.circle(400, offset + 150, 80, {
       isStatic: true,
     });
-    const obstacle4 = Matter.Bodies.circle(200, offset + 300, 50, {
+    const obstacle4 = Matter.Bodies.circle(200, offset + 300, 60, {
       isStatic: true,
     });
 
-    const obstacle5 = Matter.Bodies.circle(600, offset + 300, 50, {
+    const obstacle5 = Matter.Bodies.circle(600, offset + 300, 60, {
       isStatic: true,
     });
     const obstacle6 = Matter.Bodies.circle(0, offset + 450, 80, {
@@ -27,11 +27,11 @@ export const useCirclesScreen = () => {
     const obstacle8 = Matter.Bodies.circle(410, offset + 450, 80, {
       isStatic: true,
     });
-    const obstacle9 = Matter.Bodies.circle(200, offset + 600, 50, {
+    const obstacle9 = Matter.Bodies.circle(200, offset + 600, 60, {
       isStatic: true,
     });
 
-    const obstacle10 = Matter.Bodies.circle(600, offset + 600, 50, {
+    const obstacle10 = Matter.Bodies.circle(600, offset + 600, 60, {
       isStatic: true,
     });
     const obstacle11 = Matter.Bodies.circle(0, offset + 750, 80, {

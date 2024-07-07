@@ -13,8 +13,8 @@ export const useCrossScreen = () => {
       offset + 700,
       //   offset + 900,
     ];
-    const xEven = [100, 700];
-    const xOdd = [300, 500];
+    const xEven = [80, 720];
+    const xOdd = [280, 520];
     let crosses: Matter.Body[] = [];
     let constraints: Matter.Constraint[] = [];
     yAxises.map((y, i) =>
@@ -41,18 +41,18 @@ export const useCrossScreen = () => {
         const cross = Matter.Body.create({
           parts: [horizontalRect, verticalRect],
           //   inertia: Infinity, // Prevents the body from rotating due to collisions
-          //   isStatic: true,
+          isStatic: true,
         });
         crosses.push(cross);
-        constraints.push(
-          Matter.Constraint.create({
-            pointA: { x: i % 2 ? xOdd[x] : xEven[x], y },
-            bodyB: cross,
-            pointB: { x: 0, y: 0 },
-            stiffness: 1,
-            length: 0,
-          })
-        );
+        // constraints.push(
+        //   Matter.Constraint.create({
+        //     pointA: { x: i % 2 ? xOdd[x] : xEven[x], y },
+        //     bodyB: cross,
+        //     pointB: { x: 0, y: 0 },
+        //     stiffness: 1,
+        //     length: 0,
+        //   })
+        // );
       })
     );
     // // Create a compound body
