@@ -1306,7 +1306,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               {playStart && (
                 <iframe
                   src={`https://play.nusic.fm/?coverId=${
-                    songId || coversSnapshot?.docs[0].id
+                    id
                   }`}
                   width="100%"
                   height={"100%"}
