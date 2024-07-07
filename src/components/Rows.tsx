@@ -205,6 +205,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
   const sectionsBarRef = useRef<HTMLDivElement | null>(null);
   const [sectionsWidth, setSectionsWidth] = useState<number[]>([]);
   const firstCoverRef = useRef<HTMLDivElement | null>(null);
+  const [iframeUrl, setIframeUrl] = useState("");
 
   useEffect(() => {
     if (songId && coversSnapshot) {
@@ -1127,6 +1128,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                           // playAreaRef.current?.scrollIntoView({
                           //   behavior: "smooth",
                           // });
+                          setIframeUrl(id);
                           setPlayStart(true);
                           pausePlayer();
                         }}
@@ -1295,7 +1297,10 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               <Box position={"absolute"} top={0} left={0} m={1}>
                 <Button
                   color="error"
-                  onClick={() => setPlayStart(false)}
+                  onClick={() => {
+                    setPlayStart(false);
+                    setIframeUrl("");
+                  }}
                   size="small"
                   variant="contained"
                   sx={{ py: 0 }}
@@ -1305,9 +1310,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
               </Box>
               {playStart && (
                 <iframe
-                  src={`https://play.nusic.fm/?coverId=${
-                    id
-                  }`}
+                  src={`https://play.nusic.fm/?coverId=${iframeUrl}`}
                   width="100%"
                   height={"100%"}
                   style={{ zIndex: 999, border: "unset" }}
