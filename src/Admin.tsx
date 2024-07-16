@@ -93,12 +93,12 @@ const Admin = (props: Props) => {
           <Typography>{d.data().title}</Typography>
           <LoadingButton
             loading={
-              progressIds.includes(d.id) ||
-              checkIfProgressIdExistInCollection(d.id, machines)
+              progressIds.includes(d.id)
+              // || checkIfProgressIdExistInCollection(d.id, machines)
             }
             variant="contained"
             onClick={async () => {
-              setProgressIds((ids) => [...ids, coverDoc.id]);
+              setProgressIds((ids) => [...ids, d.id]);
               const coverDoc = d.data();
               if (coverDoc.sections.length === 0) {
                 const isAllInOneAvailable = machines?.findIndex(
