@@ -185,7 +185,12 @@ const Admin = (props: Props) => {
             maxWidth={"750px"}
             justifyContent="space-between"
           >
-            <Typography flexBasis={"35%"}>
+            <Typography
+              flexBasis={"35%"}
+              component="a"
+              href={`https://huggingface.co/spaces/${doc.userId}/${doc.spaceId}`}
+              target="_blank"
+            >
               {doc.userId}/{doc.name}
             </Typography>
             <Stack gap={1} width={"35%"}>
