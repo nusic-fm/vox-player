@@ -5,6 +5,7 @@ import {
   Divider,
   IconButton,
   Stack,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -13,13 +14,12 @@ import axios from "axios";
 import {
   query,
   collection,
-  orderBy,
   where,
   limit,
   or,
   DocumentData,
 } from "firebase/firestore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useCollection,
   useCollectionData,
@@ -28,6 +28,8 @@ import { RevoxProcessTypeDoc } from "./services/db/revoxQueue.service";
 import { db } from "./services/firebase.service";
 import { useNavigate } from "react-router-dom";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { updateMachinesDoc } from "./services/db/machines.service";
 
 type Props = {};
 
@@ -56,9 +58,10 @@ const Admin = (props: Props) => {
       limit(10)
     )
   );
-  const [machines, ,] = useCollectionData(
+  const [machinesSs, ,] = useCollection(
     query(collection(db, "machines"), limit(10))
   );
+  const [machines, setMachines] = useState<any[]>([]);
   const [revoxQueue, ,] = useCollection(
     query(
       collection(db, "revox_queue"),
@@ -77,6 +80,37 @@ const Admin = (props: Props) => {
 
   const [coverId, setCoverId] = useState("");
   const [voiceId, setVoiceId] = useState("");
+  const [hfSpaceStatusObj, setHfSpaceStatusObj] = useState<{
+    [key: string]: string;
+  }>({});
+
+  const fetchHfStatus = async (userId: string, spaceId: string) => {
+    const res = await axios.get(
+      `https://huggingface.co/api/spaces/${userId}/${spaceId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_HF_ADMIN_KEY}`,
+        },
+      }
+    );
+    const stage = res.data.runtime.stage;
+    setHfSpaceStatusObj((prevObj) => ({
+      ...prevObj,
+      [`${userId}/${spaceId}`]: stage,
+    }));
+  };
+  useEffect(() => {
+    if (machinesSs?.size) {
+      setMachines(machinesSs.docs.map((d) => ({ ...d.data(), id: d.id })));
+    }
+  }, [machinesSs]);
+  useEffect(() => {
+    if (machines.length) {
+      machines.map((doc) => {
+        fetchHfStatus(doc.userId, doc.spaceId);
+      });
+    }
+  }, [machines]);
 
   return (
     <Stack p={4} gap={2}>
@@ -92,6 +126,7 @@ const Admin = (props: Props) => {
         <Box display={"flex"} key={d.id} gap={4} alignItems="center">
           <Typography>{d.data().title}</Typography>
           <LoadingButton
+            size="small"
             loading={
               progressIds.includes(d.id)
               // || checkIfProgressIdExistInCollection(d.id, machines)
@@ -147,16 +182,85 @@ const Admin = (props: Props) => {
             key={Math.random()}
             gap={4}
             alignItems="center"
-            width={"350px"}
+            maxWidth={"750px"}
             justifyContent="space-between"
           >
-            <Typography>
+            <Typography flexBasis={"35%"}>
               {doc.userId}/{doc.name}
             </Typography>
-            <Chip
-              color={doc.isAvailable ? "success" : "error"}
-              label={doc.isAvailable ? "Available" : "Not Available"}
-            />
+            <Stack gap={1} width={"35%"}>
+              <Stack direction={"row"} alignItems="center" gap={1}>
+                <Typography>HF Status</Typography>
+                <Chip
+                  color={
+                    hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                    "RUNNING"
+                      ? "success"
+                      : hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                        "BUILDING"
+                      ? "warning"
+                      : "error"
+                  }
+                  label={hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`]}
+                />
+              </Stack>
+              <Box>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  size="small"
+                  onClick={async () => {
+                    const formData = new FormData();
+                    formData.append("space_id", `${doc.userId}/${doc.spaceId}`);
+                    formData.append(
+                      "hf_token",
+                      import.meta.env.VITE_HF_ADMIN_KEY
+                    );
+                    const res = await axios.post(
+                      `https://audio-analyzer-py-ynfarb57wa-uc.a.run.app/factory-build`,
+                      formData
+                    );
+                    alert(res.data);
+                    fetchHfStatus(doc.userId, doc.spaceId);
+                  }}
+                >
+                  Restart Space
+                </Button>
+                <IconButton
+                  onClick={() => fetchHfStatus(doc.userId, doc.spaceId)}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </Box>
+            </Stack>
+            <Stack flexBasis={"30%"}>
+              <Stack direction={"row"} gap={1} alignItems="center">
+                <Typography>Server Status</Typography>
+                <Chip
+                  color={
+                    doc.isAvailable &&
+                    hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                      "RUNNING"
+                      ? "success"
+                      : "error"
+                  }
+                  label={
+                    doc.isAvailable
+                      ? hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                        "RUNNING"
+                        ? "Available"
+                        : "HF Down"
+                      : "BUSY"
+                  }
+                />
+              </Stack>
+              <Switch
+                checked={doc.isAvailable}
+                onChange={(e, checked) => {
+                  updateMachinesDoc(doc.id, checked);
+                }}
+              ></Switch>
+            </Stack>
           </Box>
         );
       })}
@@ -182,27 +286,30 @@ const Admin = (props: Props) => {
               </Box>
             </Stack>
             <Chip label={doc.error} color="error" />
-            <LoadingButton
-              loading={revoxLoadingIds.includes(id)}
-              variant="contained"
-              onClick={async () => {
-                try {
-                  setRevoxLoadingIds((ids) => [...ids, id]);
-                  await axios.post(
-                    `${import.meta.env.VITE_VOX_COVER_SERVER}/revox`,
-                    {
-                      progress_doc_id: id,
-                      voice_model_url: doc.voiceModelUrl,
-                      voice_model_name: doc.voiceModelName,
-                      voice_id: doc.voiceObj.id,
-                      cover_doc_id: doc.coverDocId,
-                    }
-                  );
-                } catch (e) {}
-              }}
-            >
-              Retry
-            </LoadingButton>
+            <Box>
+              <LoadingButton
+                loading={revoxLoadingIds.includes(id)}
+                variant="contained"
+                size="small"
+                onClick={async () => {
+                  try {
+                    setRevoxLoadingIds((ids) => [...ids, id]);
+                    await axios.post(
+                      `${import.meta.env.VITE_VOX_COVER_SERVER}/revox`,
+                      {
+                        progress_doc_id: id,
+                        voice_model_url: doc.voiceModelUrl,
+                        voice_model_name: doc.voiceModelName,
+                        voice_id: doc.voiceObj.id,
+                        cover_doc_id: doc.coverDocId,
+                      }
+                    );
+                  } catch (e) {}
+                }}
+              >
+                Retry
+              </LoadingButton>
+            </Box>
           </Box>
         );
       })}
