@@ -1923,11 +1923,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             )}
             {!playStart && (
               <Stack
-                justifyContent={"space-between"}
+                // justifyContent={"space-between"}
                 width="100%"
                 height="100%"
               >
-                <Stack gap={2}>
+                <Stack gap={2} height="75%">
                   <Box
                     width={"100%"}
                     display="flex"
@@ -1970,6 +1970,7 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     flexWrap="wrap"
                     justifyContent={"center"}
                     alignItems="center"
+                    sx={{ overflowY: "auto" }}
                   >
                     {(
                       selectedCoverDoc ||
@@ -2070,9 +2071,18 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
                     )}
                   </Box>
                 </Stack>
-                <Box sx={{ my: "auto", zIndex: 9 }}>
+                <Box
+                  sx={{
+                    // my: "auto",
+                    zIndex: 9,
+                  }}
+                  height="12%"
+                  display={"flex"}
+                  alignItems="center"
+                >
                   <motion.div
                     style={{
+                      width: "100%",
                       padding: "10px 20px",
                       display: "flex",
                       justifyContent: "center",
