@@ -120,157 +120,8 @@ const Admin = (props: Props) => {
         </IconButton>
         <Typography variant="h5">Admin Portal</Typography>
       </Box>
-      <Typography>-----noRVC (Stems) or allin1 processes-----</Typography>
-      {!noRVCSnapshot?.size && <Typography>No pending processes</Typography>}
-      {noRVCSnapshot?.docs.map((d) => (
-        <Box display={"flex"} key={d.id} gap={4} alignItems="center">
-          <Typography>{d.data().title}</Typography>
-          <LoadingButton
-            size="small"
-            loading={
-              progressIds.includes(d.id)
-              // || checkIfProgressIdExistInCollection(d.id, machines)
-            }
-            variant="contained"
-            onClick={async () => {
-              setProgressIds((ids) => [...ids, d.id]);
-              const coverDoc = d.data();
-              if (coverDoc.sections.length === 0) {
-                const isAllInOneAvailable = machines?.findIndex(
-                  (d) => d.name === "all-in-1" && !!d.isAvailable
-                );
-                if (isAllInOneAvailable !== -1) {
-                  try {
-                    axios.post(
-                      `${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`,
-                      {
-                        cover_doc_id: d.id,
-                      }
-                    );
-                  } catch (e) {}
-                } else alert("allin1 machine not available");
-              }
-              if (coverDoc.stemsReady === false) {
-                const isMachineAvailable = machines?.findIndex(
-                  (d) => d.name === "no-rvc" && !!d.isAvailable
-                );
-                if (isMachineAvailable !== -1) {
-                  try {
-                    axios.post(
-                      `${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`,
-                      {
-                        cover_doc_id: d.id,
-                        voice_id: coverDoc.voices[0].id,
-                      }
-                    );
-                  } catch (e) {}
-                } else alert("no-rvc machine not available");
-              }
-            }}
-          >
-            Retry
-          </LoadingButton>
-        </Box>
-      ))}
-      <Divider />
-      <Typography>-----Machines-----</Typography>
-      {!machines?.length && <Typography>No Available Machines</Typography>}
-      {machines?.map((doc) => {
-        return (
-          <Box
-            display={"flex"}
-            key={Math.random()}
-            gap={4}
-            alignItems="center"
-            maxWidth={"750px"}
-            justifyContent="space-between"
-          >
-            <Typography
-              flexBasis={"35%"}
-              component="a"
-              href={`https://huggingface.co/spaces/${doc.userId}/${doc.spaceId}`}
-              target="_blank"
-            >
-              {doc.userId}/{doc.name}
-            </Typography>
-            <Stack gap={1} width={"35%"}>
-              <Stack direction={"row"} alignItems="center" gap={1}>
-                <Typography>HF Status</Typography>
-                <Chip
-                  color={
-                    hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
-                    "RUNNING"
-                      ? "success"
-                      : hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
-                        "BUILDING"
-                      ? "warning"
-                      : "error"
-                  }
-                  label={hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`]}
-                />
-              </Stack>
-              <Box>
-                <Button
-                  variant="outlined"
-                  color="warning"
-                  size="small"
-                  onClick={async () => {
-                    const formData = new FormData();
-                    formData.append("space_id", `${doc.userId}/${doc.spaceId}`);
-                    formData.append(
-                      "hf_token",
-                      import.meta.env.VITE_HF_ADMIN_KEY
-                    );
-                    const res = await axios.post(
-                      `https://audio-analyzer-py-ynfarb57wa-uc.a.run.app/factory-build`,
-                      formData
-                    );
-                    alert(res.data);
-                    fetchHfStatus(doc.userId, doc.spaceId);
-                  }}
-                >
-                  Restart Space
-                </Button>
-                <IconButton
-                  onClick={() => fetchHfStatus(doc.userId, doc.spaceId)}
-                >
-                  <RefreshIcon />
-                </IconButton>
-              </Box>
-            </Stack>
-            <Stack flexBasis={"30%"}>
-              <Stack direction={"row"} gap={1} alignItems="center">
-                <Typography>Server Status</Typography>
-                <Chip
-                  color={
-                    doc.isAvailable &&
-                    hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
-                      "RUNNING"
-                      ? "success"
-                      : "error"
-                  }
-                  label={
-                    doc.isAvailable
-                      ? hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
-                        "RUNNING"
-                        ? "Available"
-                        : "HF Down"
-                      : "BUSY"
-                  }
-                />
-              </Stack>
-              <Switch
-                checked={doc.isAvailable}
-                onChange={(e, checked) => {
-                  updateMachinesDoc(doc.id, checked);
-                }}
-              ></Switch>
-            </Stack>
-          </Box>
-        );
-      })}
-      <Divider />
-      <Typography>-----Failed Revoxes-----</Typography>
+      <Typography variant="h5">-----Failed Revoxes-----</Typography>
+
       {revoxQueue?.docs.map((d) => {
         const id = d.id;
         const doc = d.data() as RevoxProcessTypeDoc;
@@ -318,6 +169,279 @@ const Admin = (props: Props) => {
           </Box>
         );
       })}
+      {machines
+        ?.filter((d) => d.name === "revox")
+        .map((doc) => {
+          return (
+            <Box
+              display={"flex"}
+              key={Math.random()}
+              gap={4}
+              alignItems="center"
+              maxWidth={"750px"}
+              // justifyContent="space-between"
+            >
+              <Typography
+                flexBasis={"35%"}
+                component="a"
+                href={`https://huggingface.co/spaces/${doc.userId}/${doc.spaceId}`}
+                target="_blank"
+              >
+                {doc.userId}/{doc.name}
+              </Typography>
+              <Stack gap={1} width={"35%"}>
+                <Stack direction={"row"} alignItems="center" gap={1}>
+                  <Typography>HF Status</Typography>
+                  <Chip
+                    size="small"
+                    color={
+                      hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                      "RUNNING"
+                        ? "success"
+                        : hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                          "BUILDING"
+                        ? "warning"
+                        : "error"
+                    }
+                    label={hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`]}
+                  />
+                </Stack>
+                <Box>
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    size="small"
+                    onClick={async () => {
+                      const formData = new FormData();
+                      formData.append(
+                        "space_id",
+                        `${doc.userId}/${doc.spaceId}`
+                      );
+                      formData.append(
+                        "hf_token",
+                        import.meta.env.VITE_HF_ADMIN_KEY
+                      );
+                      const res = await axios.post(
+                        `https://audio-analyzer-py-ynfarb57wa-uc.a.run.app/factory-build`,
+                        formData
+                      );
+                      alert(res.data);
+                      fetchHfStatus(doc.userId, doc.spaceId);
+                    }}
+                  >
+                    Restart Space
+                  </Button>
+                  <IconButton
+                    onClick={() => fetchHfStatus(doc.userId, doc.spaceId)}
+                  >
+                    <RefreshIcon />
+                  </IconButton>
+                </Box>
+              </Stack>
+              {hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                "RUNNING" && (
+                <Stack flexBasis={"30%"}>
+                  <Stack direction={"row"} gap={1} alignItems="center">
+                    <Typography>Server Status</Typography>
+                    <Chip
+                      color={
+                        doc.isAvailable &&
+                        hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                          "RUNNING"
+                          ? "success"
+                          : "error"
+                      }
+                      label={
+                        doc.isAvailable
+                          ? hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                            "RUNNING"
+                            ? "Available"
+                            : "HF Down"
+                          : "BUSY"
+                      }
+                    />
+                  </Stack>
+                  <Switch
+                    checked={doc.isAvailable}
+                    onChange={(e, checked) => {
+                      updateMachinesDoc(doc.id, checked);
+                    }}
+                  ></Switch>
+                </Stack>
+              )}
+            </Box>
+          );
+        })}
+      <Divider />
+      <Typography variant="h5">
+        -----noRVC (Stems) or allin1 processes-----
+      </Typography>
+      {!noRVCSnapshot?.size && <Typography>No pending processes</Typography>}
+
+      {noRVCSnapshot?.docs.map((d) => (
+        <Box display={"flex"} key={d.id} gap={4} alignItems="center">
+          <Typography>{d.data().title}</Typography>
+          {d.data().sections.length === 0 && (
+            <Chip
+              color="warning"
+              label={"No Sections"}
+              variant="outlined"
+            ></Chip>
+          )}
+          {d.data().stemsReady === false && (
+            <Chip color="warning" label={"No Stems"} variant="outlined"></Chip>
+          )}
+          <LoadingButton
+            size="small"
+            loading={
+              progressIds.includes(d.id)
+              // || checkIfProgressIdExistInCollection(d.id, machines)
+            }
+            variant="contained"
+            onClick={async () => {
+              setProgressIds((ids) => [...ids, d.id]);
+              const coverDoc = d.data();
+              if (coverDoc.sections.length === 0) {
+                const isAllInOneAvailable = machines?.findIndex(
+                  (d) => d.name === "all-in-1" && !!d.isAvailable
+                );
+                if (isAllInOneAvailable !== -1) {
+                  try {
+                    axios.post(
+                      `${import.meta.env.VITE_VOX_COVER_SERVER}/all-in-one`,
+                      {
+                        cover_doc_id: d.id,
+                      }
+                    );
+                  } catch (e) {}
+                } else alert("allin1 machine not available");
+              }
+              if (coverDoc.stemsReady === false) {
+                const isMachineAvailable = machines?.findIndex(
+                  (d) => d.name === "no-rvc" && !!d.isAvailable
+                );
+                if (isMachineAvailable !== -1) {
+                  try {
+                    axios.post(
+                      `${import.meta.env.VITE_VOX_COVER_SERVER}/no-rvc`,
+                      {
+                        cover_doc_id: d.id,
+                        voice_id: coverDoc.voices[0].id,
+                      }
+                    );
+                  } catch (e) {}
+                } else alert("no-rvc machine not available");
+              }
+            }}
+          >
+            Retry
+          </LoadingButton>
+        </Box>
+      ))}
+      {machines
+        ?.filter((d) => d.name != "revox")
+        .sort((a, b) => b.name.length - a.name.length)
+        .map((doc) => {
+          return (
+            <Box
+              display={"flex"}
+              key={Math.random()}
+              gap={4}
+              alignItems="center"
+              maxWidth={"750px"}
+              // justifyContent="space-between"
+            >
+              <Typography
+                flexBasis={"35%"}
+                component="a"
+                href={`https://huggingface.co/spaces/${doc.userId}/${doc.spaceId}`}
+                target="_blank"
+              >
+                {doc.userId}/{doc.name}
+              </Typography>
+              <Stack gap={1} width={"35%"}>
+                <Stack direction={"row"} alignItems="center" gap={1}>
+                  <Typography>HF Status</Typography>
+                  <Chip
+                    size="small"
+                    color={
+                      hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                      "RUNNING"
+                        ? "success"
+                        : hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                          "BUILDING"
+                        ? "warning"
+                        : "error"
+                    }
+                    label={hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`]}
+                  />
+                </Stack>
+                <Box>
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    size="small"
+                    onClick={async () => {
+                      const formData = new FormData();
+                      formData.append(
+                        "space_id",
+                        `${doc.userId}/${doc.spaceId}`
+                      );
+                      formData.append(
+                        "hf_token",
+                        import.meta.env.VITE_HF_ADMIN_KEY
+                      );
+                      const res = await axios.post(
+                        `https://audio-analyzer-py-ynfarb57wa-uc.a.run.app/factory-build`,
+                        formData
+                      );
+                      alert(res.data);
+                      fetchHfStatus(doc.userId, doc.spaceId);
+                    }}
+                  >
+                    Restart Space
+                  </Button>
+                  <IconButton
+                    onClick={() => fetchHfStatus(doc.userId, doc.spaceId)}
+                  >
+                    <RefreshIcon />
+                  </IconButton>
+                </Box>
+              </Stack>
+              {hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                "RUNNING" && (
+                <Stack flexBasis={"30%"}>
+                  <Stack direction={"row"} gap={1} alignItems="center">
+                    <Typography>Server Status</Typography>
+                    <Chip
+                      color={
+                        doc.isAvailable &&
+                        hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                          "RUNNING"
+                          ? "success"
+                          : "error"
+                      }
+                      label={
+                        doc.isAvailable
+                          ? hfSpaceStatusObj[`${doc.userId}/${doc.spaceId}`] ===
+                            "RUNNING"
+                            ? "Available"
+                            : "HF Down"
+                          : "BUSY"
+                      }
+                    />
+                  </Stack>
+                  <Switch
+                    checked={doc.isAvailable}
+                    onChange={(e, checked) => {
+                      updateMachinesDoc(doc.id, checked);
+                    }}
+                  ></Switch>
+                </Stack>
+              )}
+            </Box>
+          );
+        })}
       <Divider />
       <Typography>-----Submissions-----</Typography>
       {submissions?.map((s) => (
@@ -325,7 +449,9 @@ const Admin = (props: Props) => {
           {s.name}-{s.email}-{s.countryCode.code}-{s.mobile}
         </Box>
       ))}
-      <Typography>-----Download-----</Typography>
+      <Typography>
+        -----Download the Merged Stems (Voice & Instrument)-----
+      </Typography>
       <Box display={"flex"} gap={2}>
         <TextField
           color="secondary"
@@ -337,34 +463,46 @@ const Admin = (props: Props) => {
           label="voice id"
           onChange={(e) => setVoiceId(e.target.value)}
         />
-        <Button
-          color="secondary"
-          variant="outlined"
-          onClick={async () => {
-            // download the merge-stems endpoint which sends as res.sendFile here
+        <Stack>
+          <Button
+            size="small"
+            color="secondary"
+            variant="outlined"
+            onClick={async () => {
+              // download the merge-stems endpoint which sends as res.sendFile here
 
-            const res = await axios.post(
-              `${import.meta.env.VITE_VOX_COVER_SERVER}/merge-stems`,
-              {
-                cover_id: coverId,
-                voice_id: voiceId,
-              },
-              {
-                responseType: "blob",
-              }
-            );
-            // download res data
-            const url = window.URL.createObjectURL(new Blob([res.data]));
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", `${coverId}_${voiceId}.mp3`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-          }}
-        >
-          Download
-        </Button>
+              const res = await axios.post(
+                `${import.meta.env.VITE_VOX_COVER_SERVER}/merge-stems`,
+                {
+                  cover_id: coverId,
+                  voice_id: voiceId,
+                },
+                {
+                  responseType: "blob",
+                }
+              );
+              // download res data
+              const url = window.URL.createObjectURL(new Blob([res.data]));
+              const link = document.createElement("a");
+              link.href = url;
+              link.setAttribute("download", `${coverId}_${voiceId}.mp3`);
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+            }}
+          >
+            Download
+          </Button>
+          <Button
+            href={`https://voxaudio.nusic.fm/covers%2F${coverId}%2F${voiceId}.mp3?alt=media`}
+            target={"_blank"}
+            size="small"
+            color="secondary"
+            variant="outlined"
+          >
+            Open
+          </Button>
+        </Stack>
       </Box>
     </Stack>
   );
