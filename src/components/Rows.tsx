@@ -41,7 +41,7 @@ import * as Tone from "tone";
 import { getWidthByDuration, timeToSeconds } from "../helpers/audio";
 import {
   db,
-  logFirebaseEvent,
+  // logFirebaseEvent,
   remoteConfig,
 } from "../services/firebase.service";
 // import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
@@ -510,11 +510,11 @@ const Rows = ({ user, tempUserId, onUserChange }: Props) => {
             voice_model_name: voiceModelName,
             voice_id: newVoiceId,
           });
-          logFirebaseEvent("revox", {
-            name: user.name,
-            content_id: songId,
-            voice_id: newVoiceId,
-          });
+          // logFirebaseEvent("revox", {
+          //   name: user.name,
+          //   content_id: songId,
+          //   voice_id: newVoiceId,
+          // });
           setSuccessSnackbarMsg("Submitted the voice model for Revoxing");
           setRevoxSongInfo(null);
           setRefreshHeader(!refreshHeader);

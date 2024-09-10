@@ -1,4 +1,4 @@
-import { analytics, db, logFirebaseEvent } from "../firebase.service";
+import { db } from "../firebase.service";
 import {
   arrayRemove,
   arrayUnion,
@@ -7,7 +7,7 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { setUserId } from "firebase/analytics";
+// import { setUserId } from "firebase/analytics";
 import { nameToSlug } from "../../helpers";
 import axios from "axios";
 
@@ -48,8 +48,8 @@ const createUserDoc = async (
           },
         }
       );
-      logFirebaseEvent("login", { name: userDoc.name, id: uid });
-      setUserId(analytics, nameToSlug(userDoc.name));
+      // logFirebaseEvent("login", { name: userDoc.name, id: uid });
+      // setUserId(analytics, nameToSlug(userDoc.name));
       return userDocRef.data() as User;
     } else {
       axios.post(
@@ -67,9 +67,9 @@ const createUserDoc = async (
           },
         }
       );
-      logFirebaseEvent("sign_up", { name: userDoc.name, id: uid });
+      // logFirebaseEvent("sign_up", { name: userDoc.name, id: uid });
       await setDoc(userRef, userDoc);
-      setUserId(analytics, nameToSlug(userDoc.name));
+      // setUserId(analytics, nameToSlug(userDoc.name));
       return userDoc;
     }
   } catch (e) {
